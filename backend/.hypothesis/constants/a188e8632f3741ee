@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\dispute.py
+# hypothesis_version: 6.151.9
+
+['Settlement', 'User', 'disputes', 'pending', 'rejected', 'resolved', 'settlements.id', 'under_review', 'users.id']

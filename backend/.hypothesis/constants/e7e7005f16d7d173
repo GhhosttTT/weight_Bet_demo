@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\schemas\notification.py
+# hypothesis_version: 6.151.9
+
+['Additional data', 'Device token', 'Notification body', 'Notification title', 'Notification type', 'Target user ID', 'android', 'check_in_reminder', 'check_in_review', 'ios', 'plan_activated', 'plan_expired', 'plan_invitation', 'settlement_completed']

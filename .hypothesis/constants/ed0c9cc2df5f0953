@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\services\user_service.py
+# hypothesis_version: 6.151.9
+
+['DELETED', 'User not found: {}', 'active', 'age', 'amount', 'as_creator', 'as_participant', 'available_balance', 'balance', 'bet_amount', 'betting_plans', 'check_in_date', 'check_ins', 'completed_at', 'created_at', 'creator', 'creator_achieved', 'creator_amount', 'creator_final_weight', 'current_weight', 'description', 'email', 'end_date', 'export_date', 'frozen_balance', 'gender', 'height', 'id', 'initial_weight', 'nickname', 'note', 'participant', 'participant_achieved', 'participant_amount', 'pending', 'photo_url', 'plan_id', 'platform_fee', 'related_plan_id', 'review_status', 'role', 'settlement_date', 'settlements', 'start_date', 'status', 'target_weight', 'target_weight_loss', 'transactions', 'type', 'updated_at', 'user', 'weight', '无权限修改其他用户信息', '无权限修改其他用户支付方式', '无权限删除其他用户账户', '无权限导出其他用户数据', '用户不存在']

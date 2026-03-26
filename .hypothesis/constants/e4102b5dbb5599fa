@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\users.py
+# hypothesis_version: 6.151.9
+
+[100, '/{user_id}', '/{user_id}/export', 'Content-Disposition', 'action', 'created_at', 'details', 'id', 'ip_address', 'limit', 'logs', 'message', 'offset', 'resource_id', 'resource_type', 'total', 'user', 'user.delete_account', 'user.export_data', '无权限查看其他用户信息', '无权限查询其他用户的审计日志', '账户已成功删除']

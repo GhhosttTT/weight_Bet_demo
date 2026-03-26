@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\middleware\rate_limit.py
+# hypothesis_version: 6.151.9
+
+[100, '/', '/api/docs', '/api/openapi.json', '/api/redoc', '/health', '0', 'Retry-After', 'X-RateLimit-Limit', 'X-RateLimit-Reset', 'detail', 'retry_after', 'unknown', 'user_id', '请求过于频繁,请稍后再试']

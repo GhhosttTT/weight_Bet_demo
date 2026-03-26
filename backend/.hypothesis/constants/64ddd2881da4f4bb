@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\audit_log.py
+# hypothesis_version: 6.151.9
+
+[100, 'User', 'audit_logs', 'users.id']

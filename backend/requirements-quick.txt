@@ -1,0 +1,25 @@
+# 快速启动依赖 - 使用预编译版本
+
+# FastAPI 核心 (使用较新版本，有预编译的 wheel)
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+pydantic>=2.6.0
+pydantic-settings>=2.1.0
+
+# 数据库
+sqlalchemy>=2.0.25
+alembic>=1.13.0
+
+# 认证和安全
+python-jose[cryptography]
+passlib[bcrypt]
+python-multipart
+
+# 工具库
+python-dotenv
+loguru
+
+# 测试
+pytest
+pytest-asyncio
+httpx

@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\redis_client.py
+# hypothesis_version: 6.151.9
+
+['REDIS_URL', 'expire', 'zadd', 'zcard', 'zremrangebyscore']

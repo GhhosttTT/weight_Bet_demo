@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\pending_actions.py
+# hypothesis_version: 6.151.9
+
+['/me/pending-actions', 'doubleChecks', 'fromUserId', 'id', 'initiatorId', 'invitations', 'invite', 'isFirstTime', 'isPending', 'message', 'planId', 'reason', 'type']

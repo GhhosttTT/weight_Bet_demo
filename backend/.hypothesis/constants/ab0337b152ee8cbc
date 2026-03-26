@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\services\fund_manager.py
+# hypothesis_version: 6.151.9
+
+['platform', '付款账户余额不存在', '付款账户余额不足', '余额不足', '冻结余额不足', '收款账户余额不存在', '未找到冻结记录', '解冻资金失败', '计划已放弃，对方获胜', '计划已放弃，赌金已退还', '账户余额不存在']

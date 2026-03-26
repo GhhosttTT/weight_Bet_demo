@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\schemas\betting_plan.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.01, 30.0, 300.0, 365, 500, 'end_date', 'initial_weight', 'start_date', 'target_weight', 'target_weight_loss']

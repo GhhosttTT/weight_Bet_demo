@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\services\plan_status_manager.py
+# hypothesis_version: 6.151.9
+
+['只有创建者可以放弃待接受状态的计划', '只有参与者可以放弃进行中的计划', '计划已放弃，对方获胜', '计划已放弃，赌金已退还', '资金解冻失败']

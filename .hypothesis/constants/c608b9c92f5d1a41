@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\payments.py
+# hypothesis_version: 6.151.9
+
+['/charge', '/withdraw', 'amount', 'message', 'success', '余额不足', '充值成功', '提现成功', '无权限查看其他用户交易历史', '无权限查看其他用户余额', '账户不存在']

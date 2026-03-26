@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\middleware\auth.py
+# hypothesis_version: 6.151.9
+
+['Bearer', 'WWW-Authenticate', 'access', 'sub', 'type', '无效的访问令牌', '用户不存在']

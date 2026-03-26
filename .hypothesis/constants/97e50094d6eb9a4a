@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\comment.py
+# hypothesis_version: 6.151.9
+
+['betting_plans.id', 'comments', 'users.id']

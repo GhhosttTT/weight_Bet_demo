@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\device_token.py
+# hypothesis_version: 6.151.9
+
+['android', 'device_tokens', 'ios', 'users.id']

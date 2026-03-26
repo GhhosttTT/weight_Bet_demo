@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\invitations.py
+# hypothesis_version: 6.151.9
+
+['/invitations', 'bet_amount', 'creator_id', 'creator_name', 'description', 'duration_days', 'end_date', 'invitation_id', 'invitations', 'invitee_email', 'invitee_id', 'inviter_id', 'inviter_name', 'message', 'plan', 'plan_id', 'responded_at', 'sent_at', 'start_date', 'status', 'target_weight_loss', 'total', 'viewed_at', '只有被邀请者可以标记为已查看', '无权限查看此邀请', '邀请不存在', '邀请已标记为已查看', '邀请状态筛选']

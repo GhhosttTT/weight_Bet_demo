@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\betting_plan.py
+# hypothesis_version: 6.151.9
+
+['Invitation', 'User', 'active', 'betting_plans', 'cancelled', 'completed', 'expired', 'pending', 'plan', 'rejected', 'users.id']

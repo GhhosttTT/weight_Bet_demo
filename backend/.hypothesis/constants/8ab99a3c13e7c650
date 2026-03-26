@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\settlements.py
+# hypothesis_version: 6.151.9
+
+[100, 'dispute_id', 'settlement_id', 'user_id', '关联计划不存在', '您不是该计划的参与者', '您已经提交过争议', '您无权查看此结算记录', '提交争议失败: {}', '结算记录不存在', '计划不存在']

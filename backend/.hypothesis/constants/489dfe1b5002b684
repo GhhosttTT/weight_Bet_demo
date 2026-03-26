@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\balance.py
+# hypothesis_version: 6.151.9
+
+[0.0, 'User', 'balances', 'frozen_balance >= 0', 'users.id']

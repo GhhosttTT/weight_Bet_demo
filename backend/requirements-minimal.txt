@@ -1,0 +1,28 @@
+# 最小依赖 - 用于快速启动测试
+
+# FastAPI 核心依赖
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# 数据库 (使用 SQLite 进行测试)
+sqlalchemy==2.0.23
+alembic==1.13.0
+
+# Redis (可选，可以使用内存缓存代替)
+# redis==5.0.1
+
+# 认证和安全
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.6
+
+# 工具库
+python-dotenv==1.0.0
+loguru==0.7.2
+
+# 测试
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.2

@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\middleware\security.py
+# hypothesis_version: 6.151.9
+
+[100, "('.*OR.*'.*=.*')", '(--.*)', '(/\\*.*\\*/)', '(;.*--)', '(\\bAND\\b.*=.*)', '(\\bOR\\b.*=.*)', '/', '/api/docs', '/api/openapi.json', '/api/redoc', '/health', '1; mode=block', '<applet[^>]*>', '<embed[^>]*>', '<iframe[^>]*>', '<object[^>]*>', 'DELETE', 'DENY', 'JSON array item', 'JSON field', 'PATCH', 'POST', 'PUT', 'X-CSRF-Token', 'X-CSRFToken', 'X-Frame-Options', 'X-XSS-Protection', 'application/json', 'content-type', "default-src 'self'", 'detail', 'input', 'javascript:', 'nosniff', 'on\\w+\\s*=', 'origin', 'query parameter', 'referer', '请求参数验证失败']

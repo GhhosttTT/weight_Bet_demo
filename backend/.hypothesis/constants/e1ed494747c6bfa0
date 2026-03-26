@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\notifications.py
+# hypothesis_version: 6.151.9
+
+['/notifications/send', 'message']

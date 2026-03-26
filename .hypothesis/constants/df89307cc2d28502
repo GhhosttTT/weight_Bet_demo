@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\auth.py
+# hypothesis_version: 6.151.9
+
+['/google', '/login', '/logout', '/refresh', '/register', 'message', '登出成功']

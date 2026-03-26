@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\schemas\social.py
+# hypothesis_version: 6.151.9
+
+[500, 'Comment content', 'champion', 'check_in_streak', 'first_challenge', 'month_streak', 'week_streak', 'weight_loss', 'weight_loss_master', 'win_rate']

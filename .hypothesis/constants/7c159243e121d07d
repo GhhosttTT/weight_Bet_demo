@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\schemas\settlement.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.01, 0.1, 'creator_amount', 'participant_amount', 'platform_fee', 'total_bet']

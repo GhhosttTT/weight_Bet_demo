@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\services\invitation_service.py
+# hypothesis_version: 6.151.9
+
+['Plan not found: {}', 'bet_amount', 'duration_days', 'invitation_id', 'inviter_name', 'plan_id', 'target_weight_loss', '不能邀请自己', '只有创建者可以邀请好友', '用户不存在', '计划不存在', '计划状态不允许邀请', '该用户已被邀请', '邀请不存在', '邮箱格式无效']

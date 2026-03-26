@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\main.py
+# hypothesis_version: 6.151.9
+
+[100, 1000, '*', '/', '/api', '/api/auth', '/api/betting-plans', '/api/docs', '/api/openapi.json', '/api/payments', '/api/redoc', '/api/social', '/api/users', '/health', 'API Support', 'Debug mode: {}', 'MIT', 'Shutting down {}', 'Starting {} v{}', 'description', 'email', 'healthy', 'name', 'running', 'shutdown', 'startup', 'status', 'version', '充值、提现、余额查询、交易历史', '对赌计划', '打卡', '排行榜、评论、鼓励、勋章系统、群组挑战', '推送通知、设备令牌注册', '支付', '用户', '用户个人信息管理、统计数据查询', '用户注册、登录、令牌刷新等认证相关操作', '社交', '结算', '自动结算、查询结算详情、争议处理', '认证', '通知', '邀请']

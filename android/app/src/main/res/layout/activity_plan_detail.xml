@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.google.android.material.appbar.MaterialToolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="?attr/colorPrimary"
+            android:elevation="4dp"
+            app:title="计划详情"
+            app:titleTextColor="@android:color/white"
+            app:navigationIcon="@drawable/ic_arrow_back" />
+
+        <LinearLayout
+            android:id="@+id/layoutContent"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="24dp"
+            android:visibility="gone">
+
+            <!-- Status Badge -->
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="进行中"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:padding="8dp"
+                android:background="@android:color/holo_green_light"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Bet Amount -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="赌金金额"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/tvBetAmount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¥100.00"
+                android:textSize="32sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="16dp" />
+
+            <!-- Date Range -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="计划时间"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+            
+            <TextView
+                android:id="@+id/tvDateRange"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="2024-01-01 至 2024-03-31"
+                android:textSize="16sp"
+                android:layout_marginBottom="16dp" />
+            
+            <!-- Creator Info -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="创建者"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp" />
+            
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp">
+            
+                <TextView
+                    android:id="@+id/tvCreatorNickname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="昵称"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp" />
+            
+                <TextView
+                    android:id="@+id/tvCreatorEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="邮箱"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="8dp" />
+            
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="创建者目标"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="4dp" />
+            
+                <TextView
+                    android:id="@+id/tvCreatorGoal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="80kg → 70kg (减重 10kg)"
+                    android:textSize="16sp" />
+            
+            </LinearLayout>
+            
+            <!-- Participant Info (shown when participant exists) -->
+            <TextView
+                android:id="@+id/tvParticipantLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="参与者"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textColor="@android:color/darker_gray"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="gone" />
+            
+            <LinearLayout
+                android:id="@+id/layoutParticipantInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_card"
+                android:padding="16dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone">
+            
+                <TextView
+                    android:id="@+id/tvParticipantNickname"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="昵称"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp" />
+            
+                <TextView
+                    android:id="@+id/tvParticipantEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="邮箱"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="8dp" />
+            
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="参与者目标"
+                    android:textSize="14sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:layout_marginBottom="4dp" />
+            
+                <TextView
+                    android:id="@+id/tvParticipantGoal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="75kg → 65kg (减重 10kg)"
+                    android:textSize="16sp" />
+            
+            </LinearLayout>
+            
+            <!-- Description -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="计划描述"
+                android:textSize="14sp"
+                android:textColor="@android:color/darker_gray" />
+
+            <TextView
+                android:id="@+id/tvDescription"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="一起减肥吧!"
+                android:textSize="16sp"
+                android:layout_marginBottom="32dp" />
+
+            <!-- Invite Friends Button (for pending plans created by current user) -->
+            <Button
+                android:id="@+id/btnInviteFriend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="邀请好友"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- Check-in Button (for active plans) -->
+            <Button
+                android:id="@+id/btnCheckIn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="打卡签到"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- Abandon Plan Button (for pending and active plans) -->
+            <Button
+                android:id="@+id/btnAbandonPlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="放弃计划"
+                android:backgroundTint="@color/design_default_color_error"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- Revoke Plan Button (for creator to revoke pending plans) -->
+            <Button
+                android:id="@+id/btnRevokePlan"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="撤销计划 (退还赌金)"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone" />
+
+            <!-- Confirm Plan Button (for creator to confirm participant's plan) -->
+            <LinearLayout
+                android:id="@+id/layoutConfirmPlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="gone"
+                android:layout_marginBottom="16dp">
+
+                <Button
+                    android:id="@+id/btnConfirmPlan"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="确认计划生效"
+                    android:layout_marginEnd="8dp" />
+
+                <Button
+                    android:id="@+id/btnRejectParticipant"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:text="不通过"
+                    android:layout_marginStart="8dp" />
+
+            </LinearLayout>
+
+            <!-- Accept Plan Section (for pending plans) -->
+            <LinearLayout
+                android:id="@+id/layoutAcceptPlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="设置你的目标"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp" />
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="你的初始体重 (kg)"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etParticipantInitialWeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:hint="你的目标体重 (kg)"
+                    android:layout_marginBottom="16dp">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/etParticipantTargetWeight"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="numberDecimal" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/btnReject"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="拒绝计划"
+                        android:layout_marginStart="8dp" />
+
+                    <Button
+                        android:id="@+id/btnAccept"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="接受计划"
+                        android:layout_marginEnd="8dp" />
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+        <!-- Loading indicator -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="32dp" />
+
+    </LinearLayout>
+
+</ScrollView>

@@ -1,0 +1,113 @@
+package com.weightloss.betting.ui.profile
+
+import android.os.Bundle
+import android.view.View
+import android.widget.ArrayAdapter
+import android.widget.Toast
+import androidx.activity.viewModels
+import androidx.appcompat.app.AppCompatActivity
+import com.weightloss.betting.R
+import com.weightloss.betting.databinding.ActivityEditProfileBinding
+import dagger.hilt.android.AndroidEntryPoint
+
+@AndroidEntryPoint
+class EditProfileActivity : AppCompatActivity() {
+    
+    private lateinit var binding: ActivityEditProfileBinding
+    private val viewModel: EditProfileViewModel by viewModels()
+    
+    // TODO: Get actual user ID from session/preferences
+    private val userId = "current_user_id"
+    
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityEditProfileBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        
+        setupGenderSpinner()
+        setupObservers()
+        setupListeners()
+        
+        // Load current user data
+        viewModel.loadUserProfile(userId)
+    }
+    
+    private fun setupGenderSpinner() {
+        val genderOptions = arrayOf("男", "女", "其他")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.spinnerGender.adapter = adapter
+    }
+    
+    private fun setupObservers() {
+        viewModel.currentUser.observe(this) { user ->
+            user?.let {
+                // Populate fields with current user data
+                binding.etNickname.setText(it.nickname)
+                binding.spinnerGender.setSelection(
+                    when (it.gender) {
+                        "male" -> 0
+                        "female" -> 1
+                        else -> 2
+                    }
+                )
+                binding.etAge.setText(it.age.toString())
+                binding.etHeight.setText(it.height.toString())
+                binding.etCurrentWeight.setText(it.currentWeight.toString())
+                it.targetWeight?.let { tw ->
+                    binding.etTargetWeight.setText(tw.toString())
+                }
+            }
+        }
+        
+        viewModel.editProfileState.observe(this) { state ->
+            when (state) {
+                is EditProfileState.Idle -> {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnSave.isEnabled = true
+                }
+                is EditProfileState.Loading -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.btnSave.isEnabled = false
+                }
+                is EditProfileState.Success -> {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnSave.isEnabled = true
+                    Toast.makeText(this, "更新成功", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
+                is EditProfileState.Error -> {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnSave.isEnabled = true
+                    Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    
+    private fun setupListeners() {
+        binding.btnSave.setOnClickListener {
+            val nickname = binding.etNickname.text.toString()
+            val genderPosition = binding.spinnerGender.selectedItemPosition
+            val gender = when (genderPosition) {
+                0 -> "male"
+                1 -> "female"
+                else -> "other"
+            }
+            val age = binding.etAge.text.toString()
+            val height = binding.etHeight.text.toString()
+            val currentWeight = binding.etCurrentWeight.text.toString()
+            val targetWeight = binding.etTargetWeight.text.toString()
+            
+            viewModel.updateProfile(
+                userId = userId,
+                nickname = nickname,
+                gender = gender,
+                age = age,
+                height = height,
+                currentWeight = currentWeight,
+                targetWeight = targetWeight.ifBlank { null }
+            )
+        }
+    }
+}

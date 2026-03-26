@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\services\betting_plan_service.py
+# hypothesis_version: 6.151.9
+
+[365, 'Plan not found: {}', 'message', '不能接受自己创建的计划', '余额不足', '只有创建者可以取消计划', '只能取消未生效的计划', '目标体重必须小于初始体重', '结束日期必须晚于开始日期', '计划不存在', '计划已取消', '计划已拒绝', '计划时长不能超过 365 天', '计划状态不允许拒绝', '计划状态不允许接受', '赌金金额必须大于 0']

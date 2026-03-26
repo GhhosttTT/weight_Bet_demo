@@ -1,0 +1,11 @@
+PWD= F:\study\tracker\backend
+settings.DATABASE_URL= sqlite:///./weight_loss_betting.db
+engine.url= sqlite:///F:\study\tracker\backend\weight_loss_betting.db
+Tables via engine: ['alembic_version', 'audit_logs', 'balances', 'betting_plans', 'check_ins', 'invitations', 'settlements', 'transactions', 'users']
+Resolved sqlite path: F:\study\tracker\backend\weight_loss_betting.db
+File exists: True
+Tables in file: [('alembic_version',), ('users',), ('betting_plans',), ('balances',), ('audit_logs',), ('check_ins',), ('settlements',), ('invitations',), ('transactions',)]
+Called Base.metadata.create_all on engine
+Nested path: F:\study\tracker\backend\backend\weight_loss_betting.db
+Created tables on nested path
+Tables in nested file: []

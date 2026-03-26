@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\schemas\dispute.py
+# hypothesis_version: 6.151.9
+
+[500, 2000, '争议原因', '管理员备注', '详细描述']

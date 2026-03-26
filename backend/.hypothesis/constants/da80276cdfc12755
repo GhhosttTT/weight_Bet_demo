@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\betting_plans.py
+# hypothesis_version: 6.151.9
+
+[100, 201, '/{plan_id}', '/{plan_id}/abandon', '/{plan_id}/accept', '/{plan_id}/cancel', '/{plan_id}/confirm', '/{plan_id}/reject', '/{plan_id}/revoke', 'cancel', 'cancelled', 'confirm', 'message', 'plan_id', 'refunded_amount', 'reject', 'status', 'success', 'transferred_amount', '无权限查看其他用户的计划', '未知的 action 值', '计划状态筛选']

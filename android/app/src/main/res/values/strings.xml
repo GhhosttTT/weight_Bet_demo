@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">减肥对赌</string>
+    
+    <!-- Gender options -->
+    <string-array name="gender_options">
+        <item>男</item>
+        <item>女</item>
+        <item>其他</item>
+    </string-array>
+</resources>

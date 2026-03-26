@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\badge.py
+# hypothesis_version: 6.151.9
+
+['champion', 'first_challenge', 'month_streak', 'user_badges', 'users.id', 'week_streak', 'weight_loss_master']

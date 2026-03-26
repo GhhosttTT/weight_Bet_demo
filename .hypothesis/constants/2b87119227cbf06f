@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\services\payment_service.py
+# hypothesis_version: 6.151.9
+
+[1.0, 10.0, 'Transfer failed: {}', 'attempt', 'delay', 'max_retries', '付款方余额不足', '付款方账户不存在', '余额不足', '冻结资金失败: {}', '收款方账户不存在', '账户余额不存在', '转账失败: {}']

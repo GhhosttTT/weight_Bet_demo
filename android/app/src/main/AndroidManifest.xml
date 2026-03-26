@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" 
+        android:maxSdkVersion="28" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+
+    <application
+        android:name=".WeightLossBettingApp"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.WeightLossBetting"
+        android:usesCleartextTraffic="true"
+        tools:targetApi="31">
+        
+        <!-- 启动页 - 检查登录状态 -->
+        <activity
+            android:name=".ui.auth.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.WeightLossBetting">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        
+        <!-- 登录界面 -->
+        <activity
+            android:name=".ui.auth.LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <!-- 注册界面 -->
+        <activity
+            android:name=".ui.auth.RegisterActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <!-- 主界面 -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <!-- 用户信息管理 (Task 21) -->
+        <activity
+            android:name=".ui.profile.ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <activity
+            android:name=".ui.profile.EditProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <!-- 对赌计划功能 (Task 22) -->
+        <activity
+            android:name=".ui.plan.PlanListActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <activity
+            android:name=".ui.plan.CreatePlanActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <activity
+            android:name=".ui.plan.PlanDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <!-- 打卡功能 (Task 23) -->
+        <activity
+            android:name=".ui.checkin.CheckInActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <!-- 支付功能 (Task 24) -->
+        <activity
+            android:name=".ui.payment.BalanceActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <activity
+            android:name=".ui.payment.ChargeActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <activity
+            android:name=".ui.payment.WithdrawActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <!-- 社交功能 (Task 26) -->
+        <activity
+            android:name=".ui.social.LeaderboardActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <activity
+            android:name=".ui.social.BadgesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+        
+        <!-- FCM Service (Task 25) -->
+        <service
+            android:name=".service.FCMService"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+    </application>
+
+</manifest>

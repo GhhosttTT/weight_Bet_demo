@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\services\auth_service.py
+# hypothesis_version: 6.151.9
+
+[0.0, 70.0, 170.0, '@', 'email', 'name', 'refresh', 'sub', 'type', '无效的 Google ID Token', '无效的刷新令牌', '无法从 Google 获取邮箱信息', '用户不存在', '邮箱已被注册', '邮箱或密码错误']

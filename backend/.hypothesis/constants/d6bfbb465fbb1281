@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\check_ins.py
+# hypothesis_version: 6.151.9
+
+[100, 201, 500, '/check-ins']

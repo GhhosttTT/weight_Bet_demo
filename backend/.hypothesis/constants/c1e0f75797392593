@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\transaction.py
+# hypothesis_version: 6.151.9
+
+['User', 'betting_plans.id', 'charge', 'completed', 'failed', 'freeze', 'pending', 'refund', 'settlements.id', 'transactions', 'transfer', 'unfreeze', 'users.id', 'withdraw']

@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\services\settlement_service.py
+# hypothesis_version: 6.151.9
+
+[0.0, 0.1, 100, 'error', 'error_type', 'failed', 'failed_plans', 'plan_id', 'settlement_id', 'success', 'total', '结算失败: {}', '结算记录不存在', '计划不存在', '计划尚未到期', '计划已结算', '计划状态不允许结算']

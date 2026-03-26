@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\models\check_in.py
+# hypothesis_version: 6.151.9
+
+[500, 'BettingPlan', 'User', 'approved', 'betting_plans.id', 'check_in_date', 'check_ins', 'pending', 'plan_id', 'rejected', 'uq_user_plan_date', 'user_id', 'users.id']

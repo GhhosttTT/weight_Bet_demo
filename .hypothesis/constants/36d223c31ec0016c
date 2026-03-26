@@ -1,0 +1,4 @@
+# file: F:\study\tracker\backend\app\api\betting_plans.py
+# hypothesis_version: 6.151.9
+
+[100, 201, '/{plan_id}', '/{plan_id}/accept', '/{plan_id}/cancel', '/{plan_id}/reject', '无权限查看其他用户的计划', '计划状态筛选']

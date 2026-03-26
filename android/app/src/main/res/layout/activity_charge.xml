@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:elevation="4dp"
+        app:title="充值"
+        app:titleTextColor="@android:color/white"
+        app:navigationIcon="@drawable/ic_arrow_back" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="24dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="充值金额"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="24dp" />
+
+        <!-- Amount input -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="请输入充值金额 (元)"
+            android:layout_marginBottom="16dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etAmount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <!-- Quick amount buttons -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="快捷金额"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="8dp" />
+
+        <com.google.android.material.chip.ChipGroup
+            android:id="@+id/chipGroupAmount"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="32dp"
+            app:singleSelection="true"
+            app:checkedChip="@id/chip50">
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip50"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¥50"
+                android:checkable="true" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip100"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¥100"
+                android:checkable="true" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip200"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¥200"
+                android:checkable="true" />
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chip500"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="¥500"
+                android:checkable="true" />
+
+        </com.google.android.material.chip.ChipGroup>
+
+        <!-- Payment method info -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="支付方式: Stripe"
+            android:textSize="14sp"
+            android:textColor="@android:color/darker_gray"
+            android:layout_marginBottom="32dp" />
+
+        <!-- Charge button -->
+        <Button
+            android:id="@+id/btnCharge"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="立即充值"
+            android:textSize="16sp" />
+
+        <!-- Loading indicator -->
+        <ProgressBar
+            android:id="@+id/progressBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="16dp"
+            android:visibility="gone" />
+
+    </LinearLayout>
+
+</LinearLayout>

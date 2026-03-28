@@ -26,7 +26,8 @@
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:padding="24dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            android:background="@color/xui_config_color_background">
 
             <!-- Status Badge -->
             <TextView
@@ -34,11 +35,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="进行中"
-                android:textSize="16sp"
+                android:textSize="14sp"
                 android:textStyle="bold"
-                android:padding="8dp"
-                android:background="@android:color/holo_green_light"
-                android:layout_marginBottom="16dp" />
+                android:textColor="@color/white"
+                android:background="@drawable/bg_status_badge"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:layout_marginBottom="24dp" />
 
             <!-- Bet Amount -->
             <TextView
@@ -46,16 +51,17 @@
                 android:layout_height="wrap_content"
                 android:text="赌金金额"
                 android:textSize="14sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@color/xui_config_color_text_gray" />
 
             <TextView
                 android:id="@+id/tvBetAmount"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="¥100.00"
-                android:textSize="32sp"
+                android:textSize="40sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
+                android:textColor="@color/purple_700"
+                android:layout_marginBottom="24dp" />
 
             <!-- Date Range -->
             <TextView
@@ -63,7 +69,7 @@
                 android:layout_height="wrap_content"
                 android:text="计划时间"
                 android:textSize="14sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@color/xui_config_color_text_gray" />
             
             <TextView
                 android:id="@+id/tvDateRange"
@@ -71,61 +77,70 @@
                 android:layout_height="wrap_content"
                 android:text="2024-01-01 至 2024-03-31"
                 android:textSize="16sp"
-                android:layout_marginBottom="16dp" />
+                android:textColor="@color/xui_config_color_text_title"
+                android:layout_marginBottom="24dp" />
             
             <!-- Creator Info -->
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="创建者"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp" />
+                android:textColor="@color/xui_config_color_text_title"
+                android:layout_marginBottom="12dp" />
             
-            <LinearLayout
+            <com.xuexiang.xui.widget.cardview.XUICardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp">
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="24dp">
             
-                <TextView
-                    android:id="@+id/tvCreatorNickname"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="昵称"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
+                    android:orientation="vertical"
+                    android:padding="20dp">
             
-                <TextView
-                    android:id="@+id/tvCreatorEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="邮箱"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:id="@+id/tvCreatorNickname"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="昵称"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/xui_config_color_text_title"
+                        android:layout_marginBottom="6dp" />
             
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="创建者目标"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvCreatorEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="邮箱"
+                        android:textSize="14sp"
+                        android:textColor="@color/xui_config_color_text_gray"
+                        android:layout_marginBottom="12dp" />
             
-                <TextView
-                    android:id="@+id/tvCreatorGoal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="80kg → 70kg (减重 10kg)"
-                    android:textSize="16sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="创建者目标"
+                        android:textSize="14sp"
+                        android:textColor="@color/xui_config_color_text_gray"
+                        android:layout_marginBottom="6dp" />
             
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvCreatorGoal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="80kg → 70kg (减重 10kg)"
+                        android:textSize="16sp"
+                        android:textColor="@color/xui_config_color_text_content" />
+            
+                </LinearLayout>
+            
+            </com.xuexiang.xui.widget.cardview.XUICardView>
             
             <!-- Participant Info (shown when participant exists) -->
             <TextView
@@ -133,57 +148,65 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="参与者"
-                android:textSize="14sp"
+                android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginTop="8dp"
-                android:layout_marginBottom="8dp"
+                android:textColor="@color/xui_config_color_text_title"
+                android:layout_marginBottom="12dp"
                 android:visibility="gone" />
             
-            <LinearLayout
+            <com.xuexiang.xui.widget.cardview.XUICardView
                 android:id="@+id/layoutParticipantInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:background="@drawable/bg_card"
-                android:padding="16dp"
-                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="12dp"
+                app:cardElevation="4dp"
+                android:layout_marginBottom="24dp"
                 android:visibility="gone">
             
-                <TextView
-                    android:id="@+id/tvParticipantNickname"
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="昵称"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp" />
+                    android:orientation="vertical"
+                    android:padding="20dp">
             
-                <TextView
-                    android:id="@+id/tvParticipantEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="邮箱"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:layout_marginBottom="8dp" />
+                    <TextView
+                        android:id="@+id/tvParticipantNickname"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="昵称"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/xui_config_color_text_title"
+                        android:layout_marginBottom="6dp" />
             
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="参与者目标"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvParticipantEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="邮箱"
+                        android:textSize="14sp"
+                        android:textColor="@color/xui_config_color_text_gray"
+                        android:layout_marginBottom="12dp" />
             
-                <TextView
-                    android:id="@+id/tvParticipantGoal"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="75kg → 65kg (减重 10kg)"
-                    android:textSize="16sp" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="参与者目标"
+                        android:textSize="14sp"
+                        android:textColor="@color/xui_config_color_text_gray"
+                        android:layout_marginBottom="6dp" />
             
-            </LinearLayout>
+                    <TextView
+                        android:id="@+id/tvParticipantGoal"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="75kg → 65kg (减重 10kg)"
+                        android:textSize="16sp"
+                        android:textColor="@color/xui_config_color_text_content" />
+            
+                </LinearLayout>
+            
+            </com.xuexiang.xui.widget.cardview.XUICardView>
             
             <!-- Description -->
             <TextView
@@ -191,7 +214,7 @@
                 android:layout_height="wrap_content"
                 android:text="计划描述"
                 android:textSize="14sp"
-                android:textColor="@android:color/darker_gray" />
+                android:textColor="@color/xui_config_color_text_gray" />
 
             <TextView
                 android:id="@+id/tvDescription"
@@ -199,44 +222,69 @@
                 android:layout_height="wrap_content"
                 android:text="一起减肥吧!"
                 android:textSize="16sp"
+                android:textColor="@color/xui_config_color_text_content"
                 android:layout_marginBottom="32dp" />
 
             <!-- Invite Friends Button (for pending plans created by current user) -->
-            <Button
+            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                 android:id="@+id/btnInviteFriend"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="邀请好友"
+                android:textSize="16sp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
                 android:layout_marginBottom="16dp"
+                app:rb_radius="20dp"
+                app:rb_backgroundColor="@color/purple_500"
+                app:rb_textColor="@color/white"
                 android:visibility="gone" />
 
             <!-- Check-in Button (for active plans) -->
-            <Button
+            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                 android:id="@+id/btnCheckIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="打卡签到"
+                android:textSize="16sp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
                 android:layout_marginBottom="16dp"
+                app:rb_radius="20dp"
+                app:rb_backgroundColor="@color/teal_200"
+                app:rb_textColor="@color/black"
                 android:visibility="gone" />
 
             <!-- Abandon Plan Button (for pending and active plans) -->
-            <Button
+            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                 android:id="@+id/btnAbandonPlan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="放弃计划"
-                android:backgroundTint="@color/design_default_color_error"
+                android:textSize="16sp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
                 android:layout_marginBottom="16dp"
+                app:rb_radius="20dp"
+                app:rb_backgroundColor="@color/xui_config_color_error"
+                app:rb_textColor="@color/white"
                 android:visibility="gone" />
 
             <!-- Revoke Plan Button (for creator to revoke pending plans) -->
-            <Button
+            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                 android:id="@+id/btnRevokePlan"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="撤销计划 (退还赌金)"
+                android:textSize="16sp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
                 android:layout_marginBottom="16dp"
+                app:rb_radius="20dp"
+                app:rb_strokeWidth="2dp"
+                app:rb_strokeColor="@color/purple_500"
+                app:rb_textColor="@color/purple_500"
+                app:rb_backgroundColor="@color/white"
                 android:visibility="gone" />
 
             <!-- Confirm Plan Button (for creator to confirm participant's plan) -->
@@ -248,21 +296,35 @@
                 android:visibility="gone"
                 android:layout_marginBottom="16dp">
 
-                <Button
+                <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                     android:id="@+id/btnConfirmPlan"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="确认计划生效"
-                    android:layout_marginEnd="8dp" />
+                    android:textSize="16sp"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp"
+                    android:layout_marginEnd="8dp"
+                    app:rb_radius="20dp"
+                    app:rb_backgroundColor="@color/purple_500"
+                    app:rb_textColor="@color/white" />
 
-                <Button
+                <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                     android:id="@+id/btnRejectParticipant"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="不通过"
-                    android:layout_marginStart="8dp" />
+                    android:textSize="16sp"
+                    android:paddingTop="14dp"
+                    android:paddingBottom="14dp"
+                    android:layout_marginStart="8dp"
+                    app:rb_radius="20dp"
+                    app:rb_strokeWidth="2dp"
+                    app:rb_strokeColor="@color/xui_config_color_error"
+                    app:rb_textColor="@color/xui_config_color_error"
+                    app:rb_backgroundColor="@color/white" />
 
             </LinearLayout>
 
@@ -280,13 +342,15 @@
                     android:text="设置你的目标"
                     android:textSize="18sp"
                     android:textStyle="bold"
+                    android:textColor="@color/xui_config_color_text_title"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="你的初始体重 (kg)"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="16dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etParticipantInitialWeight"
@@ -299,7 +363,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="你的目标体重 (kg)"
-                    android:layout_marginBottom="16dp">
+                    android:layout_marginBottom="24dp"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/etParticipantTargetWeight"
@@ -313,21 +378,35 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <Button
+                    <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                         android:id="@+id/btnReject"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="拒绝计划"
-                        android:layout_marginStart="8dp" />
+                        android:textSize="16sp"
+                        android:paddingTop="14dp"
+                        android:paddingBottom="14dp"
+                        android:layout_marginStart="8dp"
+                        app:rb_radius="20dp"
+                        app:rb_strokeWidth="2dp"
+                        app:rb_strokeColor="@color/xui_config_color_error"
+                        app:rb_textColor="@color/xui_config_color_error"
+                        app:rb_backgroundColor="@color/white" />
 
-                    <Button
+                    <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                         android:id="@+id/btnAccept"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="接受计划"
-                        android:layout_marginEnd="8dp" />
+                        android:textSize="16sp"
+                        android:paddingTop="14dp"
+                        android:paddingBottom="14dp"
+                        android:layout_marginEnd="8dp"
+                        app:rb_radius="20dp"
+                        app:rb_backgroundColor="@color/purple_500"
+                        app:rb_textColor="@color/white" />
 
                 </LinearLayout>
 

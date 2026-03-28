@@ -8,6 +8,7 @@ import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import com.weightloss.betting.R
 import com.weightloss.betting.databinding.ActivityEditProfileBinding
+import com.weightloss.betting.util.GenderMapper
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -33,8 +34,7 @@ class EditProfileActivity : AppCompatActivity() {
     }
     
     private fun setupGenderSpinner() {
-        val genderOptions = arrayOf("男", "女", "其他")
-        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genderOptions)
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, GenderMapper.displayOptions)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerGender.adapter = adapter
     }
@@ -44,13 +44,7 @@ class EditProfileActivity : AppCompatActivity() {
             user?.let {
                 // Populate fields with current user data
                 binding.etNickname.setText(it.nickname)
-                binding.spinnerGender.setSelection(
-                    when (it.gender) {
-                        "male" -> 0
-                        "female" -> 1
-                        else -> 2
-                    }
-                )
+                binding.spinnerGender.setSelection(GenderMapper.getPosition(it.gender))
                 binding.etAge.setText(it.age.toString())
                 binding.etHeight.setText(it.height.toString())
                 binding.etCurrentWeight.setText(it.currentWeight.toString())
@@ -88,12 +82,8 @@ class EditProfileActivity : AppCompatActivity() {
     private fun setupListeners() {
         binding.btnSave.setOnClickListener {
             val nickname = binding.etNickname.text.toString()
-            val genderPosition = binding.spinnerGender.selectedItemPosition
-            val gender = when (genderPosition) {
-                0 -> "male"
-                1 -> "female"
-                else -> "other"
-            }
+            val genderDisplay = binding.spinnerGender.selectedItem.toString()
+            val gender = GenderMapper.toValue(genderDisplay)
             val age = binding.etAge.text.toString()
             val height = binding.etHeight.text.toString()
             val currentWeight = binding.etCurrentWeight.text.toString()

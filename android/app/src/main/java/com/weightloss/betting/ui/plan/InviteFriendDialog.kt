@@ -14,6 +14,7 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.weightloss.betting.R
 import com.weightloss.betting.data.model.UserSearchResult
 import com.weightloss.betting.databinding.DialogInviteFriendBinding
+import com.weightloss.betting.util.GenderMapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -133,11 +134,7 @@ class InviteFriendDialog : DialogFragment() {
     private fun displaySearchResult(user: UserSearchResult) {
         binding.tvFriendName.text = "姓名：${user.nickname}"
         binding.tvFriendAge.text = "年龄：${user.age}岁"
-        binding.tvFriendGender.text = "性别：${when (user.gender.lowercase()) {
-            "male" -> "男"
-            "female" -> "女"
-            else -> user.gender
-        }}"
+        binding.tvFriendGender.text = "性别：${GenderMapper.toDisplay(user.gender)}"
         
         // Enable confirm button after displaying result
         binding.btnConfirmInvite.isEnabled = true

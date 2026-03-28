@@ -6,7 +6,9 @@ struct AppTheme {
     // MARK: - Colors
     
     struct Colors {
-        static let primary = UIColor.systemBlue
+        static let primary = UIColor(red: 0.592, green: 0.373, blue: 0.988, alpha: 1.0)
+        static let primaryLight = UIColor(red: 0.702, green: 0.514, blue: 0.992, alpha: 1.0)
+        static let primaryDark = UIColor(red: 0.455, green: 0.227, blue: 0.851, alpha: 1.0)
         static let secondary = UIColor.systemGreen
         static let accent = UIColor.systemOrange
         static let error = UIColor.systemRed

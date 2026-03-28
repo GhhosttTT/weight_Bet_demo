@@ -48,31 +48,15 @@
                     android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Start Date -->
+            <!-- Date Range -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="开始日期"
+                android:hint="计划日期范围"
                 android:layout_marginBottom="16dp">
 
                 <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etStartDate"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:clickable="true"
-                    android:inputType="none" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- End Date -->
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="结束日期"
-                android:layout_marginBottom="16dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etEndDate"
+                    android:id="@+id/etDateRange"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:focusable="false"
@@ -125,12 +109,17 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Create Button -->
-            <Button
+            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
                 android:id="@+id/btnCreate"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="创建计划"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
+                app:rb_radius="24dp"
+                app:rb_backgroundColor="@color/purple_500"
+                app:rb_textColor="@color/white" />
 
             <!-- Loading indicator -->
             <ProgressBar

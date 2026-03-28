@@ -11,6 +11,7 @@ import com.weightloss.betting.R
 import com.weightloss.betting.data.remote.NetworkResult
 import com.weightloss.betting.data.model.DoubleCheckItem
 import com.weightloss.betting.data.model.InvitationItem
+import com.weightloss.betting.data.model.SettlementItem
 import com.weightloss.betting.data.repository.AuthRepository
 import com.weightloss.betting.databinding.ActivityMainBinding
 import com.weightloss.betting.ui.checkin.CheckInActivity
@@ -131,6 +132,14 @@ class MainActivity : AppCompatActivity() {
                             showDoubleCheckDialog(doubleCheck, shownKey)
                         }
                     }
+                    // 如果有待结算的计划，显示结算弹窗（只显示一次）
+                    if (pendingActions.settlements.isNotEmpty()) {
+                        val settlement = pendingActions.settlements.first()
+                        val shownKey = "settlement_shown_${settlement.planId}"
+                        if (!prefs.getBoolean(shownKey, false)) {
+                            showSettlementDialog(settlement, shownKey)
+                        }
+                    }
                 }
                 is NetworkResult.Error -> {
                     // 非致命错误，仅记录日志
@@ -170,6 +179,25 @@ class MainActivity : AppCompatActivity() {
                 // 跳转到计划详情页进行确认
                 val intent = Intent(this, PlanDetailActivity::class.java)
                 intent.putExtra("PLAN_ID", doubleCheck.planId)
+                startActivity(intent)
+            }
+            .setNegativeButton("稍后再说") { _, _ ->
+                // 标记为已显示
+                prefs.edit().putBoolean(shownKey, true).apply()
+            }
+            .show()
+    }
+    
+    private fun showSettlementDialog(settlement: SettlementItem, shownKey: String) {
+        androidx.appcompat.app.AlertDialog.Builder(this)
+            .setTitle("计划结算提醒")
+            .setMessage("您的对赌计划已到期，请前往进行结算")
+            .setPositiveButton("去结算") { _, _ ->
+                // 标记为已显示
+                prefs.edit().putBoolean(shownKey, true).apply()
+                // 跳转到计划详情页进行结算
+                val intent = Intent(this, PlanDetailActivity::class.java)
+                intent.putExtra("PLAN_ID", settlement.planId)
                 startActivity(intent)
             }
             .setNegativeButton("稍后再说") { _, _ ->

@@ -11,6 +11,7 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.databinding.FragmentProfileBinding
+import com.weightloss.betting.util.GenderMapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -100,11 +101,7 @@ class ProfileFragment : Fragment() {
         android.util.Log.d("ProfileFragment", "Displaying user info: $user")
         binding.tvNickname.text = user.nickname
         binding.tvEmail.text = user.email
-        binding.tvGender.text = when (user.gender) {
-            "male" -> "男"
-            "female" -> "女"
-            else -> "其他"
-        }
+        binding.tvGender.text = GenderMapper.toDisplay(user.gender)
         binding.tvAge.text = "${user.age} 岁"
         binding.tvHeight.text = "${user.height} cm"
         binding.tvCurrentWeight.text = "${user.currentWeight} kg"

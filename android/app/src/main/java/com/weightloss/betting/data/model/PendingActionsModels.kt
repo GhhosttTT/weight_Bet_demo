@@ -10,7 +10,21 @@ data class PendingActionsResponse(
     val invitations: List<InvitationItem> = emptyList(),
     
     @SerializedName("doubleChecks")
-    val doubleChecks: List<DoubleCheckItem> = emptyList()
+    val doubleChecks: List<DoubleCheckItem> = emptyList(),
+    
+    @SerializedName("settlements")
+    val settlements: List<SettlementItem> = emptyList()
+)
+
+/**
+ * Settlement Item
+ */
+data class SettlementItem(
+    @SerializedName("planId")
+    val planId: String,
+    
+    @SerializedName("isPending")
+    val isPending: Boolean
 )
 
 /**

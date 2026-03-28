@@ -1,6 +1,7 @@
 package com.weightloss.betting
 
 import android.app.Application
+import com.xuexiang.xui.XUI
 import dagger.hilt.android.HiltAndroidApp
 
 /**
@@ -11,6 +12,9 @@ class WeightLossBettingApp : Application() {
     
     override fun onCreate() {
         super.onCreate()
+        // 初始化 XUI
+        XUI.init(this)
+        XUI.debug(true)
         // 初始化应用级别的配置
     }
 }

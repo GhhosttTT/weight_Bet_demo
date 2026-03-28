@@ -151,7 +151,7 @@ POST /betting-plans/{id}/doublecheck:
 ```
 
 
-### 日常打卡与结算流程
+### 打卡与结算流程
 
 ```mermaid
 sequenceDiagram

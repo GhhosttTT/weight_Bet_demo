@@ -3,37 +3,34 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@color/xui_config_color_background">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="24dp">
+        android:orientation="vertical"
+        android:gravity="center_horizontal"
+        android:padding="32dp">
 
         <!-- Logo or App Name -->
-        <TextView
-            android:id="@+id/tvAppName"
+        <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="减肥对赌 APP"
-            android:textSize="32sp"
+            android:text="减肥对赌"
+            android:textSize="36sp"
             android:textStyle="bold"
-            android:textColor="@color/design_default_color_primary"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="48dp" />
+            android:textColor="@color/purple_700"
+            android:layout_marginTop="64dp"
+            android:layout_marginBottom="64dp" />
 
         <!-- Email Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="邮箱"
-            app:layout_constraintTop_toBottomOf="@id/tvAppName"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="48dp"
+            android:layout_marginBottom="16dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -48,13 +45,10 @@
         <!-- Password Input -->
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="密码"
-            app:layout_constraintTop_toBottomOf="@id/tilEmail"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="16dp"
+            android:layout_marginBottom="32dp"
             app:passwordToggleEnabled="true"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
@@ -68,44 +62,43 @@
         </com.google.android.material.textfield.TextInputLayout>
 
         <!-- Login Button -->
-        <com.google.android.material.button.MaterialButton
+        <com.xuexiang.xui.widget.button.roundbutton.RoundButton
             android:id="@+id/btnLogin"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="登录"
             android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/tilPassword"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp"
-            android:padding="12dp" />
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            app:rb_radius="24dp"
+            app:rb_backgroundColor="@color/purple_500"
+            app:rb_textColor="@color/white" />
 
         <!-- Google Login Button -->
-        <com.google.android.material.button.MaterialButton
+        <com.xuexiang.xui.widget.button.roundbutton.RoundButton
             android:id="@+id/btnGoogleLogin"
-            android:layout_width="0dp"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="使用 Google 登录"
             android:textSize="16sp"
-            app:layout_constraintTop_toBottomOf="@id/btnLogin"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="16dp"
-            android:padding="12dp"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+            android:paddingTop="14dp"
+            android:paddingBottom="14dp"
+            app:rb_radius="24dp"
+            app:rb_strokeWidth="2dp"
+            app:rb_strokeColor="@color/purple_500"
+            app:rb_textColor="@color/purple_500"
+            app:rb_backgroundColor="@color/white" />
 
         <!-- Register Link -->
-        <TextView
+        <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
             android:id="@+id/tvRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="还没有账号？立即注册"
             android:textSize="14sp"
-            android:textColor="@color/design_default_color_primary"
-            app:layout_constraintTop_toBottomOf="@id/btnGoogleLogin"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="24dp"
+            android:textColor="@color/purple_500"
+            android:layout_marginTop="32dp"
             android:clickable="true"
             android:focusable="true" />
 
@@ -115,11 +108,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
+            android:layout_marginTop="32dp" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </ScrollView>

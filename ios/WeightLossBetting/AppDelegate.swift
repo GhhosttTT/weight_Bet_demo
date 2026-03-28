@@ -2,11 +2,17 @@ import UIKit
 import Firebase
 import UserNotifications
 import GoogleSignIn
+import IQKeyboardManagerSwift
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        // Configure IQKeyboardManager
+        IQKeyboardManager.shared.enable = true
+        IQKeyboardManager.shared.enableAutoToolbar = true
+        IQKeyboardManager.shared.shouldResignOnTouchOutside = true
+        
         // Configure Firebase
         FirebaseApp.configure()
         

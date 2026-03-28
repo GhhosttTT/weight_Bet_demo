@@ -63,26 +63,26 @@ class HomeFragment : Fragment() {
                     is NetworkResult.Success -> {
                         val stats = result.data
                         android.util.Log.d("HomeFragment", "Stats loaded: ${stats.activePlansCount} active plans")
-                        binding.tvActivePlans.text = "进行中的计划：${stats.activePlansCount}"
-                        binding.tvTotalCheckIns.text = "累计打卡：${stats.totalCheckInDays} 天"
+                        binding.tvActivePlans.text = "${stats.activePlansCount}"
+                        binding.tvTotalCheckIns.text = "${stats.totalCheckInDays}"
                         // 账户余额需要从其他 API 获取，这里暂时显示 0
-                        binding.tvBalance.text = "账户余额：¥0.00"
+                        binding.tvBalance.text = "¥0.00"
                     }
                     is NetworkResult.Error -> {
                         android.util.Log.e("HomeFragment", "Failed to load stats: ${result.exception.message}")
                         // 加载失败，显示默认值
-                        binding.tvActivePlans.text = "进行中的计划：0"
-                        binding.tvTotalCheckIns.text = "累计打卡：0 天"
-                        binding.tvBalance.text = "账户余额：¥0.00"
+                        binding.tvActivePlans.text = "0"
+                        binding.tvTotalCheckIns.text = "0"
+                        binding.tvBalance.text = "¥0.00"
                     }
                     else -> {}
                 }
             } else {
                 android.util.Log.w("HomeFragment", "User not logged in")
                 // 用户未登录，显示默认值
-                binding.tvActivePlans.text = "进行中的计划：0"
-                binding.tvTotalCheckIns.text = "累计打卡：0 天"
-                binding.tvBalance.text = "账户余额：¥0.00"
+                binding.tvActivePlans.text = "0"
+                binding.tvTotalCheckIns.text = "0"
+                binding.tvBalance.text = "¥0.00"
             }
         }
     }

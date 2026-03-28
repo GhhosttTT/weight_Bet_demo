@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@color/xui_config_color_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,105 +18,165 @@
             android:text="减肥对赌"
             android:textSize="28sp"
             android:textStyle="bold"
+            android:textColor="@color/xui_config_color_text_title"
             android:layout_marginBottom="24dp" />
 
         <!-- Quick actions -->
-        <com.google.android.material.card.MaterialCardView
+        <com.xuexiang.xui.widget.layout.XUILinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginBottom="16dp">
+
+            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+                android:id="@+id/btnCreatePlan"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="创建计划"
+                android:textSize="16sp"
+                android:layout_marginEnd="8dp"
+                app:rb_radius="12dp"
+                app:rb_backgroundColor="@color/purple_500"
+                app:rb_textColor="@color/white" />
+
+            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+                android:id="@+id/btnCheckIn"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="每日打卡"
+                android:textSize="16sp"
+                android:layout_marginStart="8dp"
+                app:rb_radius="12dp"
+                app:rb_backgroundColor="@color/teal_200"
+                app:rb_textColor="@color/black" />
+
+        </com.xuexiang.xui.widget.layout.XUILinearLayout>
+
+        <!-- Statistics Card -->
+        <com.xuexiang.xui.widget.cardview.XUICardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="16dp">
+                android:padding="20dp">
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="快捷操作"
-                    android:textSize="18sp"
+                    android:text="我的统计"
+                    android:textSize="20sp"
                     android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
+                    android:textColor="@color/xui_config_color_text_title"
+                    android:layout_marginBottom="16dp" />
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <Button
-                        android:id="@+id/btnCreatePlan"
+                    <com.xuexiang.xui.widget.layout.XUILinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="创建计划"
-                        android:layout_marginEnd="8dp" />
+                        android:orientation="vertical"
+                        android:gravity="center">
 
-                    <Button
-                        android:id="@+id/btnCheckIn"
+                        <TextView
+                            android:id="@+id/tvActivePlans"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/purple_500" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="进行中的计划"
+                            android:textSize="14sp"
+                            android:textColor="@color/xui_config_color_text_gray"
+                            android:layout_marginTop="4dp" />
+
+                    </com.xuexiang.xui.widget.layout.XUILinearLayout>
+
+                    <View
+                        android:layout_width="1dp"
+                        android:layout_height="match_parent"
+                        android:background="@color/xui_config_color_divider" />
+
+                    <com.xuexiang.xui.widget.layout.XUILinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
-                        android:text="每日打卡"
-                        android:layout_marginStart="8dp" />
+                        android:orientation="vertical"
+                        android:gravity="center">
+
+                        <TextView
+                            android:id="@+id/tvTotalCheckIns"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="0"
+                            android:textSize="28sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/teal_200" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="累计打卡"
+                            android:textSize="14sp"
+                            android:textColor="@color/xui_config_color_text_gray"
+                            android:layout_marginTop="4dp" />
+
+                    </com.xuexiang.xui.widget.layout.XUILinearLayout>
+
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginBottom="16dp"
+                    android:background="@color/xui_config_color_divider" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="账户余额"
+                        android:textSize="16sp"
+                        android:textColor="@color/xui_config_color_text_content" />
+
+                    <TextView
+                        android:id="@+id/tvBalance"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:gravity="end"
+                        android:text="¥0.00"
+                        android:textSize="24sp"
+                        android:textStyle="bold"
+                        android:textColor="@color/purple_700" />
 
                 </LinearLayout>
 
             </LinearLayout>
 
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Statistics -->
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardElevation="4dp"
-            app:cardCornerRadius="12dp">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="16dp">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="我的统计"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="12dp" />
-
-                <TextView
-                    android:id="@+id/tvActivePlans"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="进行中的计划: 0"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tvTotalCheckIns"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="累计打卡: 0 天"
-                    android:textSize="16sp"
-                    android:layout_marginBottom="8dp" />
-
-                <TextView
-                    android:id="@+id/tvBalance"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="账户余额: ¥0.00"
-                    android:textSize="16sp" />
-
-            </LinearLayout>
-
-        </com.google.android.material.card.MaterialCardView>
+        </com.xuexiang.xui.widget.cardview.XUICardView>
 
     </LinearLayout>
 

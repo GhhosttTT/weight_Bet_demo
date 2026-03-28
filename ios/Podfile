@@ -27,6 +27,10 @@ target 'WeightLossBetting' do
   
   # Keychain for secure storage
   pod 'KeychainAccess', '~> 4.2'
+  
+  # UI Components
+  pod 'SnapKit', '~> 5.0'
+  pod 'IQKeyboardManagerSwift', '~> 6.5'
 
   target 'WeightLossBettingTests' do
     inherit! :search_paths

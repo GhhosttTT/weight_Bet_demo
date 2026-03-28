@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.weightloss.betting.R
 import com.weightloss.betting.databinding.ActivityRegisterBinding
 import com.weightloss.betting.ui.MainActivity
+import com.weightloss.betting.util.GenderMapper
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -31,9 +32,8 @@ class RegisterActivity : AppCompatActivity() {
     }
     
     private fun setupViews() {
-        // 设置性别下拉框
-        val genders = arrayOf("male", "female", "other")
-        val genderAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, genders)
+        // 设置性别下拉框 - 显示中文选项
+        val genderAdapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, GenderMapper.displayOptions)
         genderAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.spinnerGender.adapter = genderAdapter
         
@@ -43,7 +43,8 @@ class RegisterActivity : AppCompatActivity() {
             val password = binding.etPassword.text.toString()
             val confirmPassword = binding.etConfirmPassword.text.toString()
             val nickname = binding.etNickname.text.toString()
-            val gender = binding.spinnerGender.selectedItem.toString()
+            val genderDisplay = binding.spinnerGender.selectedItem.toString()
+            val gender = GenderMapper.toValue(genderDisplay)
             val age = binding.etAge.text.toString().toIntOrNull() ?: 0
             val height = binding.etHeight.text.toString().toDoubleOrNull() ?: 0.0
             val currentWeight = binding.etCurrentWeight.text.toString().toDoubleOrNull() ?: 0.0

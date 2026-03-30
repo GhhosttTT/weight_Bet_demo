@@ -44,7 +44,7 @@ class WithdrawViewModel @Inject constructor(
             return
         }
         
-        val request = WithdrawRequest(userId = "current_user_id", amount = amountDouble)
+        val request = WithdrawRequest(amount = amountDouble, paymentMethodId = "default")
         
         viewModelScope.launch {
             _withdrawState.value = WithdrawState.Loading

@@ -48,41 +48,6 @@
                     android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <!-- Photo upload -->
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="上传体重秤照片 (可选)"
-                android:textSize="14sp"
-                android:layout_marginBottom="8dp" />
-
-            <ImageView
-                android:id="@+id/ivPhoto"
-                android:layout_width="200dp"
-                android:layout_height="200dp"
-                android:scaleType="centerCrop"
-                android:background="@android:color/darker_gray"
-                android:layout_gravity="center"
-                android:layout_marginBottom="8dp"
-                android:contentDescription="体重秤照片" />
-
-            <Button
-                android:id="@+id/btnSelectPhoto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="选择照片"
-                android:layout_gravity="center"
-                android:layout_marginBottom="16dp"
-                style="@style/Widget.Material3.Button.OutlinedButton" />
-
-            <ProgressBar
-                android:id="@+id/progressBarPhoto"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone" />
-
             <!-- Note input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
@@ -100,12 +65,21 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Submit button -->
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnSubmit"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="60dp"
                 android:text="提交打卡"
-                android:textSize="16sp" />
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:cornerRadius="16dp"
+                app:icon="@android:drawable/ic_menu_save"
+                app:iconGravity="textStart"
+                app:iconTint="@null"
+                android:paddingStart="32dp"
+                android:paddingEnd="32dp"
+                android:elevation="8dp"
+                android:backgroundTint="@color/teal_700" />
 
             <!-- Loading indicator -->
             <ProgressBar

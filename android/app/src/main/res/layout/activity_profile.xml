@@ -3,150 +3,294 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@color/xui_config_color_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="个人信息"
-            android:textSize="24sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="24dp" />
+        <!-- 顶部 Header -->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="200dp"
+            android:background="@color/purple_500"
+            android:padding="24dp">
 
-        <!-- 昵称 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="昵称"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
+            <TextView
+                android:id="@+id/tvHeaderTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="个人主页"
+                android:textSize="24sp"
+                android:textStyle="bold"
+                android:textColor="@color/white"
+                android:layout_marginTop="16dp" />
 
-        <TextView
-            android:id="@+id/tvNickname"
+            <TextView
+                android:id="@+id/tvHeaderSubtitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="保持健康，享受生活"
+                android:textSize="14sp"
+                android:textColor="#E0E0E0"
+                android:layout_below="@id/tvHeaderTitle"
+                android:layout_marginTop="8dp" />
+        </RelativeLayout>
+
+        <!-- 信息卡片列表 -->
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="18sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="-40dp"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="8dp">
 
-        <!-- 性别 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="性别"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="8dp">
 
-        <TextView
-            android:id="@+id/tvGender"
+                <!-- 昵称 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:src="@drawable/ic_launcher_foreground"
+                        android:contentDescription="昵称"
+                        android:layout_marginEnd="12dp" />
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="昵称"
+                            android:textSize="12sp"
+                            android:textColor="#999999" />
+                        <TextView
+                            android:id="@+id/tvNickname"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/xui_config_color_text_title" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+
+                <!-- 性别 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="性别"
+                            android:textSize="12sp"
+                            android:textColor="#999999" />
+                        <TextView
+                            android:id="@+id/tvGender"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/xui_config_color_text_title" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+
+                <!-- 年龄 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="年龄"
+                            android:textSize="12sp"
+                            android:textColor="#999999" />
+                        <TextView
+                            android:id="@+id/tvAge"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/xui_config_color_text_title" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+
+                <!-- 身高 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="身高 (cm)"
+                            android:textSize="12sp"
+                            android:textColor="#999999" />
+                        <TextView
+                            android:id="@+id/tvHeight"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/xui_config_color_text_title" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+
+                <!-- 当前体重 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="当前体重 (kg)"
+                            android:textSize="12sp"
+                            android:textColor="#999999" />
+                        <TextView
+                            android:id="@+id/tvCurrentWeight"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/purple_700" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+
+                <!-- 目标体重 -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:padding="16dp"
+                    android:gravity="center_vertical">
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="目标体重 (kg)"
+                            android:textSize="12sp"
+                            android:textColor="#999999" />
+                        <TextView
+                            android:id="@+id/tvTargetWeight"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="-"
+                            android:textSize="20sp"
+                            android:textStyle="bold"
+                            android:textColor="@color/teal_700" />
+                    </LinearLayout>
+                </LinearLayout>
+
+            </LinearLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <!-- 操作按钮区域 -->
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="18sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp" />
+            android:orientation="vertical"
+            android:padding="24dp">
 
-        <!-- 年龄 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="年龄"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="编辑信息"
+                android:textSize="16sp"
+                app:cornerRadius="12dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:backgroundTint="@color/purple_500" />
 
-        <TextView
-            android:id="@+id/tvAge"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="18sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp" />
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnLogout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="退出登录"
+                android:textSize="16sp"
+                android:layout_marginTop="12dp"
+                app:cornerRadius="12dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:textColor="@color/xui_config_color_error"
+                app:strokeColor="@color/xui_config_color_error" />
 
-        <!-- 身高 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="身高 (cm)"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
+            <!-- 加载进度条 -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="16dp"
+                android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tvHeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="18sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp" />
-
-        <!-- 当前体重 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="当前体重 (kg)"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
-
-        <TextView
-            android:id="@+id/tvCurrentWeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="18sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="16dp" />
-
-        <!-- 目标体重 -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="目标体重 (kg)"
-            android:textSize="14sp"
-            android:textColor="@android:color/darker_gray" />
-
-        <TextView
-            android:id="@+id/tvTargetWeight"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="-"
-            android:textSize="18sp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="32dp" />
-
-        <!-- 编辑按钮 -->
-        <Button
-            android:id="@+id/btnEdit"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="编辑信息"
-            android:textSize="16sp" />
-
-        <!-- 退出登录按钮 -->
-        <Button
-            android:id="@+id/btnLogout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="退出登录"
-            android:textSize="16sp"
-            android:layout_marginTop="16dp"
-            android:backgroundTint="@android:color/holo_red_light" />
-
-        <!-- 加载进度条 -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="16dp"
-            android:visibility="gone" />
+        </LinearLayout>
 
     </LinearLayout>
 

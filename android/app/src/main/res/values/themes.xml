@@ -1,12 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="Theme.WeightLossBetting" parent="XUITheme.Purple">
+    <!-- 主主题：修改父类为 MaterialComponents 以支持 TextInputLayout -->
+    <style name="Theme.WeightLossBetting" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryVariant">@color/purple_700</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <item name="colorSecondary">@color/teal_200</item>
-        <item name="colorSecondaryVariant">@color/teal_700</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <item name="android:statusBarColor">?attr/colorPrimaryVariant</item>
+        <item name="colorPrimaryDark">@color/purple_700</item>
+        <item name="colorAccent">@color/purple_200</item>
+        <item name="android:statusBarColor">@color/purple_700</item>
+        
+        <!-- XUI 兼容属性 -->
+        <item name="XUIThemeStyle">@style/XUITheme.Phone</item>
     </style>
+
+    <style name="XUITheme.Purple" parent="XUITheme.Phone">
+        <item name="colorPrimary">@color/purple_500</item>
+        <item name="colorPrimaryDark">@color/purple_700</item>
+        <item name="colorAccent">@color/purple_200</item>
+    </style>
+    
+    <!-- 常用 XUI 主题定义，防止其他库引用 -->
+    <style name="XUITheme.Blue" parent="XUITheme.Phone" />
+    <style name="XUITheme.Green" parent="XUITheme.Phone" />
+    <style name="XUITheme.Red" parent="XUITheme.Phone" />
 </resources>

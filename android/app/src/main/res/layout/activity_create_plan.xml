@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@color/xui_config_color_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -18,7 +19,8 @@
             android:elevation="4dp"
             app:title="创建对赌计划"
             app:titleTextColor="@android:color/white"
-            app:navigationIcon="@drawable/ic_arrow_back" />
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@android:color/white" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -32,6 +34,7 @@
                 android:text="创建新的对赌计划"
                 android:textSize="24sp"
                 android:textStyle="bold"
+                android:textColor="@color/xui_config_color_text_title"
                 android:layout_marginBottom="24dp" />
 
             <!-- Bet Amount -->
@@ -39,7 +42,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="赌金金额 (元)"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etBetAmount"
@@ -53,7 +57,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="计划日期范围"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDateRange"
@@ -69,7 +74,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="初始体重 (kg)"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etInitialWeight"
@@ -83,7 +89,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="目标体重 (kg)"
-                android:layout_marginBottom="16dp">
+                android:layout_marginBottom="16dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etTargetWeight"
@@ -97,7 +104,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="计划描述 (可选)"
-                android:layout_marginBottom="32dp">
+                android:layout_marginBottom="32dp"
+                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etDescription"

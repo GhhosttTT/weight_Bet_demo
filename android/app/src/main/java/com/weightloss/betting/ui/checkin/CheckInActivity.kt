@@ -1,56 +1,20 @@
 package com.weightloss.betting.ui.checkin
 
-import android.Manifest
-import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
-import coil.load
 import com.weightloss.betting.databinding.ActivityCheckInBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
-import java.io.File
 
 @AndroidEntryPoint
-class CheckInActivity : AppCompatActivity() {
+class CheckInActivity : BaseActivity() {
     
     private lateinit var binding: ActivityCheckInBinding
     private val viewModel: CheckInViewModel by viewModels()
     
-    private lateinit var photoUploadHelper: PhotoUploadHelper
-    private var selectedPhotoPath: String? = null
     private var planId: String? = null
-    
-    private val cameraLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            photoUploadHelper.handleCameraResult()
-        }
-    }
-    
-    private val galleryLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode == RESULT_OK) {
-            photoUploadHelper.handleGalleryResult(result.data)
-        }
-    }
-    
-    private val permissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { permissions ->
-        val allGranted = permissions.values.all { it }
-        if (allGranted) {
-            showPhotoSourceDialog()
-        } else {
-            Toast.makeText(this, "需要相机和存储权限才能上传照片", Toast.LENGTH_SHORT).show()
-        }
-    }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,11 +27,6 @@ class CheckInActivity : AppCompatActivity() {
             Toast.makeText(this, "计划ID无效", Toast.LENGTH_SHORT).show()
             finish()
             return
-        }
-        
-        photoUploadHelper = PhotoUploadHelper(this) { photoPath ->
-            selectedPhotoPath = photoPath
-            binding.ivPhoto.load(File(photoPath))
         }
         
         setupToolbar()
@@ -106,42 +65,9 @@ class CheckInActivity : AppCompatActivity() {
     }
     
     private fun setupListeners() {
-        binding.btnSelectPhoto.setOnClickListener {
-            checkPermissionsAndSelectPhoto()
-        }
-        
         binding.btnSubmit.setOnClickListener {
             submitCheckIn()
         }
-    }
-    
-    private fun checkPermissionsAndSelectPhoto() {
-        val permissions = arrayOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        )
-        
-        val allGranted = permissions.all {
-            ContextCompat.checkSelfPermission(this, it) == PackageManager.PERMISSION_GRANTED
-        }
-        
-        if (allGranted) {
-            showPhotoSourceDialog()
-        } else {
-            permissionLauncher.launch(permissions)
-        }
-    }
-    
-    private fun showPhotoSourceDialog() {
-        AlertDialog.Builder(this)
-            .setTitle("选择照片来源")
-            .setItems(arrayOf("拍照", "从相册选择")) { _, which ->
-                when (which) {
-                    0 -> cameraLauncher.launch(photoUploadHelper.getCameraIntent())
-                    1 -> galleryLauncher.launch(photoUploadHelper.getGalleryIntent())
-                }
-            }
-            .show()
     }
     
     private fun submitCheckIn() {

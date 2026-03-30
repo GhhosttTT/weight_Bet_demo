@@ -36,7 +36,6 @@ class CheckInRepository @Inject constructor(
         // For now, only online mode is supported
             
         val request = CreateCheckInRequest(
-            userId = data.userId,
             planId = data.planId,
             weight = data.weight,
             checkInDate = formatToString(data.checkInDate),

@@ -6,16 +6,16 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.weightloss.betting.databinding.ActivityLoginBinding
 import com.weightloss.betting.ui.MainActivity
+import com.weightloss.betting.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
  * 登录界面
  */
 @AndroidEntryPoint
-class LoginActivity : AppCompatActivity() {
+class LoginActivity : BaseActivity() {
     
     private lateinit var binding: ActivityLoginBinding
     private val viewModel: LoginViewModel by viewModels()

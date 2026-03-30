@@ -2,10 +2,10 @@ package com.weightloss.betting.ui.auth
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.ui.MainActivity
+import com.weightloss.betting.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -14,7 +14,7 @@ import javax.inject.Inject
  * 启动页 - 检查用户登录状态
  */
 @AndroidEntryPoint
-class SplashActivity : AppCompatActivity() {
+class SplashActivity : BaseActivity() {
     
     @Inject
     lateinit var tokenManager: TokenManager

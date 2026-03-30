@@ -5,15 +5,15 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.weightloss.betting.databinding.ActivityPlanDetailBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import com.weightloss.betting.ui.checkin.CheckInActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
-class PlanDetailActivity : AppCompatActivity() {
+class PlanDetailActivity : BaseActivity() {
     
     private lateinit var binding: ActivityPlanDetailBinding
     private val viewModel: PlanDetailViewModel by viewModels()

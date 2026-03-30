@@ -6,10 +6,10 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.weightloss.betting.R
 import com.weightloss.betting.databinding.ActivityRegisterBinding
 import com.weightloss.betting.ui.MainActivity
+import com.weightloss.betting.ui.base.BaseActivity
 import com.weightloss.betting.util.GenderMapper
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -17,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint
  * 注册界面
  */
 @AndroidEntryPoint
-class RegisterActivity : AppCompatActivity() {
+class RegisterActivity : BaseActivity() {
     
     private lateinit var binding: ActivityRegisterBinding
     private val viewModel: RegisterViewModel by viewModels()

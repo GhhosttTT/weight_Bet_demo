@@ -95,25 +95,27 @@ sequenceDiagram
 #### 3.1.2 邀请与一次性弹窗机制
 
 **设计要点**：
-- 后端保存邀请记录（Invitation），包含字段 `seen_by_invitee: bool`
-- 被邀请方 B 首次打开 App 时，检查有待处理的邀请则弹窗提示
-- 弹窗展示后标记为已显示，后续不再重复展示
-- 若需要创建者确认，设置 `plan.pending_double_check_for_creator = true`
+- 弹窗触发范围：仅针对**尚未进行中的计划**（状态为 `pending` 或 `waiting_double_check`）
+- 对于已接受（`active`）或已 double-check 过的计划，不再弹出提示
+- 后端根据计划状态筛选待处理项，避免重复提示
+- 前端使用 SharedPreferences 记录已显示的弹窗，确保每种弹窗只显示一次
+
+**弹窗触发条件**：
+1. **邀请弹窗**：仅当邀请状态为 `pending` 且计划状态为 `pending` 时触发
+2. **Double-Check 弹窗**：仅当计划状态为 `waiting_double_check` 时触发
+3. **结算弹窗**：仅当计划状态为 `active` 且已到期尚未结算时触发
 
 **相关接口**：
 ```yaml
 GET /me/pending-actions:
-  description: 检查一次性邀请/待确认事项
+  description: 检查一次性邀请/待确认事项（仅返回未处理计划）
   response:
     invitations: [{id, planId, fromUserId, message, type, isFirstTime}]
+      # 仅返回 status == pending 的邀请
     doubleChecks: [{planId, initiatorId, reason, isPending}]
-
-POST /invitations/{id}/mark-seen:
-  description: 标记邀请已展示
-  
-POST /betting-plans/{id}/doublecheck:
-  description: 标记 double-check 已处理
-  body: {userId, action: confirm|cancel, comment}
+      # 仅返回 status == waiting_double_check 的计划
+    settlements: [{planId, isPending}]
+      # 仅返回 status == active 且已到期未结算的计划
 ```
 
 #### 1.3 Double-Check 确认流程

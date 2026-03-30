@@ -145,6 +145,11 @@ class InviteFriendDialog : DialogFragment() {
         android.util.Log.d("InviteFriendDialog", "btnSearchFriend: ${binding.btnSearchFriend}")
         android.util.Log.d("InviteFriendDialog", "btnCancel: ${binding.btnCancel}")
         
+        // 关闭按钮
+        binding.btnClose.setOnClickListener {
+            dismiss()
+        }
+        
         binding.btnSearchFriend.setOnClickListener {
             android.util.Log.d("InviteFriendDialog", "Search button clicked")
             val email = binding.emailInput.text.toString().trim()

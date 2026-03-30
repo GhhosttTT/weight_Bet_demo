@@ -1,5 +1,6 @@
 package com.weightloss.betting.ui
 
+import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -9,10 +10,13 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.weightloss.betting.R
 import com.weightloss.betting.data.remote.NetworkResult
+import com.weightloss.betting.data.model.BettingPlan
 import com.weightloss.betting.data.model.DoubleCheckItem
 import com.weightloss.betting.data.model.InvitationItem
 import com.weightloss.betting.data.model.SettlementItem
 import com.weightloss.betting.data.repository.AuthRepository
+import com.weightloss.betting.data.repository.BettingPlanRepository
+import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.databinding.ActivityMainBinding
 import com.weightloss.betting.ui.checkin.CheckInActivity
 import com.weightloss.betting.ui.main.HomeFragment
@@ -21,6 +25,7 @@ import com.weightloss.betting.ui.plan.PlanListActivity
 import com.weightloss.betting.ui.plan.PlanListFragment
 import com.weightloss.betting.ui.profile.ProfileActivity
 import com.weightloss.betting.ui.profile.ProfileFragment
+import com.weightloss.betting.util.EdgeSwipeBackHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +40,12 @@ class MainActivity : AppCompatActivity() {
     
     @Inject
     lateinit var authRepository: AuthRepository
+    
+    @Inject
+    lateinit var bettingPlanRepository: BettingPlanRepository
+    
+    @Inject
+    lateinit var tokenManager: TokenManager
     
     private lateinit var binding: ActivityMainBinding
     private lateinit var prefs: SharedPreferences
@@ -59,6 +70,9 @@ class MainActivity : AppCompatActivity() {
         
         // 检查待处理操作
         checkPendingActions()
+        
+        // 启用边缘滑动返回
+        EdgeSwipeBackHelper.enableForFragmentActivity(this)
     }
     
     private fun setupBottomNavigation() {
@@ -72,10 +86,11 @@ class MainActivity : AppCompatActivity() {
                     loadFragment(PlanListFragment())
                     true
                 }
-                R.id.navigation_checkin -> {
-                    startActivity(Intent(this, CheckInActivity::class.java))
-                    false
-                }
+                // R.id.navigation_checkin -> {
+                //     // 打卡功能已隐藏
+                //     // checkIn()
+                //     true
+                // }
                 R.id.navigation_profile -> {
                     loadFragment(ProfileFragment())
                     true
@@ -109,6 +124,59 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+    
+    private fun checkIn() {
+        CoroutineScope(Dispatchers.Main).launch {
+            val userId = tokenManager.getUserId()
+            if (userId == null) {
+                Toast.makeText(this@MainActivity, "请先登录", Toast.LENGTH_SHORT).show()
+                return@launch
+            }
+            
+            when (val result = bettingPlanRepository.getUserPlans(userId, "active", forceRefresh = true)) {
+                is NetworkResult.Success -> {
+                    val activePlans = result.data
+                    when {
+                        activePlans.isEmpty() -> {
+                            Toast.makeText(this@MainActivity, "没有进行中的计划", Toast.LENGTH_SHORT).show()
+                        }
+                        activePlans.size == 1 -> {
+                            startCheckInActivity(activePlans[0].id)
+                        }
+                        else -> {
+                            showPlanSelectionDialog(activePlans)
+                        }
+                    }
+                }
+                is NetworkResult.Error -> {
+                    Toast.makeText(this@MainActivity, "获取计划列表失败: ${result.exception.message}", Toast.LENGTH_SHORT).show()
+                }
+                else -> {}
+            }
+        }
+    }
+    
+    private fun showPlanSelectionDialog(plans: List<BettingPlan>) {
+        val planNames = plans.map { plan ->
+            val creatorName = plan.creatorNickname ?: plan.creatorEmail ?: "创建者"
+            val participantName = plan.participantNickname ?: plan.participantEmail ?: "参与者"
+            "$creatorName vs $participantName"
+        }.toTypedArray()
+        
+        AlertDialog.Builder(this)
+            .setTitle("选择要打卡的计划")
+            .setItems(planNames) { _, which ->
+                startCheckInActivity(plans[which].id)
+            }
+            .setNegativeButton("取消", null)
+            .show()
+    }
+    
+    private fun startCheckInActivity(planId: String) {
+        val intent = Intent(this, CheckInActivity::class.java)
+        intent.putExtra("PLAN_ID", planId)
+        startActivity(intent)
     }
     
     private fun checkPendingActions() {

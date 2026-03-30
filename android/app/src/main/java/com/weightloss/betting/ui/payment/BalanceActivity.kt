@@ -5,17 +5,17 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.databinding.ActivityBalanceBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class BalanceActivity : AppCompatActivity() {
+class BalanceActivity : BaseActivity() {
     
     private lateinit var binding: ActivityBalanceBinding
     private val viewModel: BalanceViewModel by viewModels()

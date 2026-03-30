@@ -4,13 +4,13 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.weightloss.betting.R
 import com.weightloss.betting.databinding.ActivityChargeBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class ChargeActivity : AppCompatActivity() {
+class ChargeActivity : BaseActivity() {
     
     private lateinit var binding: ActivityChargeBinding
     private val viewModel: ChargeViewModel by viewModels()

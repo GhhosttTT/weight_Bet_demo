@@ -178,8 +178,6 @@ data class CheckIn(
 )
 
 data class CreateCheckInRequest(
-    @SerializedName("user_id")
-    val userId: String,
     @SerializedName("plan_id")
     val planId: String,
     val weight: Double,
@@ -222,8 +220,9 @@ data class ChargeResult(
 )
 
 data class WithdrawRequest(
-    val userId: String,
-    val amount: Double
+    val amount: Double,
+    @SerializedName("payment_method_id")
+    val paymentMethodId: String
 )
 
 data class WithdrawResult(

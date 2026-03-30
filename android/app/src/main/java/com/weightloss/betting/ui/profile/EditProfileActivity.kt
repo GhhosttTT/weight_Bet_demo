@@ -5,20 +5,24 @@ import android.view.View
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.weightloss.betting.R
 import com.weightloss.betting.databinding.ActivityEditProfileBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import com.weightloss.betting.util.GenderMapper
+import com.weightloss.betting.data.remote.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class EditProfileActivity : AppCompatActivity() {
+class EditProfileActivity : BaseActivity() {
+    
+    @Inject
+    lateinit var tokenManager: TokenManager
     
     private lateinit var binding: ActivityEditProfileBinding
     private val viewModel: EditProfileViewModel by viewModels()
-    
-    // TODO: Get actual user ID from session/preferences
-    private val userId = "current_user_id"
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,8 +33,21 @@ class EditProfileActivity : AppCompatActivity() {
         setupObservers()
         setupListeners()
         
+        // 设置返回按钮
+        binding.btnBack.setOnClickListener {
+            finish()
+        }
+        
         // Load current user data
-        viewModel.loadUserProfile(userId)
+        lifecycleScope.launch {
+            val userId = tokenManager.getUserId()
+            if (userId != null) {
+                viewModel.loadUserProfile(userId)
+            } else {
+                Toast.makeText(this@EditProfileActivity, "请先登录", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
     }
     
     private fun setupGenderSpinner() {
@@ -81,23 +98,31 @@ class EditProfileActivity : AppCompatActivity() {
     
     private fun setupListeners() {
         binding.btnSave.setOnClickListener {
-            val nickname = binding.etNickname.text.toString()
-            val genderDisplay = binding.spinnerGender.selectedItem.toString()
-            val gender = GenderMapper.toValue(genderDisplay)
-            val age = binding.etAge.text.toString()
-            val height = binding.etHeight.text.toString()
-            val currentWeight = binding.etCurrentWeight.text.toString()
-            val targetWeight = binding.etTargetWeight.text.toString()
-            
-            viewModel.updateProfile(
-                userId = userId,
-                nickname = nickname,
-                gender = gender,
-                age = age,
-                height = height,
-                currentWeight = currentWeight,
-                targetWeight = targetWeight.ifBlank { null }
-            )
+            lifecycleScope.launch {
+                val userId = tokenManager.getUserId()
+                if (userId == null) {
+                    Toast.makeText(this@EditProfileActivity, "请先登录", Toast.LENGTH_SHORT).show()
+                    return@launch
+                }
+                
+                val nickname = binding.etNickname.text.toString()
+                val genderDisplay = binding.spinnerGender.selectedItem.toString()
+                val gender = GenderMapper.toValue(genderDisplay)
+                val age = binding.etAge.text.toString()
+                val height = binding.etHeight.text.toString()
+                val currentWeight = binding.etCurrentWeight.text.toString()
+                val targetWeight = binding.etTargetWeight.text.toString()
+                
+                viewModel.updateProfile(
+                    userId = userId,
+                    nickname = nickname,
+                    gender = gender,
+                    age = age,
+                    height = height,
+                    currentWeight = currentWeight,
+                    targetWeight = targetWeight.ifBlank { null }
+                )
+            }
         }
     }
 }

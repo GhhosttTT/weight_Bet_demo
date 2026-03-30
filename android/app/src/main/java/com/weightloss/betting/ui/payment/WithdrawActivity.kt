@@ -4,12 +4,12 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.weightloss.betting.databinding.ActivityWithdrawBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class WithdrawActivity : AppCompatActivity() {
+class WithdrawActivity : BaseActivity() {
     
     private lateinit var binding: ActivityWithdrawBinding
     private val viewModel: WithdrawViewModel by viewModels()

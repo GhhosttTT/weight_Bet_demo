@@ -5,16 +5,16 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.databinding.ActivityProfileBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ProfileActivity : AppCompatActivity() {
+class ProfileActivity : BaseActivity() {
     
     private lateinit var binding: ActivityProfileBinding
     private val viewModel: ProfileViewModel by viewModels()

@@ -59,7 +59,7 @@ class CheckInViewModel @Inject constructor(
             _checkInState.value = CheckInState.Loading
             
             val checkInData = CheckInData(
-                userId = "current_user_id", // TODO: Get from auth
+                userId = "", // 不再需要，后端通过 token 获取
                 planId = planId,
                 weight = weightDouble,
                 checkInDate = Date(),

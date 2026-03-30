@@ -4,14 +4,14 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.google.android.material.tabs.TabLayout
 import com.weightloss.betting.databinding.ActivityLeaderboardBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
-class LeaderboardActivity : AppCompatActivity() {
+class LeaderboardActivity : BaseActivity() {
     
     private lateinit var binding: ActivityLeaderboardBinding
     private val viewModel: LeaderboardViewModel by viewModels()

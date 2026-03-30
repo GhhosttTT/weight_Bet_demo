@@ -13,8 +13,8 @@
         android:gravity="center_horizontal"
         android:padding="32dp">
 
-        <!-- Logo or App Name -->
-        <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        <!-- Logo or App Name - 替换为标准 TextView 避免 XUI 类加载失败 -->
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="减肥对赌"
@@ -61,8 +61,8 @@
 
         </com.google.android.material.textfield.TextInputLayout>
 
-        <!-- Login Button -->
-        <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+        <!-- Login Button - 替换为 MaterialButton -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -70,12 +70,12 @@
             android:textSize="16sp"
             android:paddingTop="14dp"
             android:paddingBottom="14dp"
-            app:rb_radius="24dp"
-            app:rb_backgroundColor="@color/purple_500"
-            app:rb_textColor="@color/white" />
+            app:cornerRadius="24dp"
+            android:backgroundTint="@color/purple_500"
+            android:textColor="@color/white" />
 
-        <!-- Google Login Button -->
-        <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+        <!-- Google Login Button - 替换为 MaterialButton -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnGoogleLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -84,14 +84,14 @@
             android:layout_marginTop="16dp"
             android:paddingTop="14dp"
             android:paddingBottom="14dp"
-            app:rb_radius="24dp"
-            app:rb_strokeWidth="2dp"
-            app:rb_strokeColor="@color/purple_500"
-            app:rb_textColor="@color/purple_500"
-            app:rb_backgroundColor="@color/white" />
+            app:cornerRadius="24dp"
+            app:strokeWidth="2dp"
+            app:strokeColor="@color/purple_500"
+            android:textColor="@color/purple_500"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
-        <!-- Register Link -->
-        <com.xuexiang.xui.widget.textview.supertextview.SuperTextView
+        <!-- Register Link - 替换为标准 TextView -->
+        <TextView
             android:id="@+id/tvRegister"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

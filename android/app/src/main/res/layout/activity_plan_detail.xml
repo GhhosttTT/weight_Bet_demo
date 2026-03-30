@@ -18,7 +18,8 @@
             android:elevation="4dp"
             app:title="计划详情"
             app:titleTextColor="@android:color/white"
-            app:navigationIcon="@drawable/ic_arrow_back" />
+            app:navigationIcon="@drawable/ic_arrow_back"
+            app:navigationIconTint="@android:color/white" />
 
         <LinearLayout
             android:id="@+id/layoutContent"
@@ -90,7 +91,8 @@
                 android:textColor="@color/xui_config_color_text_title"
                 android:layout_marginBottom="12dp" />
             
-            <com.xuexiang.xui.widget.cardview.XUICardView
+            <androidx.cardview.widget.CardView
+                android:id="@+id/layoutCreatorCard"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:cardCornerRadius="12dp"
@@ -140,7 +142,7 @@
             
                 </LinearLayout>
             
-            </com.xuexiang.xui.widget.cardview.XUICardView>
+            </androidx.cardview.widget.CardView>
             
             <!-- Participant Info (shown when participant exists) -->
             <TextView
@@ -154,7 +156,7 @@
                 android:layout_marginBottom="12dp"
                 android:visibility="gone" />
             
-            <com.xuexiang.xui.widget.cardview.XUICardView
+            <androidx.cardview.widget.CardView
                 android:id="@+id/layoutParticipantInfo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -206,7 +208,7 @@
             
                 </LinearLayout>
             
-            </com.xuexiang.xui.widget.cardview.XUICardView>
+            </androidx.cardview.widget.CardView>
             
             <!-- Description -->
             <TextView
@@ -226,7 +228,7 @@
                 android:layout_marginBottom="32dp" />
 
             <!-- Invite Friends Button (for pending plans created by current user) -->
-            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnInviteFriend"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -235,13 +237,13 @@
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp"
                 android:layout_marginBottom="16dp"
-                app:rb_radius="20dp"
-                app:rb_backgroundColor="@color/purple_500"
-                app:rb_textColor="@color/white"
+                app:cornerRadius="20dp"
+                android:backgroundTint="@color/purple_500"
+                android:textColor="@color/white"
                 android:visibility="gone" />
 
             <!-- Check-in Button (for active plans) -->
-            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCheckIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -250,13 +252,13 @@
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp"
                 android:layout_marginBottom="16dp"
-                app:rb_radius="20dp"
-                app:rb_backgroundColor="@color/teal_200"
-                app:rb_textColor="@color/black"
+                app:cornerRadius="20dp"
+                android:backgroundTint="@color/teal_200"
+                android:textColor="@color/black"
                 android:visibility="gone" />
 
             <!-- Abandon Plan Button (for pending and active plans) -->
-            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAbandonPlan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -265,13 +267,13 @@
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp"
                 android:layout_marginBottom="16dp"
-                app:rb_radius="20dp"
-                app:rb_backgroundColor="@color/xui_config_color_error"
-                app:rb_textColor="@color/white"
+                app:cornerRadius="20dp"
+                android:backgroundTint="@color/xui_config_color_error"
+                android:textColor="@color/white"
                 android:visibility="gone" />
 
             <!-- Revoke Plan Button (for creator to revoke pending plans) -->
-            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRevokePlan"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -280,14 +282,14 @@
                 android:paddingTop="14dp"
                 android:paddingBottom="14dp"
                 android:layout_marginBottom="16dp"
-                app:rb_radius="20dp"
-                app:rb_strokeWidth="2dp"
-                app:rb_strokeColor="@color/purple_500"
-                app:rb_textColor="@color/purple_500"
-                app:rb_backgroundColor="@color/white"
+                app:cornerRadius="20dp"
+                app:strokeWidth="2dp"
+                app:strokeColor="@color/purple_500"
+                android:textColor="@color/purple_500"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
                 android:visibility="gone" />
 
-            <!-- Confirm Plan Button (for creator to confirm participant's plan) -->
+            <!-- Confirm Plan Button (for creator to confirm participant\'s plan) -->
             <LinearLayout
                 android:id="@+id/layoutConfirmPlan"
                 android:layout_width="match_parent"
@@ -296,7 +298,7 @@
                 android:visibility="gone"
                 android:layout_marginBottom="16dp">
 
-                <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnConfirmPlan"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -306,11 +308,11 @@
                     android:paddingTop="14dp"
                     android:paddingBottom="14dp"
                     android:layout_marginEnd="8dp"
-                    app:rb_radius="20dp"
-                    app:rb_backgroundColor="@color/purple_500"
-                    app:rb_textColor="@color/white" />
+                    app:cornerRadius="20dp"
+                    android:backgroundTint="@color/purple_500"
+                    android:textColor="@color/white" />
 
-                <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRejectParticipant"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -320,11 +322,11 @@
                     android:paddingTop="14dp"
                     android:paddingBottom="14dp"
                     android:layout_marginStart="8dp"
-                    app:rb_radius="20dp"
-                    app:rb_strokeWidth="2dp"
-                    app:rb_strokeColor="@color/xui_config_color_error"
-                    app:rb_textColor="@color/xui_config_color_error"
-                    app:rb_backgroundColor="@color/white" />
+                    app:cornerRadius="20dp"
+                    app:strokeWidth="2dp"
+                    app:strokeColor="@color/xui_config_color_error"
+                    android:textColor="@color/xui_config_color_error"
+                    style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
             </LinearLayout>
 
@@ -378,7 +380,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="horizontal">
 
-                    <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnReject"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -388,13 +390,13 @@
                         android:paddingTop="14dp"
                         android:paddingBottom="14dp"
                         android:layout_marginStart="8dp"
-                        app:rb_radius="20dp"
-                        app:rb_strokeWidth="2dp"
-                        app:rb_strokeColor="@color/xui_config_color_error"
-                        app:rb_textColor="@color/xui_config_color_error"
-                        app:rb_backgroundColor="@color/white" />
+                        app:cornerRadius="20dp"
+                        app:strokeWidth="2dp"
+                        app:strokeColor="@color/xui_config_color_error"
+                        android:textColor="@color/xui_config_color_error"
+                        style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
 
-                    <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnAccept"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -404,9 +406,9 @@
                         android:paddingTop="14dp"
                         android:paddingBottom="14dp"
                         android:layout_marginEnd="8dp"
-                        app:rb_radius="20dp"
-                        app:rb_backgroundColor="@color/purple_500"
-                        app:rb_textColor="@color/white" />
+                        app:cornerRadius="20dp"
+                        android:backgroundTint="@color/purple_500"
+                        android:textColor="@color/white" />
 
                 </LinearLayout>
 

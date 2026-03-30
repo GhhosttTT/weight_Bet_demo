@@ -4,20 +4,24 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import com.weightloss.betting.databinding.ActivityBadgesBinding
+import com.weightloss.betting.ui.base.BaseActivity
+import com.weightloss.betting.data.remote.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
-class BadgesActivity : AppCompatActivity() {
+class BadgesActivity : BaseActivity() {
+    
+    @Inject
+    lateinit var tokenManager: TokenManager
     
     private lateinit var binding: ActivityBadgesBinding
     private val viewModel: BadgesViewModel by viewModels()
     private lateinit var adapter: BadgesAdapter
-    
-    // TODO: Get actual user ID from session/preferences
-    private val userId = "current_user_id"
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,7 +33,15 @@ class BadgesActivity : AppCompatActivity() {
         setupObservers()
         
         // 加载勋章
-        viewModel.loadBadges(userId)
+        lifecycleScope.launch {
+            val userId = tokenManager.getUserId()
+            if (userId != null) {
+                viewModel.loadBadges(userId)
+            } else {
+                Toast.makeText(this@BadgesActivity, "请先登录", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
     }
     
     private fun setupToolbar() {

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- 手动声明 XUI 常用属性，解决由于库加载不完全导致的编译失败 -->
+    <attr name="XUIThemeStyle" format="reference" />
+
+    <declare-styleable name="RoundButton">
+        <attr name="rb_radius" format="dimension" />
+        <attr name="rb_backgroundColor" format="color" />
+        <attr name="rb_textColor" format="color" />
+        <attr name="rb_strokeWidth" format="dimension" />
+        <attr name="rb_strokeColor" format="color" />
+        <attr name="rb_isRadiusAdjustable" format="boolean" />
+    </declare-styleable>
+    
+    <declare-styleable name="XUICardView">
+        <attr name="cardElevation" format="dimension" />
+        <attr name="cardCornerRadius" format="dimension" />
+        <attr name="cardBackgroundColor" format="color" />
+    </declare-styleable>
+
+    <declare-styleable name="XUILinearLayout">
+        <attr name="xui_radius" format="dimension" />
+    </declare-styleable>
+</resources>

@@ -5,18 +5,18 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
 import com.google.android.material.datepicker.CalendarConstraints
 import com.google.android.material.datepicker.DateValidatorPointForward
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.weightloss.betting.databinding.ActivityCreatePlanBinding
+import com.weightloss.betting.ui.base.BaseActivity
 import com.weightloss.betting.ui.payment.ChargeActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
 
 @AndroidEntryPoint
-class CreatePlanActivity : AppCompatActivity() {
+class CreatePlanActivity : BaseActivity() {
     
     private lateinit var binding: ActivityCreatePlanBinding
     private val viewModel: CreatePlanViewModel by viewModels()

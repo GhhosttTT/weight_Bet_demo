@@ -62,6 +62,10 @@ tags_metadata = [
         "name": "社交",
         "description": "排行榜、评论、鼓励、勋章系统、群组挑战",
     },
+    {
+        "name": "推荐",
+        "description": "个性化健身和饮食推荐",
+    },
 ]
 
 # 创建 FastAPI 应用
@@ -175,7 +179,7 @@ async def health_check():
 
 
 # 导入路由
-from app.api import auth, users, payments, betting_plans, check_ins, settlements, settlement_choices, notifications, social, invitations, pending_actions
+from app.api import auth, users, payments, betting_plans, check_ins, settlements, settlement_choices, notifications, social, invitations, pending_actions, recommendations
 app.include_router(auth.router, prefix="/api/auth", tags=["认证"])
 app.include_router(users.router, prefix="/api/users", tags=["用户"])
 app.include_router(payments.router, prefix="/api/payments", tags=["支付"])
@@ -187,3 +191,4 @@ app.include_router(settlement_choices.router, prefix="/api", tags=["结算选择
 app.include_router(notifications.router, prefix="/api", tags=["通知"])
 app.include_router(social.router, prefix="/api/social", tags=["社交"])
 app.include_router(pending_actions.router, prefix="/api", tags=["邀请"])
+app.include_router(recommendations.router, prefix="/api/recommendations", tags=["推荐"])

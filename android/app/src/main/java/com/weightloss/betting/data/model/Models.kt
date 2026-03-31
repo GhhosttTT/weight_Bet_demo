@@ -331,3 +331,38 @@ data class UserStatistics(
     @SerializedName("total_check_in_days")
     val totalCheckInDays: Int
 )
+
+// ==================== 推荐相关 ====================
+
+data class ExerciseRecommendation(
+    val type: String,
+    val duration: Int,
+    val intensity: String,
+    val description: String?
+)
+
+data class DietRecommendation(
+    @SerializedName("meal_type")
+    val mealType: String,
+    @SerializedName("food_items")
+    val foodItems: List<String>,
+    val calories: Int?,
+    val tips: String?
+)
+
+data class RecommendationResponse(
+    val success: Boolean,
+    @SerializedName("exercise_recommendations")
+    val exerciseRecommendations: List<ExerciseRecommendation>,
+    @SerializedName("diet_recommendations")
+    val dietRecommendations: List<DietRecommendation>,
+    @SerializedName("daily_calories_target")
+    val dailyCaloriesTarget: Int?,
+    @SerializedName("water_intake_target")
+    val waterIntakeTarget: Int?,
+    @SerializedName("sleep_target")
+    val sleepTarget: Int?,
+    val tips: String?,
+    @SerializedName("generated_at")
+    val generatedAt: Date
+)

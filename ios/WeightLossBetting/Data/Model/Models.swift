@@ -225,3 +225,46 @@ struct APIResponse<T: Codable>: Codable {
     let message: String?
     let error: String?
 }
+
+// MARK: - Recommendation Models
+
+struct ExerciseRecommendation: Codable {
+    let type: String
+    let duration: Int
+    let intensity: String
+    let description: String?
+}
+
+struct DietRecommendation: Codable {
+    let mealType: String
+    let foodItems: [String]
+    let calories: Int?
+    let tips: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case mealType = "meal_type"
+        case foodItems = "food_items"
+        case calories, tips
+    }
+}
+
+struct RecommendationResponse: Codable {
+    let success: Bool
+    let exerciseRecommendations: [ExerciseRecommendation]
+    let dietRecommendations: [DietRecommendation]
+    let dailyCaloriesTarget: Int?
+    let waterIntakeTarget: Int?
+    let sleepTarget: Int?
+    let tips: String?
+    let generatedAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case success, tips
+        case exerciseRecommendations = "exercise_recommendations"
+        case dietRecommendations = "diet_recommendations"
+        case dailyCaloriesTarget = "daily_calories_target"
+        case waterIntakeTarget = "water_intake_target"
+        case sleepTarget = "sleep_target"
+        case generatedAt = "generated_at"
+    }
+}

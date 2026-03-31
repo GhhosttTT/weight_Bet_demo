@@ -34,6 +34,15 @@ class MainTabBarController: UITabBarController {
             selectedImage: UIImage(systemName: "house.fill")
         )
         
+        // Coach Tab
+        let coachVC = CoachViewController()
+        let coachNav = UINavigationController(rootViewController: coachVC)
+        coachNav.tabBarItem = UITabBarItem(
+            title: "管家",
+            image: UIImage(systemName: "heart.fill"),
+            selectedImage: UIImage(systemName: "heart.fill")
+        )
+        
         // Plans Tab
         let plansVC = PlansViewController()
         let plansNav = UINavigationController(rootViewController: plansVC)
@@ -41,15 +50,6 @@ class MainTabBarController: UITabBarController {
             title: "计划",
             image: UIImage(systemName: "list.bullet"),
             selectedImage: UIImage(systemName: "list.bullet")
-        )
-        
-        // Leaderboard Tab
-        let leaderboardVC = LeaderboardViewController()
-        let leaderboardNav = UINavigationController(rootViewController: leaderboardVC)
-        leaderboardNav.tabBarItem = UITabBarItem(
-            title: "排行榜",
-            image: UIImage(systemName: "chart.bar"),
-            selectedImage: UIImage(systemName: "chart.bar.fill")
         )
         
         // Profile Tab
@@ -61,7 +61,7 @@ class MainTabBarController: UITabBarController {
             selectedImage: UIImage(systemName: "person.fill")
         )
         
-        viewControllers = [homeNav, plansNav, leaderboardNav, profileNav]
+        viewControllers = [homeNav, coachNav, plansNav, profileNav]
     }
 }
 

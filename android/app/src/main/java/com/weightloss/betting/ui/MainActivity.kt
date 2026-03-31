@@ -20,6 +20,7 @@ import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.databinding.ActivityMainBinding
 import com.weightloss.betting.ui.checkin.CheckInActivity
 import com.weightloss.betting.ui.main.HomeFragment
+import com.weightloss.betting.ui.main.CoachFragment
 import com.weightloss.betting.ui.plan.PlanDetailActivity
 import com.weightloss.betting.ui.plan.PlanListActivity
 import com.weightloss.betting.ui.plan.PlanListFragment
@@ -82,15 +83,14 @@ class MainActivity : AppCompatActivity() {
                     loadFragment(HomeFragment())
                     true
                 }
+                R.id.navigation_coach -> {
+                    loadFragment(CoachFragment())
+                    true
+                }
                 R.id.navigation_plans -> {
                     loadFragment(PlanListFragment())
                     true
                 }
-                // R.id.navigation_checkin -> {
-                //     // 打卡功能已隐藏
-                //     // checkIn()
-                //     true
-                // }
                 R.id.navigation_profile -> {
                     loadFragment(ProfileFragment())
                     true

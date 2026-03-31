@@ -31,6 +31,9 @@ class Settings(BaseSettings):
     # Firebase 配置
     FIREBASE_CREDENTIALS_PATH: str = "./firebase-credentials.json"
     
+    # 推荐模型配置
+    RECOMMENDATION_MODEL_URL: str = "http://192.168.1.108:8000"
+    
     # 应用配置
     APP_NAME: str = "减肥对赌 APP"
     APP_VERSION: str = "1.0.0"

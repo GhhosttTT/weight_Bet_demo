@@ -455,6 +455,32 @@ class APIService {
             }
     }
 
+    // MARK: - Recommendation Endpoints
+
+    func getRecommendation(useCache: Bool = true, completion: @escaping (Result<RecommendationResponse, Error>) -> Void) {
+        var parameters: [String: String] = [:]
+        if !useCache {
+            parameters["use_cache"] = "false"
+        }
+
+        session.request("\(baseURL)/recommendations/",
+                       method: .get,
+                       parameters: parameters)
+            .validate()
+            .responseDecodable(of: APIResponse<RecommendationResponse>.self) { response in
+                self.handleResponse(response, completion: completion)
+            }
+    }
+
+    func refreshRecommendation(completion: @escaping (Result<RecommendationResponse, Error>) -> Void) {
+        session.request("\(baseURL)/recommendations/refresh",
+                       method: .post)
+            .validate()
+            .responseDecodable(of: APIResponse<RecommendationResponse>.self) { response in
+                self.handleResponse(response, completion: completion)
+            }
+    }
+
     // MARK: - Helper Methods
     
     private func handleResponse<T: Codable>(_ response: AFDataResponse<APIResponse<T>>, completion: @escaping (Result<T, Error>) -> Void) {

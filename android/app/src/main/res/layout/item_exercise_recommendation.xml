@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/bg_rounded_corner"
+    android:layout_marginBottom="8dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <TextView
+            android:id="@+id/tvExerciseType"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="运动类型"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:textColor="@color/xui_config_color_text_title" />
+
+        <TextView
+            android:id="@+id/tvExerciseDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="30分钟"
+            android:textSize="16sp"
+            android:textColor="@color/teal_200"
+            android:layout_marginEnd="8dp" />
+
+        <TextView
+            android:id="@+id/tvExerciseIntensity"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="中强度"
+            android:textSize="14sp"
+            android:textColor="@color/white"
+            android:background="@drawable/bg_intensity_tag"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:paddingTop="4dp"
+            android:paddingBottom="4dp" />
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/tvExerciseDescription"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="运动描述"
+        android:textSize="14sp"
+        android:textColor="@color/xui_config_color_text_content"
+        android:layout_marginTop="8dp" />
+
+</LinearLayout>

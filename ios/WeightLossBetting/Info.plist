@@ -67,11 +67,28 @@
 	<key>NSUserNotificationsUsageDescription</key>
 	<string>We need to send you notifications about plan invitations, check-in reminders, and settlement results</string>
 	<key>API_BASE_URL</key>
-	<string>http://localhost:8000/api</string>
+	<string>http://192.168.1.10:9191/api</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
-		<false/>
+		<true/>
+		<key>NSExceptionDomains</key>
+		<dict>
+			<key>192.168.1.10</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+			<key>192.168.1.108</key>
+			<dict>
+				<key>NSIncludesSubdomains</key>
+				<true/>
+				<key>NSExceptionAllowsInsecureHTTPLoads</key>
+				<true/>
+			</dict>
+		</dict>
 	</dict>
 </dict>
 </plist>

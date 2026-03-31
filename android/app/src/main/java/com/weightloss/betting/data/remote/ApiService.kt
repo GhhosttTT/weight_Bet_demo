@@ -157,4 +157,14 @@ interface ApiService {
         @Path("planId") planId: String,
         @Body request: AbandonPlanRequest
     ): Response<AbandonPlanResult>
+    
+    // ==================== 推荐 API ====================
+    
+    @GET("api/recommendations/")
+    suspend fun getRecommendation(
+        @Query("use_cache") useCache: Boolean = true
+    ): Response<RecommendationResponse>
+    
+    @POST("api/recommendations/refresh")
+    suspend fun refreshRecommendation(): Response<RecommendationResponse>
 }

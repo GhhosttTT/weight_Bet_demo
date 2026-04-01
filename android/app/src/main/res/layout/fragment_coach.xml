@@ -253,6 +253,18 @@
             android:layout_gravity="center"
             android:visibility="gone" />
 
+        <!-- 空状态提示 -->
+        <TextView
+            android:id="@+id/tvEmptyMessage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="暂无推荐数据"
+            android:textSize="16sp"
+            android:textColor="@color/xui_config_color_text_gray"
+            android:padding="32dp"
+            android:visibility="gone" />
+
     </LinearLayout>
 
 </ScrollView>

@@ -69,6 +69,10 @@ class CoachFragment : Fragment() {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
                 }
+                is CoachState.Empty -> {
+                    binding.progressBar.visibility = View.GONE
+                    binding.tvEmptyMessage.visibility = View.VISIBLE
+                }
             }
         })
     }

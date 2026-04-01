@@ -34,4 +34,5 @@
     <color name="xui_config_color_pure_white">#FFFFFF</color>
     <color name="xui_config_color_light_blue">#5D9CEC</color>
     <color name="xui_config_color_main_orange">#FF8C00</color>
+    <color name="xui_config_color_gray_10">#F5F5F5</color>
 </resources>

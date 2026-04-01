@@ -1,5 +1,6 @@
 package com.weightloss.betting.ui.auth
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -9,16 +10,15 @@ import com.weightloss.betting.data.model.User
 import com.weightloss.betting.data.remote.NetworkException
 import com.weightloss.betting.data.remote.NetworkResult
 import com.weightloss.betting.data.repository.AuthRepository
+import com.weightloss.betting.data.repository.RecommendationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-/**
- * 登录 ViewModel
- */
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val authRepository: AuthRepository
+    private val authRepository: AuthRepository,
+    private val recommendationRepository: RecommendationRepository
 ) : ViewModel() {
     
     private val _loginState = MutableLiveData<LoginState>()
@@ -27,11 +27,8 @@ class LoginViewModel @Inject constructor(
     private val _user = MutableLiveData<User>()
     val user: LiveData<User> = _user
     
-    /**
-     * 用户登录
-     */
     fun login(email: String, password: String) {
-        // 验证输入
+        Log.d("LoginViewModel", "login() called with email: $email")
         if (email.isBlank()) {
             _loginState.value = LoginState.Error("请输入邮箱")
             return
@@ -47,17 +44,23 @@ class LoginViewModel @Inject constructor(
             return
         }
         
+        Log.d("LoginViewModel", "Setting login state to Loading")
         _loginState.value = LoginState.Loading
         
         viewModelScope.launch {
+            Log.d("LoginViewModel", "Starting authRepository.login()")
             val request = LoginRequest(email, password)
             
             when (val result = authRepository.login(request)) {
                 is NetworkResult.Success -> {
-                    // 登录成功，Token 已保存
+                    Log.d("LoginViewModel", "Login successful!")
+                    Log.d("LoginViewModel", "Setting login state to Success")
                     _loginState.value = LoginState.Success
+                    Log.d("LoginViewModel", "Starting fetchAndCacheRecommendationAsync()")
+                    recommendationRepository.fetchAndCacheRecommendationAsync()
                 }
                 is NetworkResult.Error -> {
+                    Log.e("LoginViewModel", "Login error: ${result.exception.message}")
                     val errorMessage = when (result.exception) {
                         is NetworkException.UnauthorizedError -> "邮箱或密码错误"
                         is NetworkException.NetworkError -> "网络连接失败，请检查网络"
@@ -67,25 +70,25 @@ class LoginViewModel @Inject constructor(
                     _loginState.value = LoginState.Error(errorMessage)
                 }
                 is NetworkResult.Loading -> {
-                    // 已经设置为 Loading 状态
+                    Log.d("LoginViewModel", "Login result is Loading")
                 }
             }
         }
     }
     
-    /**
-     * Google 登录
-     */
     fun googleLogin(idToken: String) {
+        Log.d("LoginViewModel", "googleLogin() called")
         _loginState.value = LoginState.Loading
             
         viewModelScope.launch {
             when (val result = authRepository.googleLogin(idToken)) {
                 is NetworkResult.Success -> {
-                    // 登录成功，Token 已保存
+                    Log.d("LoginViewModel", "Google login successful!")
                     _loginState.value = LoginState.Success
+                    recommendationRepository.fetchAndCacheRecommendationAsync()
                 }
                 is NetworkResult.Error -> {
+                    Log.e("LoginViewModel", "Google login error: ${result.exception.message}")
                     val errorMessage = when (result.exception) {
                         is NetworkException.NetworkError -> "网络连接失败，请检查网络"
                         is NetworkException.TimeoutError -> "请求超时，请重试"
@@ -94,7 +97,6 @@ class LoginViewModel @Inject constructor(
                     _loginState.value = LoginState.Error(errorMessage)
                 }
                 is NetworkResult.Loading -> {
-                    // 已经设置为 Loading 状态
                 }
             }
         }
@@ -105,9 +107,6 @@ class LoginViewModel @Inject constructor(
     }
 }
 
-/**
- * 登录状态
- */
 sealed class LoginState {
     object Loading : LoginState()
     object Success : LoginState()

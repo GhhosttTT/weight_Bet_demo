@@ -22,6 +22,7 @@ data class LoginRequest(
 )
 
 data class RefreshTokenRequest(
+    @SerializedName("refresh_token")
     val refreshToken: String
 )
 

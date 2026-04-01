@@ -30,6 +30,10 @@ class FakeRedis:
     
     def exists(self, key):
         return 1 if key in self._data else 0
+    
+    def setex(self, key, time, value):
+        self._data[key] = value
+        return True
 
 
 class FakePipeline:

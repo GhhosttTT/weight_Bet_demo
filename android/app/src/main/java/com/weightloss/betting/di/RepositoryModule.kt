@@ -5,6 +5,7 @@ import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.data.repository.*
 import com.weightloss.betting.data.local.CacheManager
 import com.weightloss.betting.data.local.OfflineSyncService
+import com.weightloss.betting.data.local.RecommendationCacheManager
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -68,5 +69,14 @@ object RepositoryModule {
         apiService: ApiService
     ): SocialRepository {
         return SocialRepository(apiService)
+    }
+    
+    @Provides
+    @Singleton
+    fun provideRecommendationRepository(
+        apiService: ApiService,
+        cacheManager: RecommendationCacheManager
+    ): RecommendationRepository {
+        return RecommendationRepository(apiService, cacheManager)
     }
 }

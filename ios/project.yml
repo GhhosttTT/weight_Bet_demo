@@ -1,0 +1,51 @@
+name: WeightLossBetting
+options:
+  bundleIdPrefix: com.weightlossbetting
+  deploymentTarget:
+    iOS: 14.0
+  developmentLanguage: Chinese (Simplified)
+targets:
+  WeightLossBetting:
+    type: application
+    platform: iOS
+    deploymentTarget: 14.0
+    sources:
+      - path: WeightLossBetting
+        excludes:
+          - "*.xcdatamodeld"
+    resources:
+      - path: WeightLossBetting
+        includes:
+          - "*.xcassets"
+          - "*.xcdataModeld"
+          - "*.plist"
+          - "*.storyboard"
+          - "*.xib"
+      - path: WeightLossBetting/UI
+        includes:
+          - "LaunchScreen.storyboard"
+    info:
+      path: WeightLossBetting/Info.plist
+    settings:
+      base:
+        INFOPLIST_FILE: WeightLossBetting/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.weightlossbetting.WeightLossBetting
+        DEVELOPMENT_TEAM: ""
+        CODE_SIGN_ENTITLEMENTS: ""
+    dependencies:
+      - sdk: UIKit.framework
+      - sdk: Foundation.framework
+      - sdk: CoreData.framework
+  WeightLossBettingTests:
+    type: bundle.unit-test
+    platform: iOS
+    deploymentTarget: 14.0
+    sources:
+      - path: WeightLossBettingTests
+    settings:
+      base:
+        INFOPLIST_FILE: WeightLossBettingTests/Info.plist
+        PRODUCT_BUNDLE_IDENTIFIER: com.weightlossbetting.WeightLossBettingTests
+    dependencies:
+      - target: WeightLossBetting
+

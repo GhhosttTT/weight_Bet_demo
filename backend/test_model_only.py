@@ -6,7 +6,7 @@ import httpx
 import asyncio
 import json
 
-MODEL_URL = "http://192.168.1.108:8000"
+MODEL_URL = "http://localhost:8001"
 
 async def test_model_direct():
     """直接测试模型侧接口"""

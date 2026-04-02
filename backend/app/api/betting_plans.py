@@ -226,10 +226,19 @@ def get_user_statistics(
         BettingPlan.status == PlanStatus.ACTIVE
     ).count()
     
-    pending_count = db.query(BettingPlan).filter(
+    # 统计待处理计划：包括自己创建的pending计划和被邀请的所有未处理计划
+    from app.models.invitation import Invitation, InvitationStatus
+    invited_pending_count = db.query(Invitation).filter(
+        Invitation.invitee_id == user_id,
+        Invitation.status.in_([InvitationStatus.PENDING, InvitationStatus.VIEWED])
+    ).count()
+    
+    own_pending_count = db.query(BettingPlan).filter(
         ((BettingPlan.creator_id == user_id) | (BettingPlan.participant_id == user_id)),
         BettingPlan.status == PlanStatus.PENDING
     ).count()
+    
+    pending_count = own_pending_count + invited_pending_count
     
     waiting_double_check_count = db.query(BettingPlan).filter(
         ((BettingPlan.creator_id == user_id) | (BettingPlan.participant_id == user_id)),

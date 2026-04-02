@@ -7,7 +7,7 @@ import asyncio
 import json
 
 BASE_URL = "http://localhost:9191"
-MODEL_URL = "http://192.168.1.108:8000"
+MODEL_URL = "http://localhost:8001"
 
 # 测试账号
 TEST_EMAIL = "test1@qq.com"

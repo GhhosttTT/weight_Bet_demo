@@ -22,7 +22,7 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object NetworkModule {
     
-    private const val BASE_URL = "http://10.0.2.2:8000/"  // Android 模拟器访问本地服务器
+    private const val BASE_URL = "http://192.168.1.108:8000/"  // 后端服务器地址
     private const val TIMEOUT_SECONDS = 30L
     
     @Provides

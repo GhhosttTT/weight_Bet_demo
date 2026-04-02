@@ -99,9 +99,9 @@ class PlanResponse(BaseModel):
     creator_initial_weight: float
     creator_target_weight: float
     creator_target_weight_loss: float
-    participant_initial_weight: Optional[float]
-    participant_target_weight: Optional[float]
-    participant_target_weight_loss: Optional[float]
+    participant_initial_weight: Optional[float] = None
+    participant_target_weight: Optional[float] = None
+    participant_target_weight_loss: Optional[float] = None
     created_at: datetime
     activated_at: Optional[datetime]
     

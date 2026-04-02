@@ -12,7 +12,7 @@ from app.database import Base
 class PlanStatus(str, enum.Enum):
     """计划状态枚举"""
     PENDING = "pending"  # 等待对方接受
-    WAITING_DOUBLE_CHECK = "waiting_double_check"  # 待二次确认（被邀请人已接受，等待创建者确认）
+    WAITING_DOUBLE_CHECK = "waiting_double_check"  # 等待双方确认目标
     ACTIVE = "active"  # 进行中
     COMPLETED = "completed"  # 已完成
     CANCELLED = "cancelled"  # 已取消
@@ -62,9 +62,6 @@ class BettingPlan(Base):
     abandoned_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     abandoned_at = Column(DateTime(timezone=True), nullable=True)
     expiry_checked_at = Column(DateTime(timezone=True), nullable=True)
-
-    # pending double-check 标记（当参与者接受并需要创建者确认时设置）
-    pending_double_check = Column(Boolean, server_default="false", nullable=False)
 
     # 关系
     creator = relationship("User", foreign_keys=[creator_id])

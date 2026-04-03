@@ -1,0 +1,515 @@
+import Foundation
+
+// MARK: - User Model
+
+public struct User: Codable {
+    let id: String
+    let email: String? // 兼容后端无 email 字段
+    let nickname: String
+    let gender: Gender
+    let age: Int
+    let height: Double // cm
+    let currentWeight: Double // kg
+    let targetWeight: Double? // kg
+    let paymentMethod: String?
+    let createdAt: Date
+    let updatedAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case id, email, nickname, gender, age, height
+        case currentWeight = "current_weight"
+        case targetWeight = "target_weight"
+        case paymentMethod = "payment_method_id"
+        case createdAt = "created_at"
+        case updatedAt = "updated_at"
+    }
+}
+
+public enum Gender: String, Codable {
+    case male
+    case female
+}
+
+// MARK: - Betting Plan Model
+
+struct BettingPlan: Codable {
+    let id: String
+    let creatorId: String
+    let creatorNickname: String?
+    let creatorEmail: String?
+    let participantId: String?
+    let participantNickname: String?
+    let participantEmail: String?
+    let status: PlanStatus
+    let betAmount: Double
+    let startDate: Date
+    let endDate: Date
+    let description: String?
+    let creatorInitialWeight: Double
+    let creatorTargetWeight: Double
+    let creatorTargetWeightLoss: Double
+    let participantInitialWeight: Double?
+    let participantTargetWeight: Double?
+    let participantTargetWeightLoss: Double?
+    let createdAt: Date
+    let activatedAt: Date?
+    let abandonedBy: String?
+    let abandonedAt: Date?
+    let expiryCheckedAt: Date?
+    
+    // Computed properties to check role
+    var isCreator: Bool {
+        guard let currentUserId = AuthRepository.shared.getCurrentUserId() else { return false }
+        return creatorId == currentUserId
+    }
+    
+    var isParticipant: Bool {
+        guard let currentUserId = AuthRepository.shared.getCurrentUserId() else { return false }
+        return participantId == currentUserId
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case id, status, description
+        case creatorId = "creator_id"
+        case creatorNickname = "creator_nickname"
+        case creatorEmail = "creator_email"
+        case participantId = "participant_id"
+        case participantNickname = "participant_nickname"
+        case participantEmail = "participant_email"
+        case betAmount = "bet_amount"
+        case startDate = "start_date"
+        case endDate = "end_date"
+        case creatorInitialWeight = "creator_initial_weight"
+        case creatorTargetWeight = "creator_target_weight"
+        case creatorTargetWeightLoss = "creator_target_weight_loss"
+        case participantInitialWeight = "participant_initial_weight"
+        case participantTargetWeight = "participant_target_weight"
+        case participantTargetWeightLoss = "participant_target_weight_loss"
+        case createdAt = "created_at"
+        case activatedAt = "activated_at"
+        case abandonedBy = "abandoned_by"
+        case abandonedAt = "abandoned_at"
+        case expiryCheckedAt = "expiry_checked_at"
+    }
+}
+
+enum PlanStatus: String, Codable {
+    case pending              // 待接受
+    case pendingConfirmation = "waiting_double_check"  // 待二次确认（被邀请人已接受，等待发起人确认）
+    case active               // 进行中
+    case completed            // 已完成
+    case cancelled            // 已取消
+    case rejected             // 已拒绝
+    case expired              // 已过期
+}
+
+// MARK: - Badge Model
+
+struct Badge: Codable {
+    let id: String
+    let userId: String
+    let badgeType: String
+    let badgeName: String
+    let badgeDescription: String
+    let earnedAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case userId = "user_id"
+        case badgeType = "badge_type"
+        case badgeName = "badge_name"
+        case badgeDescription = "badge_description"
+        case earnedAt = "earned_at"
+    }
+}
+
+// MARK: - Check-In Model
+
+struct CheckIn: Codable {
+    let id: String
+    let userId: String
+    let planId: String
+    let weight: Double
+    let checkInDate: Date
+    let photoUrl: String?
+    let note: String?
+    let reviewStatus: ReviewStatus
+    let reviewerId: String?
+    let reviewComment: String?
+    let createdAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case id, weight, note
+        case userId = "user_id"
+        case planId = "plan_id"
+        case checkInDate = "check_in_date"
+        case photoUrl = "photo_url"
+        case reviewStatus = "review_status"
+        case reviewerId = "reviewer_id"
+        case reviewComment = "review_comment"
+        case createdAt = "created_at"
+    }
+}
+
+enum ReviewStatus: String, Codable {
+    case pending
+    case approved
+    case rejected
+}
+
+// MARK: - Progress Stats
+
+struct ProgressStats: Codable {
+    let currentWeight: Double
+    let initialWeight: Double
+    let targetWeight: Double
+    let weightLoss: Double
+    let targetWeightLoss: Double
+    let progressPercentage: Double
+    let checkInCount: Int
+    let daysRemaining: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case checkInCount = "check_in_count"
+        case currentWeight = "current_weight"
+        case daysRemaining = "days_remaining"
+        case initialWeight = "initial_weight"
+        case progressPercentage = "progress_percentage"
+        case targetWeight = "target_weight"
+        case targetWeightLoss = "target_weight_loss"
+        case weightLoss = "weight_loss"
+    }
+}
+
+// MARK: - Balance
+
+struct Balance: Codable {
+    let userId: String
+    let availableBalance: Double
+    let frozenBalance: Double
+    let updatedAt: Date
+    
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case availableBalance = "available_balance"
+        case frozenBalance = "frozen_balance"
+        case updatedAt = "updated_at"
+    }
+}
+
+// MARK: - Bank Account
+
+struct BankAccount: Codable {
+    let bankName: String
+    let accountNumber: String
+    let accountHolderName: String
+    
+    enum CodingKeys: String, CodingKey {
+        case bankName = "bank_name"
+        case accountNumber = "account_number"
+        case accountHolderName = "account_holder_name"
+    }
+}
+
+// MARK: - Transaction
+
+struct Transaction: Codable {
+    let id: String
+    let userId: String
+    let type: TransactionType
+    let amount: Double
+    let status: TransactionStatus
+    let relatedPlanId: String?
+    let relatedSettlementId: String?
+    let createdAt: Date
+    let completedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id, type, amount, status
+        case userId = "user_id"
+        case relatedPlanId = "related_plan_id"
+        case relatedSettlementId = "related_settlement_id"
+        case createdAt = "created_at"
+        case completedAt = "completed_at"
+    }
+}
+
+enum TransactionType: String, Codable {
+    case freeze
+    case unfreeze
+    case transfer
+    case withdraw
+    case refund
+}
+
+enum TransactionStatus: String, Codable {
+    case pending
+    case completed
+    case failed
+}
+
+// MARK: - Auth Models
+
+struct LoginRequest: Codable {
+    let email: String
+    let password: String
+}
+
+struct RegisterRequest: Codable {
+    let email: String
+    let password: String
+    let nickname: String
+    let gender: String
+    let age: Int
+    let height: Double
+    let currentWeight: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case email, password, nickname, gender, age, height
+        case currentWeight = "current_weight"
+    }
+}
+
+struct AuthResponse: Codable {
+    let userId: String
+    let email: String
+    let nickname: String
+    let accessToken: String
+    let refreshToken: String
+    let tokenType: String
+    
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case email, nickname
+        case accessToken = "access_token"
+        case refreshToken = "refresh_token"
+        case tokenType = "token_type"
+    }
+}
+
+
+
+// MARK: - API Response Wrapper
+
+struct APIResponse<T: Codable>: Codable {
+    let success: Bool
+    let data: T?
+    let message: String?
+    let error: String?
+}
+
+// MARK: - Recommendation Models
+
+struct ExerciseRecommendation: Codable {
+    let type: String
+    let duration: Int
+    let intensity: String
+    let description: String?
+}
+
+struct DietRecommendation: Codable {
+    let mealType: String
+    let foodItems: [String]
+    let calories: Int?
+    let tips: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case mealType = "meal_type"
+        case foodItems = "food_items"
+        case calories, tips
+    }
+}
+
+struct RecommendationResponse: Codable {
+    let success: Bool
+    let exerciseRecommendations: [ExerciseRecommendation]
+    let dietRecommendations: [DietRecommendation]
+    let dailyCaloriesTarget: Int?
+    let waterIntakeTarget: Int?
+    let sleepTarget: Int?
+    let tips: String?
+    let generatedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case success, tips
+        case exerciseRecommendations = "exercise_recommendations"
+        case dietRecommendations = "diet_recommendations"
+        case dailyCaloriesTarget = "daily_calories_target"
+        case waterIntakeTarget = "water_intake_target"
+        case sleepTarget = "sleep_target"
+        case generatedAt = "generated_at"
+    }
+}
+
+// MARK: - Supporting Models
+
+struct PhotoUploadResponse: Codable {
+    let photoUrl: String
+    
+    enum CodingKeys: String, CodingKey {
+        case photoUrl = "photo_url"
+    }
+}
+
+struct ChargeResult: Codable {
+    let success: Bool
+    let message: String?
+    let amount: Double
+    let newBalance: Double?
+    
+    enum CodingKeys: String, CodingKey {
+        case success, message, amount
+        case newBalance = "new_balance"
+    }
+}
+
+struct WithdrawResult: Codable {
+    let transactionId: String
+    let amount: Double
+    let status: String
+    
+    enum CodingKeys: String, CodingKey {
+        case transactionId = "transaction_id"
+        case amount, status
+    }
+}
+
+struct LeaderboardEntry: Codable {
+    let userId: String
+    let nickname: String
+    let value: Double
+    let rank: Int
+    
+    enum CodingKeys: String, CodingKey {
+        case userId = "user_id"
+        case nickname, value, rank
+    }
+}
+
+// MARK: - Comment Model
+
+struct Comment: Codable {
+    let id: String
+    let planId: String
+    let userId: String
+    let userNickname: String
+    let content: String
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id, content
+        case planId = "plan_id"
+        case userId = "user_id"
+        case userNickname = "user_nickname"
+        case createdAt = "created_at"
+    }
+}
+
+
+
+// Pending actions models
+struct InvitationItem: Codable {
+    let id: String
+    let planId: String
+    let fromUserId: String
+    let message: String?
+    let type: String?
+    let isFirstTime: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case id, planId, fromUserId, message, type, isFirstTime
+    }
+}
+
+struct DoubleCheckItem: Codable {
+    let planId: String
+    let initiatorId: String
+    let reason: String?
+    let isPending: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case planId, initiatorId, reason, isPending
+    }
+}
+
+struct SettlementItem: Codable {
+    let planId: String
+    let isPending: Bool?
+    
+    enum CodingKeys: String, CodingKey {
+        case planId, isPending
+    }
+}
+
+struct PendingActionsResponse: Codable {
+    let invitations: [InvitationItem]?
+    let doubleChecks: [DoubleCheckItem]?
+    let settlements: [SettlementItem]?
+}
+
+// Lightweight model for user search results (invite preview)
+public struct UserPreview: Codable {
+    let id: String
+    let email: String?
+    let nickname: String?
+    let age: Int?
+    let gender: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "user_id"
+        case email
+        case nickname
+        case age
+        case gender
+    }
+}
+
+// MARK: - Invitation Model
+public struct Invitation: Codable {
+    let id: String
+    let planId: String
+    let inviterId: String
+    let inviterName: String
+    let inviteeEmail: String
+    let inviteeId: String?
+    let status: String
+    let sentAt: Date
+    let viewedAt: Date?
+    let respondedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case planId = "plan_id"
+        case inviterId = "inviter_id"
+        case inviterName = "inviter_name"
+        case inviteeEmail = "invitee_email"
+        case inviteeId = "invitee_id"
+        case status
+        case sentAt = "sent_at"
+        case viewedAt = "viewed_at"
+        case respondedAt = "responded_at"
+    }
+}
+
+// MARK: - Abandon Plan Models
+public struct AbandonPlanRequest: Codable {
+    let confirmation: Bool
+}
+
+public struct AbandonPlanResult: Codable {
+    let success: Bool
+    let planId: String
+    let status: String
+    let refundedAmount: Double?
+    let transferredAmount: Double?
+    let message: String
+    
+    enum CodingKeys: String, CodingKey {
+        case success
+        case planId = "plan_id"
+        case status
+        case refundedAmount = "refunded_amount"
+        case transferredAmount = "transferred_amount"
+        case message
+    }
+}

@@ -27,10 +27,26 @@ class BalanceViewController: UIViewController {
     
     // Set up UI
     func setupUI() {
-        title = "My Balance"
+        title = "我的余额"
         
-        chargeButton.layer.cornerRadius = 12
-        withdrawButton.layer.cornerRadius = 12
+        // 设置按钮样式 - 使用渐变蓝色，更加协调
+        chargeButton.layer.cornerRadius = 10
+        chargeButton.backgroundColor = UIColor.systemBlue
+        chargeButton.setTitleColor(.white, for: .normal)
+        chargeButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        
+        withdrawButton.layer.cornerRadius = 10
+        withdrawButton.backgroundColor = UIColor.systemGreen
+        withdrawButton.setTitleColor(.white, for: .normal)
+        withdrawButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
+        
+        // 设置按钮阴影效果
+        [chargeButton, withdrawButton].forEach { button in
+            button.layer.shadowColor = UIColor.black.cgColor
+            button.layer.shadowOffset = CGSize(width: 0, height: 2)
+            button.layer.shadowOpacity = 0.15
+            button.layer.shadowRadius = 4
+        }
         
         historyTableView.delegate = self
         historyTableView.dataSource = self

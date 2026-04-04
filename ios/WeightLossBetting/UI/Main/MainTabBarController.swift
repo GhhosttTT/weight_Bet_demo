@@ -498,13 +498,24 @@ class HomeViewController: UIViewController {
     }
     
     private func showPlanSelectionForCheckIn(plans: [BettingPlan], alreadyCheckedInPlanIds: [String]) {
-        // 过滤出进行中的计划，且未打卡的
+        // 过滤出进行中的计划、未打卡且在计划期间内的
+        let today = Date()
         let availablePlans = plans.filter { 
-            $0.status == .active && !alreadyCheckedInPlanIds.contains($0.id) 
+            $0.status == .active && 
+            !alreadyCheckedInPlanIds.contains($0.id) &&
+            today >= $0.startDate && 
+            today <= $0.endDate
         }
         
         guard !availablePlans.isEmpty else {
-            showAlreadyCheckedInAlert()
+            // 没有可打卡的计划，提示用户
+            let alert = UIAlertController(
+                title: "无法打卡",
+                message: "您当前没有在计划期间内的可进行打卡的计划",
+                preferredStyle: .alert
+            )
+            alert.addAction(UIAlertAction(title: "确定", style: .default))
+            present(alert, animated: true)
             return
         }
         

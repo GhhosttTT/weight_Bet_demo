@@ -363,10 +363,10 @@ class PlanDetailViewController: UIViewController {
             checkInButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
             checkInButton.heightAnchor.constraint(equalToConstant: 50),
             
-            giveUpButton.topAnchor.constraint(equalTo: rejectButton.bottomAnchor, constant: 12),
+            giveUpButton.topAnchor.constraint(equalTo: checkInButton.bottomAnchor, constant: 10),  // 打卡按钮下方 10px 间距
             giveUpButton.leadingAnchor.constraint(equalTo: actionButtonsView.leadingAnchor, constant: 16),
             giveUpButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
-            giveUpButton.heightAnchor.constraint(equalToConstant: 44),
+            giveUpButton.heightAnchor.constraint(equalToConstant: 50),
             giveUpButton.bottomAnchor.constraint(equalTo: actionButtonsView.bottomAnchor)
         ])
         

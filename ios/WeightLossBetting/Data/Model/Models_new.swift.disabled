@@ -4,7 +4,11 @@ import Foundation
 
 public struct User: Codable {
     let id: String
+<<<<<<< Updated upstream:ios/WeightLossBetting/Data/Model/Models_new.swift.disabled
     let email: String
+=======
+    let email: String? // 兼容后端无 email 字段
+>>>>>>> Stashed changes:WeightLossBetting/Data/Model/Models.swift
     let nickname: String
     let gender: Gender
     let age: Int
@@ -28,7 +32,6 @@ public struct User: Codable {
 public enum Gender: String, Codable {
     case male
     case female
-    case other
 }
 
 // MARK: - Betting Plan Model
@@ -54,6 +57,20 @@ struct BettingPlan: Codable {
     let participantTargetWeightLoss: Double?
     let createdAt: Date
     let activatedAt: Date?
+    let abandonedBy: String?
+    let abandonedAt: Date?
+    let expiryCheckedAt: Date?
+    
+    // Computed properties to check role
+    var isCreator: Bool {
+        guard let currentUserId = AuthRepository.shared.getCurrentUserId() else { return false }
+        return creatorId == currentUserId
+    }
+    
+    var isParticipant: Bool {
+        guard let currentUserId = AuthRepository.shared.getCurrentUserId() else { return false }
+        return participantId == currentUserId
+    }
     
     enum CodingKeys: String, CodingKey {
         case id, status, description
@@ -74,15 +91,23 @@ struct BettingPlan: Codable {
         case participantTargetWeightLoss = "participant_target_weight_loss"
         case createdAt = "created_at"
         case activatedAt = "activated_at"
+<<<<<<< Updated upstream:ios/WeightLossBetting/Data/Model/Models_new.swift.disabled
+=======
+        case abandonedBy = "abandoned_by"
+        case abandonedAt = "abandoned_at"
+        case expiryCheckedAt = "expiry_checked_at"
+>>>>>>> Stashed changes:WeightLossBetting/Data/Model/Models.swift
     }
 }
 
 enum PlanStatus: String, Codable {
-    case pending
-    case active
-    case completed
-    case cancelled
-    case rejected
+    case pending              // 待接受
+    case pendingConfirmation = "waiting_double_check"  // 待二次确认（被邀请人已接受，等待发起人确认）
+    case active               // 进行中
+    case completed            // 已完成
+    case cancelled            // 已取消
+    case rejected             // 已拒绝
+    case expired              // 已过期
 }
 
 // MARK: - Badge Model
@@ -241,6 +266,15 @@ struct RegisterRequest: Codable {
     let email: String
     let password: String
     let nickname: String
+    let gender: String
+    let age: Int
+    let height: Double
+    let currentWeight: Double
+    
+    enum CodingKeys: String, CodingKey {
+        case email, password, nickname, gender, age, height
+        case currentWeight = "current_weight"
+    }
 }
 
 struct AuthResponse: Codable {
@@ -301,7 +335,7 @@ struct RecommendationResponse: Codable {
     let waterIntakeTarget: Int?
     let sleepTarget: Int?
     let tips: String?
-    let generatedAt: Date
+    let generatedAt: Date?
     
     enum CodingKeys: String, CodingKey {
         case success, tips
@@ -325,6 +359,7 @@ struct PhotoUploadResponse: Codable {
 }
 
 struct ChargeResult: Codable {
+<<<<<<< Updated upstream:ios/WeightLossBetting/Data/Model/Models_new.swift.disabled
     let transactionId: String
     let amount: Double
     let status: String
@@ -332,6 +367,16 @@ struct ChargeResult: Codable {
     enum CodingKeys: String, CodingKey {
         case transactionId = "transaction_id"
         case amount, status
+=======
+    let success: Bool
+    let message: String?
+    let amount: Double
+    let newBalance: Double?
+    
+    enum CodingKeys: String, CodingKey {
+        case success, message, amount
+        case newBalance = "new_balance"
+>>>>>>> Stashed changes:WeightLossBetting/Data/Model/Models.swift
     }
 }
 
@@ -389,10 +434,14 @@ struct InvitationItem: Codable {
     let isFirstTime: Bool?
 
     enum CodingKeys: String, CodingKey {
+<<<<<<< Updated upstream:ios/WeightLossBetting/Data/Model/Models_new.swift.disabled
         case id, message, type
         case planId = "plan_id"
         case fromUserId = "from_user_id"
         case isFirstTime = "is_first_time"
+=======
+        case id, planId, fromUserId, message, type, isFirstTime
+>>>>>>> Stashed changes:WeightLossBetting/Data/Model/Models.swift
     }
 }
 
@@ -403,10 +452,14 @@ struct DoubleCheckItem: Codable {
     let isPending: Bool?
 
     enum CodingKeys: String, CodingKey {
+<<<<<<< Updated upstream:ios/WeightLossBetting/Data/Model/Models_new.swift.disabled
         case reason
         case planId = "plan_id"
         case initiatorId = "initiator_id"
         case isPending = "is_pending"
+=======
+        case planId, initiatorId, reason, isPending
+>>>>>>> Stashed changes:WeightLossBetting/Data/Model/Models.swift
     }
 }
 
@@ -415,8 +468,12 @@ struct SettlementItem: Codable {
     let isPending: Bool?
     
     enum CodingKeys: String, CodingKey {
+<<<<<<< Updated upstream:ios/WeightLossBetting/Data/Model/Models_new.swift.disabled
         case planId = "plan_id"
         case isPending = "is_pending"
+=======
+        case planId, isPending
+>>>>>>> Stashed changes:WeightLossBetting/Data/Model/Models.swift
     }
 }
 
@@ -426,3 +483,72 @@ struct PendingActionsResponse: Codable {
     let settlements: [SettlementItem]?
 }
 
+<<<<<<< Updated upstream:ios/WeightLossBetting/Data/Model/Models_new.swift.disabled
+=======
+// Lightweight model for user search results (invite preview)
+public struct UserPreview: Codable {
+    let id: String
+    let email: String?
+    let nickname: String?
+    let age: Int?
+    let gender: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id = "user_id"
+        case email
+        case nickname
+        case age
+        case gender
+    }
+}
+
+// MARK: - Invitation Model
+public struct Invitation: Codable {
+    let id: String
+    let planId: String
+    let inviterId: String
+    let inviterName: String
+    let inviteeEmail: String
+    let inviteeId: String?
+    let status: String
+    let sentAt: Date
+    let viewedAt: Date?
+    let respondedAt: Date?
+    
+    enum CodingKeys: String, CodingKey {
+        case id
+        case planId = "plan_id"
+        case inviterId = "inviter_id"
+        case inviterName = "inviter_name"
+        case inviteeEmail = "invitee_email"
+        case inviteeId = "invitee_id"
+        case status
+        case sentAt = "sent_at"
+        case viewedAt = "viewed_at"
+        case respondedAt = "responded_at"
+    }
+}
+
+// MARK: - Abandon Plan Models
+public struct AbandonPlanRequest: Codable {
+    let confirmation: Bool
+}
+
+public struct AbandonPlanResult: Codable {
+    let success: Bool
+    let planId: String
+    let status: String
+    let refundedAmount: Double?
+    let transferredAmount: Double?
+    let message: String
+    
+    enum CodingKeys: String, CodingKey {
+        case success
+        case planId = "plan_id"
+        case status
+        case refundedAmount = "refunded_amount"
+        case transferredAmount = "transferred_amount"
+        case message
+    }
+}
+>>>>>>> Stashed changes:WeightLossBetting/Data/Model/Models.swift

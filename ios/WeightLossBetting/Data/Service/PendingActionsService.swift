@@ -8,6 +8,10 @@ final class PendingActionsService {
     private lazy var repository = PendingActionsRepository()
     private let maxRetryCount = 3
     private let userDefaultsKey = "seen_pending_invitations"
+    
+    // 防止重复弹窗的标志
+    private var isShowingInviteModal = false
+    private var isShowingDoubleCheckModal = false
 
     // MARK: - Public
     func checkAndHandlePendingActions() {
@@ -31,7 +35,7 @@ final class PendingActionsService {
 
     private func handlePendingActions(_ response: PendingActionsResponse) async {
         // Handle invitations first - 与安卓端对齐，不检查 isFirstTime
-        if let invitations = response.invitations, invitations.count > 0 {
+        if let invitations = response.invitations, invitations.count > 0, !isShowingInviteModal {
             for invite in invitations {
                 // 只检查本地是否已显示过
                 if await hasLocallySeen(invitationId: invite.id) {
@@ -39,16 +43,18 @@ final class PendingActionsService {
                 }
 
                 await presentInviteModal(invite)
+                // 显示了一个弹窗后，等待它关闭再处理下一个
+                await waitForModalDismiss()
             }
         }
 
         // Handle double checks
-        if let doubleChecks = response.doubleChecks, doubleChecks.count > 0 {
-            // 获取当前登录用户ID
+        if let doubleChecks = response.doubleChecks, doubleChecks.count > 0, !isShowingDoubleCheckModal {
+            // 获取当前登录用户 ID
             guard let currentUserId = AuthRepository.shared.getCurrentUserId() else { return }
             
             for dc in doubleChecks where (dc.isPending ?? false) {
-                // 二次确认仅推送给计划创建者，initiatorId是接受计划的参与者，所以当前用户不是initiatorId才弹窗
+                // 二次确认仅推送给计划创建者，initiatorId 是接受计划的参与者，所以当前用户不是 initiatorId 才弹窗
                 guard dc.initiatorId != currentUserId else { continue }
                 
                 // 检查本地是否已显示过
@@ -58,6 +64,8 @@ final class PendingActionsService {
                 }
                 
                 await presentDoubleCheckModal(dc)
+                // 显示了一个弹窗后，等待它关闭再处理下一个
+                await waitForModalDismiss()
             }
         }
         
@@ -71,8 +79,14 @@ final class PendingActionsService {
 
     // MARK: - Modals
     private func presentInviteModal(_ invite: InvitationItem) async {
+        // 设置标志防止重复弹窗
+        isShowingInviteModal = true
+        
         await MainActor.run {
-            guard let top = topViewController() else { return }
+            guard let top = topViewController() else { 
+                isShowingInviteModal = false
+                return 
+            }
             let vc = OneTimeInviteModalViewController(invitation: invite)
             vc.onDisplayed = { [weak self] in
                 // Mark locally to avoid re-show until mark-seen confirmed
@@ -82,6 +96,8 @@ final class PendingActionsService {
             }
             vc.onDismiss = { [weak self] success in
                 guard let self = self else { return }
+                // 重置标志
+                self.isShowingInviteModal = false
                 if success {
                     Task {
                         await self.markInvitationSeenWithRetry(invitationId: invite.id)
@@ -100,9 +116,15 @@ final class PendingActionsService {
 
     private func presentDoubleCheckModal(_ dc: DoubleCheckItem) async {
         let seenId = "double_check_\(dc.planId)"
-        
+            
+        // 设置标志防止重复弹窗
+        isShowingDoubleCheckModal = true
+            
         await MainActor.run {
-            guard let top = topViewController() else { return }
+            guard let top = topViewController() else {
+                isShowingDoubleCheckModal = false
+                return
+            }
             let vc = DoubleCheckModalViewController(item: dc)
             
             // 弹窗显示后立即标记为已查看，防止重复弹出
@@ -114,17 +136,19 @@ final class PendingActionsService {
             
             vc.onDismiss = { [weak self] viewed in
                 guard let self = self else { return }
+                // 重置标志
+                self.isShowingDoubleCheckModal = false
                 Task {
                     if viewed {
                         // 用户点击了查看，永久标记为已处理
                         await self.persistFinalSeen(invitationId: seenId)
                     } else {
                         // 用户点击了稍后再看，保留本地标记，不再弹出
-                        // 符合需求：点击稍后再看下次进入APP不重复弹出
+                        // 符合需求：点击稍后再看下次进入 APP 不重复弹出
                     }
                 }
             }
-
+    
             top.present(vc, animated: true, completion: nil)
         }
     }
@@ -236,5 +260,11 @@ final class PendingActionsService {
             top = presented
         }
         return top
+    }
+    
+    /// Wait for modal to be dismissed before showing next one
+    private func waitForModalDismiss() async {
+        // Short delay to ensure modal dismissal animation completes
+        try? await Task.sleep(nanoseconds: 500_000_000) // 0.5 seconds
     }
 }

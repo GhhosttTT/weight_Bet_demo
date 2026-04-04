@@ -38,7 +38,7 @@ class ChargeViewController: UIViewController {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.distribution = .fillEqually
-        stackView.spacing = 12
+        stackView.spacing = 8  // 减小间距到 8px
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -47,9 +47,13 @@ class ChargeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("确认充值", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = UIColor.systemBlue
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 12
+        button.layer.cornerRadius = 10
+        button.layer.shadowColor = UIColor.black.cgColor
+        button.layer.shadowOffset = CGSize(width: 0, height: 2)
+        button.layer.shadowOpacity = 0.15
+        button.layer.shadowRadius = 4
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -168,7 +172,7 @@ class ChargeViewController: UIViewController {
             noteLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             noteLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
-            chargeButton.topAnchor.constraint(equalTo: noteLabel.bottomAnchor, constant: 32),
+            chargeButton.topAnchor.constraint(equalTo: noteLabel.bottomAnchor, constant: 24),  // 减小间距到 24
             chargeButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             chargeButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             chargeButton.heightAnchor.constraint(equalToConstant: 50),
@@ -201,10 +205,12 @@ class ChargeViewController: UIViewController {
     private func createQuickAmountButton(amount: Double) -> UIButton {
         let button = UIButton(type: .system)
         button.setTitle("¥\(Int(amount))", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .medium)
-        button.backgroundColor = .systemGray6
-        button.setTitleColor(.label, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)  // 稍微缩小字体
+        button.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)  // 使用淡蓝色背景
+        button.setTitleColor(.systemBlue, for: .normal)  // 蓝色字体
         button.layer.cornerRadius = 8
+        button.layer.borderWidth = 1  // 添加边框
+        button.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.3).cgColor
         button.addTarget(self, action: #selector(quickAmountButtonTapped(_:)), for: .touchUpInside)
         button.tag = Int(amount)
         return button

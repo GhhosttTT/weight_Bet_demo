@@ -1,6 +1,5 @@
 package com.weightloss.betting.ui
 
-import android.app.AlertDialog
 import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
@@ -10,7 +9,6 @@ import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.weightloss.betting.R
 import com.weightloss.betting.data.remote.NetworkResult
-import com.weightloss.betting.data.model.BettingPlan
 import com.weightloss.betting.data.model.DoubleCheckItem
 import com.weightloss.betting.data.model.InvitationItem
 import com.weightloss.betting.data.model.SettlementItem
@@ -127,93 +125,42 @@ class MainActivity : AppCompatActivity() {
     }
     
     private fun checkIn() {
-        CoroutineScope(Dispatchers.Main).launch {
-            val userId = tokenManager.getUserId()
-            if (userId == null) {
-                Toast.makeText(this@MainActivity, "请先登录", Toast.LENGTH_SHORT).show()
-                return@launch
-            }
-            
-            when (val result = bettingPlanRepository.getUserPlans(userId, "active", forceRefresh = true)) {
-                is NetworkResult.Success -> {
-                    val activePlans = result.data
-                    when {
-                        activePlans.isEmpty() -> {
-                            Toast.makeText(this@MainActivity, "没有进行中的计划", Toast.LENGTH_SHORT).show()
-                        }
-                        activePlans.size == 1 -> {
-                            startCheckInActivity(activePlans[0].id)
-                        }
-                        else -> {
-                            showPlanSelectionDialog(activePlans)
-                        }
-                    }
-                }
-                is NetworkResult.Error -> {
-                    Toast.makeText(this@MainActivity, "获取计划列表失败: ${result.exception.message}", Toast.LENGTH_SHORT).show()
-                }
-                else -> {}
-            }
-        }
-    }
-    
-    private fun showPlanSelectionDialog(plans: List<BettingPlan>) {
-        val planNames = plans.map { plan ->
-            val creatorName = plan.creatorNickname ?: plan.creatorEmail ?: "创建者"
-            val participantName = plan.participantNickname ?: plan.participantEmail ?: "参与者"
-            "$creatorName vs $participantName"
-        }.toTypedArray()
-        
-        AlertDialog.Builder(this)
-            .setTitle("选择要打卡的计划")
-            .setItems(planNames) { _, which ->
-                startCheckInActivity(plans[which].id)
-            }
-            .setNegativeButton("取消", null)
-            .show()
-    }
-    
-    private fun startCheckInActivity(planId: String) {
         val intent = Intent(this, CheckInActivity::class.java)
-        intent.putExtra("PLAN_ID", planId)
         startActivity(intent)
     }
     
     private fun checkPendingActions() {
         CoroutineScope(Dispatchers.Main).launch {
-            when (val result = authRepository.getPendingActions()) {
-                is NetworkResult.Success -> {
-                    val pendingActions = result.data
-                    // 如果有邀请，显示邀请弹窗（只显示一次）
-                    if (pendingActions.invitations.isNotEmpty()) {
-                        val invitation = pendingActions.invitations.first()
-                        val shownKey = "invitation_shown_${invitation.id}"
-                        if (!prefs.getBoolean(shownKey, false)) {
-                            showInvitationDialog(invitation, shownKey)
-                        }
-                    }
-                    // 如果有 Double Check，显示确认弹窗（只显示一次）
-                    if (pendingActions.doubleChecks.isNotEmpty()) {
-                        val doubleCheck = pendingActions.doubleChecks.first()
-                        val shownKey = "doublecheck_shown_${doubleCheck.planId}"
-                        if (!prefs.getBoolean(shownKey, false)) {
-                            showDoubleCheckDialog(doubleCheck, shownKey)
-                        }
-                    }
-                    // 如果有待结算的计划，显示结算弹窗（只显示一次）
-                    if (pendingActions.settlements.isNotEmpty()) {
-                        val settlement = pendingActions.settlements.first()
-                        val shownKey = "settlement_shown_${settlement.planId}"
-                        if (!prefs.getBoolean(shownKey, false)) {
-                            showSettlementDialog(settlement, shownKey)
-                        }
+            val result = authRepository.getPendingActions()
+            if (result is NetworkResult.Success) {
+                val pendingActions = result.data
+                // 如果有邀请，显示邀请弹窗（只显示一次）
+                if (pendingActions.invitations.isNotEmpty()) {
+                    val invitation = pendingActions.invitations.first()
+                    val shownKey = "invitation_shown_${invitation.id}"
+                    if (!prefs.getBoolean(shownKey, false)) {
+                        showInvitationDialog(invitation, shownKey)
                     }
                 }
-                is NetworkResult.Error -> {
-                    // 非致命错误，仅记录日志
-                    android.util.Log.w("MainActivity", "Failed to get pending actions: ${result.exception.message}")
+                // 如果有 Double Check，显示确认弹窗（只显示一次）
+                if (pendingActions.doubleChecks.isNotEmpty()) {
+                    val doubleCheck = pendingActions.doubleChecks.first()
+                    val shownKey = "doublecheck_shown_${doubleCheck.planId}"
+                    if (!prefs.getBoolean(shownKey, false)) {
+                        showDoubleCheckDialog(doubleCheck, shownKey)
+                    }
                 }
-                else -> {}
+                // 如果有待结算的计划，显示结算弹窗（只显示一次）
+                if (pendingActions.settlements.isNotEmpty()) {
+                    val settlement = pendingActions.settlements.first()
+                    val shownKey = "settlement_shown_${settlement.planId}"
+                    if (!prefs.getBoolean(shownKey, false)) {
+                        showSettlementDialog(settlement, shownKey)
+                    }
+                }
+            } else if (result is NetworkResult.Error) {
+                // 非致命错误，仅记录日志
+                android.util.Log.w("MainActivity", "Failed to get pending actions")
             }
         }
     }

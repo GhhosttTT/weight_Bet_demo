@@ -15,20 +15,14 @@ class CheckInActivity : BaseActivity() {
     private val viewModel: CheckInViewModel by viewModels()
     
     private var planId: String? = null
-    
+        
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityCheckInBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+            
         planId = intent.getStringExtra("PLAN_ID")
-        
-        if (planId == null) {
-            Toast.makeText(this, "计划ID无效", Toast.LENGTH_SHORT).show()
-            finish()
-            return
-        }
-        
+            
         setupToolbar()
         setupObservers()
         setupListeners()
@@ -79,7 +73,12 @@ class CheckInActivity : BaseActivity() {
             return
         }
         
-        viewModel.createCheckIn(planId!!, weight, note)
+        // 如果没有传入 planId，表示对所有计划打卡
+        if (planId == null) {
+            viewModel.createCheckInForAllPlans(weight, note)
+        } else {
+            viewModel.createCheckIn(planId!!, weight, note)
+        }
     }
     
     override fun onSupportNavigateUp(): Boolean {

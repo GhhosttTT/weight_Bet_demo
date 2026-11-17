@@ -572,7 +572,7 @@ def charge(user_id, amount, payment_method_id):
 - **Property (P)**: 充值成功后的期望行为 - 用户的可用余额应立即增加充值金额,并在数据库中持久化
 - **Preservation**: 其他余额操作(冻结、解冻、转账、提现)和余额查询功能必须保持不变
 - **charge()**: PaymentRepository 中的充值方法,调用后端 API `/api/payments/charge`
-- **getBalance()**: UserRepository 中的获取余额方法,调用后端 API `/api/users/{userId}/balance`
+- **getBalance()**: UserRepository 中的获取余额方法,调用后端 API `/api/payments/users/{userId}/balance`
 - **availableBalance**: 用户可用余额,可以用于创建赌注计划或提现
 - **frozenBalance**: 用户冻结余额,参与活跃计划时被冻结的资金
 - **CacheManager**: 本地缓存管理器,缓存用户信息以减少网络请求

@@ -81,7 +81,8 @@ class UserRepository @Inject constructor(
         page: Int = 1,
         limit: Int = 20
     ): NetworkResult<List<Transaction>> {
-        return safeApiCall { apiService.getTransactions(userId, page, limit) }
+        val offset = (page - 1).coerceAtLeast(0) * limit
+        return safeApiCall { apiService.getTransactions(userId, offset, limit) }
     }
     
     /**

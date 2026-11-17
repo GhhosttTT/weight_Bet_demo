@@ -38,8 +38,8 @@ class ChargeViewModel @Inject constructor(
             return
         }
         
-        if (amountDouble < 1) {
-            _chargeState.value = ChargeState.Error("充值金额不能少于1元")
+        if (amountDouble < 0.01) {
+            _chargeState.value = ChargeState.Error("充值金额不能少于0.01元")
             return
         }
         
@@ -48,21 +48,34 @@ class ChargeViewModel @Inject constructor(
             return
         }
         
-        val request = ChargeRequest(amount = amountDouble, paymentMethodId = "default")
-        
         viewModelScope.launch {
             _chargeState.value = ChargeState.Loading
-            
+
+            val userId = tokenManager.getUserId()
+            if (userId.isNullOrBlank()) {
+                _chargeState.value = ChargeState.Error("登录状态已失效，请重新登录")
+                return@launch
+            }
+
+            val profileResult = userRepository.getUserProfile(userId, forceRefresh = true)
+            if (profileResult is NetworkResult.Error) {
+                _chargeState.value = ChargeState.Error(profileResult.exception.message ?: "读取支付方式失败")
+                return@launch
+            }
+            val paymentMethodId = (profileResult as? NetworkResult.Success)?.data?.paymentMethodId
+            if (paymentMethodId.isNullOrBlank()) {
+                _chargeState.value = ChargeState.Error("请先绑定支付方式")
+                return@launch
+            }
+
+            val request = ChargeRequest(amount = amountDouble, paymentMethodId = paymentMethodId)
             when (val result = paymentRepository.charge(request)) {
                 is NetworkResult.Success -> {
                     // Clear user cache after successful charge
                     userRepository.clearCache()
                     
                     // Optionally refresh balance to get the latest value
-                    val userId = tokenManager.getUserId()
-                    if (userId != null) {
-                        userRepository.getBalance(userId)
-                    }
+                    userRepository.getBalance(userId)
                     
                     _chargeState.value = ChargeState.Success(result.data.transactionId ?: "")
                 }

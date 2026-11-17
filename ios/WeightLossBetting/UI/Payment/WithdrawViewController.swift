@@ -234,7 +234,7 @@ class WithdrawViewController: UIViewController {
             return
         }
         
-        guard let amount = Double(amountText), amount > 0 else {
+        guard let amount = Double(amountText), amount >= 0.01 else {
             showAlert(title: "错误", message: "请输入有效的提现金额")
             return
         }

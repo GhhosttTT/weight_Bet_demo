@@ -368,8 +368,11 @@ class APIService {
     }
     
     func giveUpBettingPlan(planId: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        session.request("\(baseURL)/betting-plans/\(planId)/give-up",
-                       method: .post)
+        let parameters = ["confirmation": true]
+        session.request("\(baseURL)/betting-plans/\(planId)/abandon",
+                       method: .post,
+                       parameters: parameters,
+                       encoding: JSONEncoding.default)
             .validate()
             .response { response in
                 if let error = response.error {
@@ -472,9 +475,8 @@ class APIService {
     }
     
     func getProgress(planId: String, userId: String, completion: @escaping (Result<ProgressStats, Error>) -> Void) {
-        session.request("\(baseURL)/betting-plans/\(planId)/progress",
-                       method: .get,
-                       parameters: ["user_id": userId])
+        session.request("\(baseURL)/check-ins/plan/\(planId)/progress",
+                       method: .get)
             .validate()
             .responseDecodable(of: ProgressStats.self, decoder: decoder) { response in
                 self.handleDirectResponse(response, completion: completion)

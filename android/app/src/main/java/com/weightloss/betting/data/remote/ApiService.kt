@@ -37,13 +37,13 @@ interface ApiService {
         @Body request: UpdateUserRequest
     ): Response<User>
     
-    @GET("api/users/{userId}/balance")
+    @GET("api/payments/users/{userId}/balance")
     suspend fun getBalance(@Path("userId") userId: String): Response<Balance>
     
-    @GET("api/users/{userId}/transactions")
+    @GET("api/payments/users/{userId}/transactions")
     suspend fun getTransactions(
         @Path("userId") userId: String,
-        @Query("page") page: Int = 1,
+        @Query("offset") offset: Int = 0,
         @Query("limit") limit: Int = 20
     ): Response<List<Transaction>>
     

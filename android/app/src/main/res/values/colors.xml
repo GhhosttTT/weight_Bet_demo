@@ -29,6 +29,7 @@
     <color name="brand_text_tertiary">#FF808B90</color>
     <color name="brand_border">#FFD9D5CC</color>
     <color name="brand_accent_surface">#14A8E0D3</color>
+    <color name="brand_primary_surface">#1AE85D4A</color>
 
     <!-- XUI Config Colors (Fallback if XUI fails to load them) -->
     <color name="xui_config_color_background">#FFF7F5F0</color>

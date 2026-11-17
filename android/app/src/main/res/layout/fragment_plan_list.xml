@@ -7,7 +7,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-    android:background="@color/xui_config_color_background"
+    android:background="@color/brand_background"
         android:orientation="vertical">
 
         <TextView
@@ -112,7 +112,7 @@
             android:layout_height="wrap_content"
             android:text="暂无计划"
             android:textSize="16sp"
-            android:textColor="@color/xui_config_color_text_content"
+            android:textColor="@color/brand_text_secondary"
             android:layout_gravity="center"
             android:visibility="gone" />
 

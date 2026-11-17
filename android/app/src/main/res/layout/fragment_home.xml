@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/xui_config_color_background">
+    android:background="@color/brand_background">
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -17,7 +17,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="欢迎来到减肥对赌"
-            android:textColor="@color/xui_config_color_text_title"
+            android:textColor="@color/brand_text"
             android:textSize="28sp"
             android:textStyle="bold" />
         <TextView
@@ -25,14 +25,14 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="10dp"
             android:text="和朋友一起挑战减肥目标"
-            android:textColor="@color/xui_config_color_text_content"
+            android:textColor="@color/brand_text_secondary"
             android:textSize="16sp" />
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
             android:layout_marginBottom="24dp"
-            app:cardBackgroundColor="#1AE85D4A"
+            app:cardBackgroundColor="@color/brand_primary_surface"
             app:cardCornerRadius="24dp"
             app:cardElevation="2dp">
             <LinearLayout
@@ -44,7 +44,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="计划概览"
-                    android:textColor="@color/xui_config_color_text_title"
+                    android:textColor="@color/brand_text"
                     android:textSize="14sp"
                     android:textStyle="bold" />
                 <TextView
@@ -53,7 +53,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="14dp"
                     android:text="今日打卡：--"
-                    android:textColor="@color/xui_config_color_text_title"
+                    android:textColor="@color/brand_text"
                     android:textSize="15sp" />
                 <TextView
                     android:id="@+id/tvBalance"
@@ -61,7 +61,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text="钱包余额：¥--"
-                    android:textColor="@color/xui_config_color_text_title"
+                    android:textColor="@color/brand_text"
                     android:textSize="15sp" />
             </LinearLayout>
         </androidx.cardview.widget.CardView>

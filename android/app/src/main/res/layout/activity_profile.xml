@@ -34,7 +34,7 @@
                 android:layout_height="wrap_content"
                 android:text="保持健康，享受生活"
                 android:textSize="14sp"
-                android:textColor="#E0E0E0"
+                android:textColor="@color/brand_surface_alt"
                 android:layout_below="@id/tvHeaderTitle"
                 android:layout_marginTop="8dp" />
         </RelativeLayout>
@@ -78,7 +78,7 @@
                             android:layout_height="wrap_content"
                             android:text="昵称"
                             android:textSize="12sp"
-                            android:textColor="#999999" />
+                            android:textColor="@color/brand_text_tertiary" />
                         <TextView
                             android:id="@+id/tvNickname"
                             android:layout_width="wrap_content"
@@ -109,7 +109,7 @@
                             android:layout_height="wrap_content"
                             android:text="性别"
                             android:textSize="12sp"
-                            android:textColor="#999999" />
+                            android:textColor="@color/brand_text_tertiary" />
                         <TextView
                             android:id="@+id/tvGender"
                             android:layout_width="wrap_content"
@@ -140,7 +140,7 @@
                             android:layout_height="wrap_content"
                             android:text="年龄"
                             android:textSize="12sp"
-                            android:textColor="#999999" />
+                            android:textColor="@color/brand_text_tertiary" />
                         <TextView
                             android:id="@+id/tvAge"
                             android:layout_width="wrap_content"
@@ -171,7 +171,7 @@
                             android:layout_height="wrap_content"
                             android:text="身高 (cm)"
                             android:textSize="12sp"
-                            android:textColor="#999999" />
+                            android:textColor="@color/brand_text_tertiary" />
                         <TextView
                             android:id="@+id/tvHeight"
                             android:layout_width="wrap_content"
@@ -202,7 +202,7 @@
                             android:layout_height="wrap_content"
                             android:text="当前体重 (kg)"
                             android:textSize="12sp"
-                            android:textColor="#999999" />
+                            android:textColor="@color/brand_text_tertiary" />
                         <TextView
                             android:id="@+id/tvCurrentWeight"
                             android:layout_width="wrap_content"
@@ -233,7 +233,7 @@
                             android:layout_height="wrap_content"
                             android:text="目标体重 (kg)"
                             android:textSize="12sp"
-                            android:textColor="#999999" />
+                            android:textColor="@color/brand_text_tertiary" />
                         <TextView
                             android:id="@+id/tvTargetWeight"
                             android:layout_width="wrap_content"

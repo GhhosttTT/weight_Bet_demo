@@ -100,7 +100,7 @@ class CreatePlanViewController: UIViewController {
         let descriptionLabel = createLabel(text: "计划描述 (可选)")
         descriptionTextView = UITextView()
         descriptionTextView.font = .systemFont(ofSize: 16)
-        descriptionTextView.layer.borderColor = UIColor.systemGray4.cgColor
+        descriptionTextView.layer.borderColor = AppTheme.Colors.separator.cgColor
         descriptionTextView.layer.borderWidth = 1
         descriptionTextView.layer.cornerRadius = 8
         descriptionTextView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)

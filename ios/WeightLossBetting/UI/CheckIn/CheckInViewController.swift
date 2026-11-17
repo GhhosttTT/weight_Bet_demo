@@ -61,7 +61,7 @@ class CheckInViewController: UIViewController {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFill
         imageView.clipsToBounds = true
-        imageView.backgroundColor = .systemGray5
+        imageView.backgroundColor = AppTheme.Colors.tertiaryBackground
         imageView.layer.cornerRadius = 8
         imageView.translatesAutoresizingMaskIntoConstraints = false
         return imageView
@@ -84,7 +84,7 @@ class CheckInViewController: UIViewController {
     private let noteTextView: UITextView = {
         let textView = UITextView()
         textView.font = .systemFont(ofSize: 16)
-        textView.layer.borderColor = UIColor.systemGray4.cgColor
+        textView.layer.borderColor = AppTheme.Colors.separator.cgColor
         textView.layer.borderWidth = 1
         textView.layer.cornerRadius = 8
         textView.translatesAutoresizingMaskIntoConstraints = false

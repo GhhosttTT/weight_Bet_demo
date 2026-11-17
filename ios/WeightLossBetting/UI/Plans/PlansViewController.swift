@@ -313,17 +313,17 @@ class PlanCell: UITableViewCell {
             statusLabel.textColor = AppTheme.Colors.success
         case .completed:
             statusLabel.text = "已完成"
-            statusLabel.textColor = .systemGray
+            statusLabel.textColor = AppTheme.Colors.tertiaryLabel
         case .cancelled:
             statusLabel.text = "已取消"
-            statusLabel.textColor = .systemGray
+            statusLabel.textColor = AppTheme.Colors.tertiaryLabel
         case .rejected:
             statusLabel.text = "已拒绝"
-            statusLabel.textColor = .systemGray
+            statusLabel.textColor = AppTheme.Colors.tertiaryLabel
             
         case .expired:
             statusLabel.text = "已过期"
-            statusLabel.textColor = .systemGray
+            statusLabel.textColor = AppTheme.Colors.tertiaryLabel
         }
         
         // Bet amount

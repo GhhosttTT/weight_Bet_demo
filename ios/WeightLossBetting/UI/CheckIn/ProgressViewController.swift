@@ -125,7 +125,7 @@ class ProgressViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "进度统计"
-        view.backgroundColor = .systemGroupedBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         setupUI()
         setupBindings()
@@ -329,7 +329,7 @@ class ProgressCircleView: UIView {
         
         trackLayer.path = circularPath.cgPath
         trackLayer.fillColor = UIColor.clear.cgColor
-        trackLayer.strokeColor = UIColor.systemGray5.cgColor
+        trackLayer.strokeColor = AppTheme.Colors.tertiaryBackground.cgColor
         trackLayer.lineWidth = 15
         trackLayer.lineCap = .round
         

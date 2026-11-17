@@ -127,7 +127,7 @@ class PlanDetailViewController: UIViewController {
         cancelButton = UIButton(type: .system)
         cancelButton.setTitle("取消计划", for: .normal)
         cancelButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        cancelButton.backgroundColor = .systemGray2
+        cancelButton.backgroundColor = AppTheme.Colors.tertiaryBackground
         cancelButton.setTitleColor(.darkText, for: .normal)
         cancelButton.layer.cornerRadius = 10
         cancelButton.addTarget(self, action: #selector(cancelTapped), for: .touchUpInside)
@@ -534,22 +534,22 @@ class PlanDetailViewController: UIViewController {
             
         case .completed:
             statusLabel.text = "已完成"
-            statusLabel.textColor = .systemGray
+            statusLabel.textColor = AppTheme.Colors.tertiaryLabel
             hideAllButtons()
             
         case .cancelled:
             statusLabel.text = "已取消"
-            statusLabel.textColor = .systemGray
+            statusLabel.textColor = AppTheme.Colors.tertiaryLabel
             hideAllButtons()
             
         case .rejected:
             statusLabel.text = "已拒绝"
-            statusLabel.textColor = .systemGray
+            statusLabel.textColor = AppTheme.Colors.tertiaryLabel
             hideAllButtons()
             
         case .expired:
             statusLabel.text = "已过期"
-            statusLabel.textColor = .systemGray
+            statusLabel.textColor = AppTheme.Colors.tertiaryLabel
             hideAllButtons()
         }
         

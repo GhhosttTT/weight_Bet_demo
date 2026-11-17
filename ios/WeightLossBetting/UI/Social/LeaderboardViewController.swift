@@ -228,7 +228,7 @@ class LeaderboardCell: UITableViewCell {
         case 1:
             rankLabel.textColor = .systemYellow
         case 2:
-            rankLabel.textColor = .systemGray
+            rankLabel.textColor = AppTheme.Colors.tertiaryLabel
         case 3:
             rankLabel.textColor = AppTheme.Colors.accent
         default:

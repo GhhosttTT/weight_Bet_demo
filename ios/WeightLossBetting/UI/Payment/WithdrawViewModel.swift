@@ -36,8 +36,10 @@ class WithdrawViewModel {
     func loadAvailableBalance() {
         balanceState = .loading
         
-        // TODO: 实际应用中应该使用真实的用户ID
-        let userId = "current_user"
+        guard let userId = AuthRepository.shared.getCurrentUserId(), !userId.isEmpty else {
+            balanceState = .error("登录状态已失效，请重新登录")
+            return
+        }
         
         Task {
             let result = await paymentRepository.getBalance(userId: userId)

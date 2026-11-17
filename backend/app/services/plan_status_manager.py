@@ -75,6 +75,13 @@ class PlanStatusManager:
                 raise InvalidStateTransitionError(
                     f"非法的状态转换: {from_status.value} -> {to_status.value}"
                 )
+
+            # EXPIRED 只表示计划已到结束时间。防止调用方绕过定时任务，
+            # 将仍在有效期内的待生效计划提前置为终态。
+            if to_status == PlanStatus.EXPIRED and plan.end_date > datetime.now():
+                raise InvalidStateTransitionError(
+                    "计划尚未到结束时间，不能标记为过期"
+                )
             
             # 执行状态转换
             plan.status = to_status
@@ -198,6 +205,9 @@ class PlanStatusManager:
             raise InvalidStateTransitionError(
                 "只有待接受或待二次确认的计划可以标记为过期；进行中计划必须先结算"
             )
+
+        if plan.end_date > datetime.now():
+            raise InvalidStateTransitionError("计划尚未到结束时间，不能标记为过期")
         
         plan.status = PlanStatus.EXPIRED
         plan.expiry_checked_at = datetime.now()

@@ -142,6 +142,9 @@ class TestTransitionStatus:
     
     def test_transition_pending_to_expired(self, db_session: Session, test_plan: BettingPlan):
         """测试从 PENDING 转换到 EXPIRED"""
+        test_plan.end_date = datetime.now() - timedelta(minutes=1)
+        db_session.commit()
+
         result = PlanStatusManager.transition_status(
             db_session,
             test_plan.id,
@@ -154,6 +157,21 @@ class TestTransitionStatus:
         
         db_session.refresh(test_plan)
         assert test_plan.status == PlanStatus.EXPIRED
+
+    def test_transition_pending_to_expired_before_end_date_fails(
+        self, db_session: Session, test_plan: BettingPlan
+    ):
+        """有效期内的待生效计划不能提前过期"""
+        with pytest.raises(InvalidStateTransitionError, match="尚未到结束时间"):
+            PlanStatusManager.transition_status(
+                db_session,
+                test_plan.id,
+                PlanStatus.PENDING,
+                PlanStatus.EXPIRED,
+            )
+
+        db_session.refresh(test_plan)
+        assert test_plan.status == PlanStatus.PENDING
     
     def test_transition_active_to_cancelled(self, db_session: Session, test_plan: BettingPlan, test_user: User):
         """测试从 ACTIVE 转换到 CANCELLED"""
@@ -1079,6 +1097,8 @@ class TestMarkAsExpired:
     
     def test_mark_as_expired_success(self, db_session: Session, test_plan: BettingPlan):
         """测试成功标记计划为过期"""
+        test_plan.end_date = datetime.now() - timedelta(minutes=1)
+        db_session.commit()
         before_time = datetime.now()
         
         result = PlanStatusManager.mark_as_expired(db_session, test_plan.id)
@@ -1094,6 +1114,16 @@ class TestMarkAsExpired:
         db_session.refresh(test_plan)
         assert test_plan.status == PlanStatus.EXPIRED
         assert test_plan.expiry_checked_at is not None
+
+    def test_mark_as_expired_before_end_date_fails(
+        self, db_session: Session, test_plan: BettingPlan
+    ):
+        """直接过期入口也必须遵守结束时间"""
+        with pytest.raises(InvalidStateTransitionError, match="尚未到结束时间"):
+            PlanStatusManager.mark_as_expired(db_session, test_plan.id)
+
+        db_session.refresh(test_plan)
+        assert test_plan.status == PlanStatus.PENDING
     
     def test_mark_as_expired_plan_not_found(self, db_session: Session):
         """测试标记不存在的计划为过期"""
@@ -1469,7 +1499,11 @@ class TestStateTransitionEdgeCases:
                 status=PlanStatus.PENDING,
                 bet_amount=100.0,
                 start_date=datetime.now(),
-                end_date=datetime.now() + timedelta(days=30),
+                end_date=(
+                    datetime.now() - timedelta(minutes=1)
+                    if target_status == PlanStatus.EXPIRED
+                    else datetime.now() + timedelta(days=30)
+                ),
                 description=f"测试计划 - {target_status.value}",
                 creator_initial_weight=80.0,
                 creator_target_weight=75.0,

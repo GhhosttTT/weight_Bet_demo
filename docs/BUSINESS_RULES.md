@@ -57,7 +57,7 @@ COMPLETED / CANCELLED / REJECTED / EXPIRED
 3. 结算成功后写入唯一结算记录，并将计划改为 `COMPLETED`。
 4. 结算失败时回滚余额、流水和计划状态。
 
-只有尚未生效的 `PENDING` 或 `WAITING_DOUBLE_CHECK` 计划可以进入 `EXPIRED`。
+只有尚未生效且 `end_date <= now` 的 `PENDING` 或 `WAITING_DOUBLE_CHECK` 计划可以进入 `EXPIRED`；有效期内的计划不能通过状态接口提前过期。
 
 ## 4. 权限边界
 

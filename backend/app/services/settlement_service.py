@@ -19,6 +19,7 @@ from app.schemas.settlement import (
 from app.services.check_in_service import CheckInService
 from app.services.payment_service import PaymentService
 from app.services.arbitration_service import ArbitrationService
+from app.services.notification_service import NotificationService
 from app.logger import get_logger
 
 logger = get_logger()
@@ -319,7 +320,21 @@ class SettlementService:
                 settlement_id, plan_id, creator_amount, participant_amount, platform_fee
             )
                     
-            # TODO: 发送结算通知给双方
+            # 通知失败不能回滚已完成的资金结算，避免重复结算风险。
+            for user_id, amount, achieved in (
+                (plan.creator_id, creator_amount, creator_achieved),
+                (plan.participant_id, participant_amount, participant_achieved),
+            ):
+                try:
+                    NotificationService.send_settlement_notification(
+                        db, user_id, plan_id, amount, achieved
+                    )
+                except Exception:
+                    logger.exception(
+                        "Settlement notification failed: plan={}, user={}",
+                        plan_id,
+                        user_id,
+                    )
                     
             return SettlementResponse.from_orm(settlement)
                     

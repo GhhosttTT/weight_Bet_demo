@@ -1,13 +1,16 @@
 """
 打卡相关的 API 路由
 """
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException, status, File, UploadFile
+from pathlib import Path
+import uuid
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.middleware.auth import get_current_user_id
 from app.services.check_in_service import CheckInService
 from app.models.betting_plan import BettingPlan
+from app.models.check_in import CheckIn
 from app.schemas.check_in import (
     CreateCheckInRequest,
     ReviewCheckInRequest,
@@ -17,6 +20,14 @@ from app.schemas.check_in import (
 )
 
 router = APIRouter()
+
+UPLOAD_ROOT = Path(__file__).resolve().parents[2] / "uploads" / "checkins"
+MAX_PHOTO_BYTES = 5 * 1024 * 1024
+ALLOWED_PHOTO_TYPES = {
+    "image/jpeg": ".jpg",
+    "image/png": ".png",
+    "image/webp": ".webp",
+}
 
 
 @router.post("/check-ins", response_model=CheckInResponse, status_code=201)
@@ -51,6 +62,36 @@ def upload_photo(
     - **photo_url**: 照片 URL
     """
     return CheckInService.upload_photo(db, current_user_id, check_in_id, request.photo_url)
+
+
+@router.post("/check-ins/{check_in_id}/photo/upload", response_model=CheckInResponse)
+async def upload_photo_file(
+    check_in_id: str,
+    photo: UploadFile = File(...),
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db)
+):
+    """上传图片文件，并将相对访问地址写入打卡记录。"""
+    check_in = db.query(CheckIn).filter(CheckIn.id == check_in_id).first()
+    if not check_in:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="打卡记录不存在")
+    if check_in.user_id != current_user_id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权限修改此打卡记录")
+
+    extension = ALLOWED_PHOTO_TYPES.get(photo.content_type or "")
+    if extension is None:
+        raise HTTPException(status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE, detail="仅支持 JPG、PNG 或 WebP 图片")
+
+    content = await photo.read(MAX_PHOTO_BYTES + 1)
+    if len(content) > MAX_PHOTO_BYTES:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE, detail="图片不能超过 5MB")
+
+    UPLOAD_ROOT.mkdir(parents=True, exist_ok=True)
+    filename = f"{check_in_id}_{uuid.uuid4().hex}{extension}"
+    (UPLOAD_ROOT / filename).write_bytes(content)
+    return CheckInService.upload_photo(
+        db, current_user_id, check_in_id, f"/uploads/checkins/{filename}"
+    )
 
 
 @router.post("/check-ins/{check_in_id}/review", response_model=CheckInResponse)

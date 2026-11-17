@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
-import android.provider.MediaStore
+import android.os.Environment
 import androidx.activity.result.ActivityResultLauncher
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
@@ -34,7 +34,8 @@ class PhotoUploadHelper(
     
     fun createImageFile(): File {
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
-        val storageDir = context.getExternalFilesDir(null)
+        val storageDir = context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+            ?: throw IOException("无法访问照片存储目录")
         return File.createTempFile(
             "JPEG_${timeStamp}_",
             ".jpg",
@@ -115,12 +116,18 @@ class PhotoUploadHelper(
     }
     
     private fun getRealPathFromUri(uri: Uri): String? {
-        val projection = arrayOf(MediaStore.Images.Media.DATA)
-        context.contentResolver.query(uri, projection, null, null, null)?.use { cursor ->
-            val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
-            cursor.moveToFirst()
-            return cursor.getString(columnIndex)
+        // 直接复制到缓存目录，兼容 Android 10+ 的分区存储和云端相册 URI。
+        val cachedFile = File(context.cacheDir, "selected_${System.currentTimeMillis()}.jpg")
+        return try {
+            context.contentResolver.openInputStream(uri)?.use { input ->
+                FileOutputStream(cachedFile).use { output ->
+                    input.copyTo(output)
+                }
+            } ?: return null
+            cachedFile.absolutePath
+        } catch (_: IOException) {
+            cachedFile.delete()
+            null
         }
-        return null
     }
 }

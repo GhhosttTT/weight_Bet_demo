@@ -45,10 +45,14 @@ class CheckInViewModel @Inject constructor(
     private val _checkInState = MutableLiveData<CheckInState>(CheckInState.Idle)
     val checkInState: LiveData<CheckInState> = _checkInState
 
+    private val _photoUploadState = MutableLiveData<PhotoUploadState>(PhotoUploadState.Idle)
+    val photoUploadState: LiveData<PhotoUploadState> = _photoUploadState
+
     fun createCheckIn(
         planId: String,
         weight: String,
-        note: String?
+        note: String?,
+        photoPath: String? = null
     ) {
         val weightDouble = weight.toDoubleOrNull()
         if (weightDouble == null || weightDouble < 30 || weightDouble > 300) {
@@ -69,8 +73,7 @@ class CheckInViewModel @Inject constructor(
     
             when (val result = checkInRepository.createCheckIn(checkInData)) {
                 is NetworkResult.Success -> {
-                    _checkInState.value = CheckInState.Success(result.data)
-                    recommendationRepository.refreshAndCacheRecommendationAsync()
+                    finishCheckIn(result.data, photoPath)
                 }
                 is NetworkResult.Error -> {
                     _checkInState.value = CheckInState.Error(
@@ -81,10 +84,32 @@ class CheckInViewModel @Inject constructor(
             }
         }
     }
+
+    private suspend fun finishCheckIn(checkIn: CheckIn, photoPath: String?) {
+        if (photoPath != null) {
+            _photoUploadState.value = PhotoUploadState.Loading
+            when (val uploadResult = checkInRepository.uploadPhoto(checkIn.id, photoPath)) {
+                is NetworkResult.Success -> {
+                    _photoUploadState.value = PhotoUploadState.Success(
+                        uploadResult.data.photoUrl.orEmpty()
+                    )
+                }
+                is NetworkResult.Error -> {
+                    _photoUploadState.value = PhotoUploadState.Error(
+                        uploadResult.exception.message ?: "照片上传失败"
+                    )
+                }
+                is NetworkResult.Loading -> Unit
+            }
+        }
+        _checkInState.value = CheckInState.Success(checkIn)
+        recommendationRepository.refreshAndCacheRecommendationAsync()
+    }
         
     fun createCheckInForAllPlans(
         weight: String,
-        note: String?
+        note: String?,
+        photoPath: String? = null
     ) {
         val weightDouble = weight.toDoubleOrNull()
         if (weightDouble == null || weightDouble < 30 || weightDouble > 300) {
@@ -111,6 +136,7 @@ class CheckInViewModel @Inject constructor(
     
                     var successCount = 0
                     var failCount = 0
+                    var photoFailCount = 0
                     var lastSuccessCheckIn: CheckIn? = null
     
                     for (plan in activePlans) {
@@ -126,6 +152,13 @@ class CheckInViewModel @Inject constructor(
                             is NetworkResult.Success -> {
                                 successCount++
                                 lastSuccessCheckIn = result.data
+                                if (photoPath != null) {
+                                    when (val uploadResult = checkInRepository.uploadPhoto(result.data.id, photoPath)) {
+                                        is NetworkResult.Success -> Unit
+                                        is NetworkResult.Error -> photoFailCount++
+                                        is NetworkResult.Loading -> Unit
+                                    }
+                                }
                             }
                             is NetworkResult.Error -> {
                                 failCount++
@@ -135,6 +168,13 @@ class CheckInViewModel @Inject constructor(
                     }
     
                     if (lastSuccessCheckIn != null) {
+                        if (photoPath != null) {
+                            _photoUploadState.value = if (photoFailCount == 0) {
+                                PhotoUploadState.Success("uploaded")
+                            } else {
+                                PhotoUploadState.Error("有 $photoFailCount 个计划的照片上传失败")
+                            }
+                        }
                         _checkInState.value = CheckInState.Success(lastSuccessCheckIn)
                         recommendationRepository.refreshAndCacheRecommendationAsync()
                     } else {

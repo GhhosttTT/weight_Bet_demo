@@ -472,18 +472,17 @@ class APIService {
             multipartFormData: { multipartFormData in
                 multipartFormData.append(imageData, withName: "photo", fileName: "checkin.jpg", mimeType: "image/jpeg")
             },
-            to: "\(baseURL)/check-ins/\(checkInId)/photo"
+            to: "\(baseURL)/check-ins/\(checkInId)/photo/upload"
         )
         .validate()
-        .responseDecodable(of: APIResponse<PhotoUploadResponse>.self, decoder: decoder) { response in
+        .responseDecodable(of: CheckIn.self, decoder: decoder) { response in
             switch response.result {
-            case .success(let apiResponse):
-                if apiResponse.success, let data = apiResponse.data {
-                    completion(.success(data.photoUrl))
+            case .success(let checkIn):
+                if let photoUrl = checkIn.photoUrl {
+                    completion(.success(photoUrl))
                 } else {
-                    let error = NSError(domain: "APIError",
-                                      code: -1,
-                                      userInfo: [NSLocalizedDescriptionKey: apiResponse.error ?? "Photo upload failed"])
+                    let error = NSError(domain: "APIError", code: -1,
+                                      userInfo: [NSLocalizedDescriptionKey: "Photo upload response did not include a URL"])
                     completion(.failure(error))
                 }
             case .failure(let error):
@@ -493,9 +492,11 @@ class APIService {
     }
     
     func reviewCheckIn(checkInId: String, approved: Bool, comment: String?, completion: @escaping (Result<Void, Error>) -> Void) {
-        var parameters: [String: Any] = ["approved": approved]
+        var parameters: [String: Any] = [
+            "review_status": approved ? "approved" : "rejected"
+        ]
         if let comment = comment {
-            parameters["comment"] = comment
+            parameters["review_comment"] = comment
         }
         
         session.request("\(baseURL)/check-ins/\(checkInId)/review",

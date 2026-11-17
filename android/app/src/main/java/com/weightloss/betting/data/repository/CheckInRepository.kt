@@ -8,6 +8,10 @@ import com.weightloss.betting.data.remote.NetworkResult
 import com.weightloss.betting.data.remote.NetworkException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 import javax.inject.Inject
@@ -51,6 +55,16 @@ class CheckInRepository @Inject constructor(
             }
             else -> result
         }
+    }
+
+    suspend fun uploadPhoto(checkInId: String, photoPath: String): NetworkResult<CheckIn> {
+        val photoFile = File(photoPath)
+        if (!photoFile.isFile) {
+            return NetworkResult.Error(NetworkException.ValidationError("照片文件不存在"))
+        }
+        val requestBody = photoFile.asRequestBody("image/jpeg".toMediaType())
+        val part = MultipartBody.Part.createFormData("photo", photoFile.name, requestBody)
+        return safeApiCall { apiService.uploadCheckInPhoto(checkInId, part) }
     }
     
     /**

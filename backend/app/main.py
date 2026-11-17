@@ -2,6 +2,7 @@
 FastAPI 应用主入口
 """
 from fastapi import FastAPI, HTTPException
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -17,6 +18,7 @@ from app.middleware.error_handler import (
     database_exception_handler,
     general_exception_handler
 )
+from pathlib import Path
 
 logger = get_logger()
 
@@ -116,6 +118,11 @@ Authorization: Bearer <access_token>
         "name": "MIT",
     },
 )
+
+# 打卡图片使用随机文件名保存，客户端拿到相对地址后通过同一服务访问。
+UPLOADS_DIR = Path(__file__).resolve().parents[1] / "uploads"
+UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 # 注册全局错误处理器
 app.add_exception_handler(HTTPException, http_exception_handler)

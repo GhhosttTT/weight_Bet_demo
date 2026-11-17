@@ -1,6 +1,7 @@
 package com.weightloss.betting.data.remote
 
 import com.weightloss.betting.data.model.*
+import okhttp3.MultipartBody
 import retrofit2.Response
 import retrofit2.http.*
 
@@ -92,6 +93,13 @@ interface ApiService {
     
     @POST("api/check-ins")
     suspend fun createCheckIn(@Body request: CreateCheckInRequest): Response<CheckIn>
+
+    @Multipart
+    @POST("api/check-ins/{checkInId}/photo/upload")
+    suspend fun uploadCheckInPhoto(
+        @Path("checkInId") checkInId: String,
+        @Part photo: MultipartBody.Part
+    ): Response<CheckIn>
     
     @GET("api/check-ins/plan/{planId}/user/{userId}")
     suspend fun getCheckInHistory(

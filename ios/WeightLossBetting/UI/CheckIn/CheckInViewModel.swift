@@ -35,11 +35,23 @@ class CheckInViewModel {
     }
     
     private var uploadedPhotoUrl: String?
+    private var pendingPhotoData: Data?
     private var currentPlanId: String?  // 当前进行中的计划 ID
     
     // MARK: - Photo Upload
     
-    func uploadPhoto(imageData: Data, checkInId: String = UUID().uuidString) {
+    func uploadPhoto(
+        imageData: Data,
+        checkInId: String? = nil,
+        completion: ((Result<String, Error>) -> Void)? = nil
+    ) {
+        // 选图时先暂存，创建打卡后使用服务端返回的真实 ID 上传。
+        guard let checkInId = checkInId else {
+            pendingPhotoData = imageData
+            photoUploadState = .success("pending")
+            return
+        }
+
         photoUploadState = .loading
         
         checkInRepository.uploadCheckInPhoto(checkInId: checkInId, imageData: imageData) { [weak self] result in
@@ -48,9 +60,11 @@ class CheckInViewModel {
                 case .success(let photoUrl):
                     self?.uploadedPhotoUrl = photoUrl
                     self?.photoUploadState = .success(photoUrl)
+                    completion?(.success(photoUrl))
                     
                 case .failure(let error):
                     self?.photoUploadState = .error(error.localizedDescription)
+                    completion?(.failure(error))
                 }
             }
         }
@@ -108,14 +122,29 @@ class CheckInViewModel {
             planId: planId,
             weight: weight,
             note: note,
-            photoUrl: uploadedPhotoUrl
+            photoUrl: nil
         ) { [weak self] result in
             DispatchQueue.main.async {
                 switch result {
                 case .success(let checkIn):
-                    self?.checkInState = .success(checkIn)
-                    // Check-in successful, refresh recommendation in background
-                    self?.refreshRecommendation()
+                    guard let self = self, let imageData = self.pendingPhotoData else {
+                        self?.checkInState = .success(checkIn)
+                        self?.refreshRecommendation()
+                        return
+                    }
+
+                    // 图片上传完成后再向页面报告最终成功状态。
+                    self.uploadPhoto(imageData: imageData, checkInId: checkIn.id) { [weak self] uploadResult in
+                        guard let self = self else { return }
+                        switch uploadResult {
+                        case .success:
+                            self.pendingPhotoData = nil
+                            self.checkInState = .success(checkIn)
+                            self.refreshRecommendation()
+                        case .failure(let error):
+                            self.checkInState = .error("打卡已成功，但照片上传失败：\(error.localizedDescription)")
+                        }
+                    }
                     
                 case .failure(let error):
                     let errorMessage = self?.parseErrorMessage(error) ?? "打卡失败"

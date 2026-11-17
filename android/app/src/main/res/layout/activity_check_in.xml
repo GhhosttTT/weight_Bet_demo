@@ -48,6 +48,37 @@
                     android:inputType="numberDecimal" />
             </com.google.android.material.textfield.TextInputLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="上传体重秤照片 (可选)"
+                android:textColor="@color/brand_text_secondary"
+                android:textSize="14sp"
+                android:layout_marginBottom="8dp" />
+
+            <ImageView
+                android:id="@+id/ivPhoto"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginBottom="8dp"
+                android:background="@color/brand_surface_alt"
+                android:contentDescription="已选择的体重秤照片"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnSelectPhoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="选择照片"
+                android:textColor="@color/brand_primary"
+                android:layout_marginBottom="24dp"
+                app:cornerRadius="12dp"
+                app:strokeColor="@color/brand_primary"
+                app:strokeWidth="1dp"
+                android:backgroundTint="@color/brand_surface" />
+
             <!-- Note input -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"

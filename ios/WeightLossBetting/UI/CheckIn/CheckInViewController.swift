@@ -243,9 +243,10 @@ class CheckInViewController: UIViewController {
             case .loading:
                 self?.photoProgressView.startAnimating()
                 
-            case .success:
+            case .success(let photoUrl):
                 self?.photoProgressView.stopAnimating()
-                self?.showAlert(title: "成功", message: "照片上传成功")
+                let message = photoUrl == "pending" ? "照片已选择，提交打卡后上传" : "照片上传成功"
+                self?.showAlert(title: "成功", message: message)
                 
             case .error(let message):
                 self?.photoProgressView.stopAnimating()

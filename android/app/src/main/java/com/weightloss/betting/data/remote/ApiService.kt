@@ -87,16 +87,15 @@ interface ApiService {
     @POST("api/check-ins")
     suspend fun createCheckIn(@Body request: CreateCheckInRequest): Response<CheckIn>
     
-    @GET("api/betting-plans/{planId}/check-ins")
+    @GET("api/check-ins/plan/{planId}/user/{userId}")
     suspend fun getCheckInHistory(
         @Path("planId") planId: String,
-        @Query("user_id") userId: String? = null
+        @Path("userId") userId: String
     ): Response<List<CheckIn>>
     
-    @GET("api/betting-plans/{planId}/progress")
+    @GET("api/check-ins/plan/{planId}/progress")
     suspend fun getProgress(
-        @Path("planId") planId: String,
-        @Query("user_id") userId: String
+        @Path("planId") planId: String
     ): Response<ProgressStats>
 
     // ==================== 结算选择 API ====================

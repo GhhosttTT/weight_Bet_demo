@@ -5,6 +5,7 @@ import com.weightloss.betting.data.local.OfflineSyncService
 import com.weightloss.betting.data.model.*
 import com.weightloss.betting.data.remote.ApiService
 import com.weightloss.betting.data.remote.NetworkResult
+import com.weightloss.betting.data.remote.NetworkException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import java.text.SimpleDateFormat
@@ -74,7 +75,10 @@ class CheckInRepository @Inject constructor(
         }
         
         // 从网络获取
-        return when (val result = safeApiCall { apiService.getCheckInHistory(planId, userId) }) {
+        val requestedUserId = userId ?: return NetworkResult.Error(
+            NetworkException.ValidationError("获取打卡历史需要用户 ID")
+        )
+        return when (val result = safeApiCall { apiService.getCheckInHistory(planId, requestedUserId) }) {
             is NetworkResult.Success -> {
                 // 缓存打卡历史
                 cacheManager.cacheCheckIns(result.data)
@@ -102,7 +106,7 @@ class CheckInRepository @Inject constructor(
         planId: String,
         userId: String
     ): NetworkResult<ProgressStats> {
-        return safeApiCall { apiService.getProgress(planId, userId) }
+        return safeApiCall { apiService.getProgress(planId) }
     }
     
     fun observePendingSyncCount(): Flow<Int> {

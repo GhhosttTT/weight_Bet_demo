@@ -19,6 +19,19 @@ def sufficient_balance_case(draw):
     return bet_cents / 100.0, initial_cents / 100.0
 
 
+@st.composite
+def sufficient_transfer_case(draw):
+    """生成转账金额不超过发送方余额的组合。"""
+    sender_cents = draw(st.integers(min_value=100, max_value=1_000_000))
+    transfer_cents = draw(st.integers(min_value=100, max_value=sender_cents))
+    recipient_cents = draw(st.integers(min_value=0, max_value=1_000_000))
+    return (
+        transfer_cents / 100.0,
+        sender_cents / 100.0,
+        recipient_cents / 100.0,
+    )
+
+
 @pytest.fixture
 def db_session():
     """创建测试数据库会话"""
@@ -74,12 +87,9 @@ def get_total_balance(db: Session):
     return total
 
 
-@given(
-    bet_amount=st.floats(min_value=1.0, max_value=10000.0, allow_nan=False, allow_infinity=False),
-    initial_balance=st.floats(min_value=0.0, max_value=20000.0, allow_nan=False, allow_infinity=False)
-)
+@given(case=sufficient_balance_case())
 @settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
-def test_property_balance_conservation_freeze(db_session: Session, bet_amount: float, initial_balance: float):
+def test_property_balance_conservation_freeze(db_session: Session, case):
     """
     Feature: invite-and-abandon-plan, Property 19: Total Balance Conservation
     
@@ -88,8 +98,7 @@ def test_property_balance_conservation_freeze(db_session: Session, bet_amount: f
     
     Validates: Requirements 7.4, 9.9
     """
-    # 假设余额充足
-    assume(initial_balance >= bet_amount)
+    bet_amount, initial_balance = case
     
     # 创建用户
     user = create_test_user_with_balance(db_session, initial_balance, 0.0)
@@ -114,12 +123,9 @@ def test_property_balance_conservation_freeze(db_session: Session, bet_amount: f
         assert abs(balance.frozen_balance - bet_amount) < 0.01
 
 
-@given(
-    bet_amount=st.floats(min_value=1.0, max_value=10000.0, allow_nan=False, allow_infinity=False),
-    initial_balance=st.floats(min_value=0.0, max_value=20000.0, allow_nan=False, allow_infinity=False)
-)
+@given(case=sufficient_balance_case())
 @settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
-def test_property_balance_conservation_unfreeze(db_session: Session, bet_amount: float, initial_balance: float):
+def test_property_balance_conservation_unfreeze(db_session: Session, case):
     """
     Feature: invite-and-abandon-plan, Property 19: Total Balance Conservation
     
@@ -128,8 +134,7 @@ def test_property_balance_conservation_unfreeze(db_session: Session, bet_amount:
     
     Validates: Requirements 7.4, 9.9
     """
-    # 假设余额充足
-    assume(initial_balance >= bet_amount)
+    bet_amount, initial_balance = case
     
     # 创建用户并冻结资金
     user = create_test_user_with_balance(db_session, initial_balance, 0.0)
@@ -157,17 +162,11 @@ def test_property_balance_conservation_unfreeze(db_session: Session, bet_amount:
         assert abs(balance.frozen_balance) < 0.01
 
 
-@given(
-    transfer_amount=st.floats(min_value=1.0, max_value=5000.0, allow_nan=False, allow_infinity=False),
-    sender_balance=st.floats(min_value=0.0, max_value=10000.0, allow_nan=False, allow_infinity=False),
-    recipient_balance=st.floats(min_value=0.0, max_value=10000.0, allow_nan=False, allow_infinity=False)
-)
+@given(case=sufficient_transfer_case())
 @settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
 def test_property_balance_conservation_transfer(
     db_session: Session,
-    transfer_amount: float,
-    sender_balance: float,
-    recipient_balance: float
+    case
 ):
     """
     Feature: invite-and-abandon-plan, Property 19: Total Balance Conservation
@@ -177,8 +176,7 @@ def test_property_balance_conservation_transfer(
     
     Validates: Requirements 7.4, 9.9
     """
-    # 假设发送方余额充足
-    assume(sender_balance >= transfer_amount)
+    transfer_amount, sender_balance, recipient_balance = case
     
     # 创建两个用户
     sender = create_test_user_with_balance(db_session, sender_balance, 0.0)

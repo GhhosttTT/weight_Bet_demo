@@ -118,18 +118,21 @@ class SettlementViewController: UIViewController {
 
     private func loadSettlementStatus() {
         submitButton.isEnabled = false
+        setChoiceEnabled(false)
         SettlementService.shared.getSettlementSelectionStatus(planId: planId) { [weak self] result in
             DispatchQueue.main.async {
                 guard let self = self else { return }
                 switch result {
                 case .success(let status):
                     if status.settlementCompleted {
-                        self.subtitleLabel.text = "结算已完成"
+                        self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 结算已完成"
                     } else if status.inArbitration {
-                        self.subtitleLabel.text = "双方结果多轮不一致，已进入仲裁"
+                        self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 双方结果多轮不一致，已进入仲裁"
                     } else if status.currentUserSubmitted {
-                        self.subtitleLabel.text = "已提交本轮结果，等待对方确认"
+                        self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 已提交，等待对方确认"
                     } else {
+                        self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 请确认双方成果"
+                        self.setChoiceEnabled(true)
                         self.submitButton.isEnabled = true
                     }
                 case .failure(let error):
@@ -137,6 +140,11 @@ class SettlementViewController: UIViewController {
                 }
             }
         }
+    }
+
+    private func setChoiceEnabled(_ enabled: Bool) {
+        myAchievementSegment.isEnabled = enabled
+        opponentAchievementSegment.isEnabled = enabled
     }
 
     // MARK: - Setup
@@ -222,6 +230,7 @@ class SettlementViewController: UIViewController {
                 switch result {
                 case .success:
                     self?.submitButton.isEnabled = false
+                    self?.setChoiceEnabled(false)
                     let alert = UIAlertController(
                         title: "结算提交成功",
                         message: "您的结算结果已提交，等待对手确认。",

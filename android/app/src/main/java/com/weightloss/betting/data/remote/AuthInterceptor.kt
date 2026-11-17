@@ -33,7 +33,7 @@ class AuthInterceptor @Inject constructor(
         }
         
         // 获取访问令牌
-        val token = runBlocking {
+        var token = runBlocking {
             tokenManager.getAccessToken()
         }
         
@@ -42,6 +42,19 @@ class AuthInterceptor @Inject constructor(
         // 如果没有令牌，直接放行（让后续逻辑处理）
         if (token.isNullOrEmpty()) {
             Log.d(TAG, "Proceeding without token (no token available)")
+            return chain.proceed(originalRequest)
+        }
+
+        // 在请求前提前刷新，避免等到过期后整页收到 401；401 分支仍作为兜底。
+        if (JwtTokenUtils.isExpiringSoon(token!!)) {
+            Log.d(TAG, "Access token is expiring soon, attempting to refresh")
+            val refreshSuccess = runBlocking { refreshToken() }
+            if (refreshSuccess) {
+                token = runBlocking { tokenManager.getAccessToken() }
+            }
+        }
+
+        if (token.isNullOrEmpty()) {
             return chain.proceed(originalRequest)
         }
         

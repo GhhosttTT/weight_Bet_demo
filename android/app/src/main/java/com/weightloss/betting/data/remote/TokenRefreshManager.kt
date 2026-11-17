@@ -13,7 +13,7 @@ class TokenRefreshManager @Inject constructor(
     private val tokenManager: TokenManager,
     private val authRepository: AuthRepository
 ) {
-    
+
     /**
      * 检查令牌是否过期并自动刷新
      * 
@@ -27,7 +27,6 @@ class TokenRefreshManager @Inject constructor(
             return false
         }
         
-        // 检查令牌是否即将过期 (这里简化处理,实际应该解析 JWT 检查过期时间)
         // 如果令牌即将过期,尝试刷新
         if (isTokenExpiringSoon(accessToken)) {
             return refreshToken()
@@ -52,14 +51,12 @@ class TokenRefreshManager @Inject constructor(
     }
     
     /**
-     * 检查令牌是否即将过期
-     * 
-     * 注意: 这是简化实现,实际应该解析 JWT 的 exp 字段
+     * 读取 JWT payload 中的 exp（Unix 秒）。
+     * JWT 的签名校验仍由服务端完成；客户端只用 exp 决定是否提前刷新。
+     * 格式异常或缺失 exp 时按即将过期处理，避免继续携带不可信令牌请求接口。
      */
     private fun isTokenExpiringSoon(token: String): Boolean {
-        // TODO: 实现 JWT 解析和过期时间检查
-        // 这里简化处理,假设令牌总是有效
-        return false
+        return JwtTokenUtils.isExpiringSoon(token)
     }
     
     /**

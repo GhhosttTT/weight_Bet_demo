@@ -92,6 +92,16 @@ class TestRateLimitMiddleware:
         assert "X-RateLimit-Reset" in response.headers
         assert response.headers["X-RateLimit-Limit"] == "100"
 
+    def test_rate_limit_uses_authenticated_subject(self):
+        app = create_test_app()
+        middleware = RateLimitMiddleware(app)
+        request = Mock()
+        request.state.user_id = None
+        request.headers = {"Authorization": "Bearer valid-token"}
+
+        with patch("app.middleware.rate_limit.decode_token", return_value={"sub": "user-123"}):
+            assert middleware._get_user_identifier(request) == "user:user-123"
+
 
 class TestSecurityMiddleware:
     """测试安全中间件"""

@@ -7,6 +7,7 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.redis_client import get_redis
 from app.logger import get_logger
+from app.utils.security import decode_token
 from typing import Optional, Tuple
 import time
 import uuid
@@ -72,11 +73,21 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         
         优先使用用户 ID,如果未认证则使用 IP 地址
         """
-        # 尝试从请求状态中获取用户 ID (由认证中间件设置)
+        # 尝试从请求状态中获取用户 ID（兼容已有认证中间件）
         user_id = getattr(request.state, "user_id", None)
         
         if user_id:
             return f"user:{user_id}"
+
+        # FastAPI 的 Depends 在路由执行阶段才解析，限流中间件无法依赖
+        # get_current_user；这里仅解码 JWT 的 subject，不访问数据库。
+        authorization = request.headers.get("Authorization", "")
+        if authorization.lower().startswith("bearer "):
+            token = authorization[7:].strip()
+            payload = decode_token(token) if token else None
+            token_user_id = payload.get("sub") if payload else None
+            if token_user_id:
+                return f"user:{token_user_id}"
         
         # 如果未认证,使用 IP 地址
         client_ip = request.client.host if request.client else "unknown"

@@ -133,13 +133,13 @@ interface ApiService {
         @Query("limit") limit: Int = 100
     ): Response<List<LeaderboardEntry>>
     
-    @POST("api/social/betting-plans/{planId}/comments")
+    @POST("api/social/plans/{planId}/comments")
     suspend fun postComment(
         @Path("planId") planId: String,
         @Body request: CommentRequest
     ): Response<Comment>
     
-    @GET("api/social/betting-plans/{planId}/comments")
+    @GET("api/social/plans/{planId}/comments")
     suspend fun getComments(@Path("planId") planId: String): Response<List<Comment>>
     
     @GET("api/social/users/{userId}/badges")

@@ -296,28 +296,12 @@ class APIService {
             parameters["status"] = status
         }
         
-        // Try without /api prefix since betting-plans router might be registered at root
         session.request("\(baseURL)/betting-plans/users/\(userId)/plans",
                        method: .get,
                        parameters: parameters)
             .validate()
             .responseDecodable(of: [BettingPlan].self, decoder: decoder) { [weak self] response in
-                guard let self = self else { return }
-                
-                // If 404, try fallback to alternative path
-                if let httpError = response.error as? AFError,
-                   httpError.responseCode == 404 {
-                    print("⚠️ First endpoint failed, trying fallback...")
-                    self.session.request("\(self.baseURL)/users/\(userId)/plans",
-                                   method: .get,
-                                   parameters: parameters)
-                        .validate()
-                        .responseDecodable(of: [BettingPlan].self, decoder: decoder) { fallbackResponse in
-                            self.handleDirectResponse(fallbackResponse, completion: completion)
-                        }
-                } else {
-                    self.handleDirectResponse(response, completion: completion)
-                }
+                self?.handleDirectResponse(response, completion: completion)
             }
     }
     
@@ -597,7 +581,7 @@ class APIService {
     func postComment(planId: String, content: String, completion: @escaping (Result<Comment, Error>) -> Void) {
         let parameters = ["content": content]
         
-        session.request("\(baseURL)/social/betting-plans/\(planId)/comments",
+        session.request("\(baseURL)/social/plans/\(planId)/comments",
                        method: .post,
                        parameters: parameters,
                        encoding: JSONEncoding.default)
@@ -608,7 +592,7 @@ class APIService {
     }
     
     func getComments(planId: String, completion: @escaping (Result<[Comment], Error>) -> Void) {
-        session.request("\(baseURL)/social/betting-plans/\(planId)/comments",
+        session.request("\(baseURL)/social/plans/\(planId)/comments",
                        method: .get)
             .validate()
             .responseDecodable(of: [Comment].self, decoder: decoder) { response in

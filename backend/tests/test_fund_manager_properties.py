@@ -11,6 +11,14 @@ from app.models.user import User
 import uuid
 
 
+@st.composite
+def sufficient_balance_case(draw):
+    """生成余额充足的金额组合，避免用 assume 大量丢弃随机样本。"""
+    initial_cents = draw(st.integers(min_value=100, max_value=1_000_000))
+    bet_cents = draw(st.integers(min_value=100, max_value=initial_cents))
+    return bet_cents / 100.0, initial_cents / 100.0
+
+
 @pytest.fixture
 def db_session():
     """创建测试数据库会话"""
@@ -294,15 +302,11 @@ def test_property_balance_conservation_multiple_operations(
     assert abs(initial_total - final_total) < 0.1, f"Balance not conserved after multiple operations: {initial_total} != {final_total}"
 
 
-@given(
-    bet_amount=st.floats(min_value=1.0, max_value=5000.0, allow_nan=False, allow_infinity=False),
-    initial_balance=st.floats(min_value=0.0, max_value=10000.0, allow_nan=False, allow_infinity=False)
-)
+@given(case=sufficient_balance_case())
 @settings(max_examples=100, deadline=None, suppress_health_check=[HealthCheck.function_scoped_fixture])
 def test_property_freeze_unfreeze_idempotent(
     db_session: Session,
-    bet_amount: float,
-    initial_balance: float
+    case
 ):
     """
     Property: Freeze followed by unfreeze should restore original balance
@@ -312,8 +316,7 @@ def test_property_freeze_unfreeze_idempotent(
     
     Validates: Requirements 7.1, 7.2
     """
-    # 假设余额充足
-    assume(initial_balance >= bet_amount)
+    bet_amount, initial_balance = case
     
     # 创建用户
     user = create_test_user_with_balance(db_session, initial_balance, 0.0)

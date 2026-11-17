@@ -1,7 +1,7 @@
 """
 支付 API 路由
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
@@ -13,8 +13,19 @@ from app.schemas.payment import (
 )
 from app.services.payment_service import PaymentService
 from app.middleware.auth import get_current_user_id
+from app.models.user import User
 
 router = APIRouter()
+
+
+def _validate_payment_method(db: Session, user_id: str, payment_method_id: str) -> None:
+    """支付方式必须已绑定到当前用户，避免客户端伪造或复用他人标识。"""
+    user = db.query(User).filter(User.id == user_id).first()
+    if not user or not user.payment_method_id or user.payment_method_id != payment_method_id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="支付方式未绑定或已失效"
+        )
 
 
 @router.get("/users/{user_id}/balance", response_model=BalanceResponse)
@@ -81,6 +92,7 @@ def charge(
     
     注意: 实际生产环境需要集成 Stripe 等支付网关
     """
+    _validate_payment_method(db, current_user_id, request.payment_method_id)
     return {
         "success": True,
         "message": "充值成功",
@@ -103,6 +115,7 @@ def withdraw(
     
     注意: 实际生产环境需要集成 Stripe 等支付网关
     """
+    _validate_payment_method(db, current_user_id, request.payment_method_id)
     result = PaymentService.withdraw_funds(db, current_user_id, request.amount)
     if not result.success:
         from fastapi import HTTPException, status

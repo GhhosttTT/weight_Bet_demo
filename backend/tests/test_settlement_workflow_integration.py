@@ -11,6 +11,7 @@ import uuid
 from app.main import app
 from app.database import Base, get_db
 from app.models.settlement import Settlement
+from app.models.user import User
 
 
 # 测试数据库配置
@@ -55,11 +56,17 @@ def register_and_login(client, email, password="Test123456"):
     })
     assert response.status_code == 201
     user_id = response.json()["user_id"]
+    token = response.json()["access_token"]
+
+    db = TestingSessionLocal()
+    db.query(User).filter(User.id == user_id).update({"payment_method_id": f"test_pm_{user_id}"})
+    db.commit()
+    db.close()
 
     charge_response = client.post(
         "/api/payments/charge",
-        json={"amount": 200.0},
-        headers={"Authorization": f"Bearer {response.json()['access_token']}"},
+        json={"amount": 200.0, "payment_method_id": f"test_pm_{user_id}"},
+        headers={"Authorization": f"Bearer {token}"},
     )
     assert charge_response.status_code == 200
     

@@ -71,7 +71,12 @@ def test_user(client):
     assert response.status_code == 200
     
     token = response.json()["access_token"]
-    return {"user_id": response.json()["user_id"], "token": token}
+    user_id = response.json()["user_id"]
+    db = TestingSessionLocal()
+    db.query(User).filter(User.id == user_id).update({"payment_method_id": "test_pm_creator"})
+    db.commit()
+    db.close()
+    return {"user_id": user_id, "token": token}
 
 
 @pytest.fixture
@@ -109,7 +114,7 @@ def test_plan_with_participant(client, test_user):
     headers = {"Authorization": f"Bearer {creator_token}"}
     charge_response = client.post(
         "/api/payments/charge",
-        json={"amount": 200.0},
+        json={"amount": 200.0, "payment_method_id": "test_pm_creator"},
         headers=headers,
     )
     assert charge_response.status_code == 200
@@ -123,11 +128,15 @@ def test_plan_with_participant(client, test_user):
     }
     response = client.post("/api/auth/login", json=login_data)
     participant_token = response.json()["access_token"]
+    db = TestingSessionLocal()
+    db.query(User).filter(User.id == participant_id).update({"payment_method_id": "test_pm_participant"})
+    db.commit()
+    db.close()
 
     participant_headers = {"Authorization": f"Bearer {participant_token}"}
     charge_response = client.post(
         "/api/payments/charge",
-        json={"amount": 200.0},
+        json={"amount": 200.0, "payment_method_id": "test_pm_participant"},
         headers=participant_headers,
     )
     assert charge_response.status_code == 200
@@ -158,6 +167,31 @@ def test_plan_with_participant(client, test_user):
 
 class TestSettlementChoiceAPI:
     """结算选择 API 测试类"""
+
+    def test_payment_endpoints_require_bound_payment_method(self, client, test_user):
+        headers = {"Authorization": f"Bearer {test_user['token']}"}
+
+        missing_method = client.post(
+            "/api/payments/charge",
+            json={"amount": 10.0},
+            headers=headers,
+        )
+        assert missing_method.status_code == 422
+
+        wrong_method = client.post(
+            "/api/payments/charge",
+            json={"amount": 10.0, "payment_method_id": "other_user_pm"},
+            headers=headers,
+        )
+        assert wrong_method.status_code == 400
+        assert wrong_method.json()["message"] == "支付方式未绑定或已失效"
+
+        wrong_withdraw_method = client.post(
+            "/api/payments/withdraw",
+            json={"amount": 10.0, "payment_method_id": "other_user_pm"},
+            headers=headers,
+        )
+        assert wrong_withdraw_method.status_code == 400
 
     def test_plan_details_requires_authentication(self, client, test_plan_with_participant):
         """计划详情不能匿名读取"""

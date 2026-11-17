@@ -37,7 +37,7 @@ class TransactionResponse(BaseModel):
 class ChargeRequest(BaseModel):
     """充值请求"""
     amount: float = Field(..., ge=0.01)
-    payment_method_id: Optional[str] = Field(None, alias="paymentMethodId")
+    payment_method_id: str = Field(..., min_length=1, alias="paymentMethodId")
     
     class Config:
         populate_by_name = True

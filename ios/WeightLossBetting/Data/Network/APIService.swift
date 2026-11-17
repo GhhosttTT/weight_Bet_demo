@@ -564,8 +564,11 @@ class APIService {
             }
     }
     
-    func withdraw(amount: Double, completion: @escaping (Result<WithdrawResult, Error>) -> Void) {
-        let parameters = ["amount": amount]
+    func withdraw(amount: Double, paymentMethodId: String, completion: @escaping (Result<WithdrawResult, Error>) -> Void) {
+        let parameters: [String: Any] = [
+            "amount": amount,
+            "payment_method_id": paymentMethodId
+        ]
         
         session.request("\(baseURL)/payments/withdraw",
                        method: .post,

@@ -264,10 +264,25 @@ class ChargeViewController: UIViewController {
             return
         }
         
-        // TODO: In production, get actual payment method ID from user's saved payment methods
-        let paymentMethodId = "pm_test_card"
-        
-        viewModel.charge(amount: amount, paymentMethodId: paymentMethodId)
+        guard let userId = AuthRepository.shared.getCurrentUserId(), !userId.isEmpty else {
+            showAlert(title: "登录状态已失效", message: "请重新登录后再充值")
+            return
+        }
+
+        UserRepository.shared.getUserProfile(userId: userId, forceRefresh: true) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let user):
+                    guard let paymentMethodId = user.paymentMethod, !paymentMethodId.isEmpty else {
+                        self?.showAlert(title: "尚未绑定支付方式", message: "请先在个人资料中绑定支付方式")
+                        return
+                    }
+                    self?.viewModel.charge(amount: amount, paymentMethodId: paymentMethodId)
+                case .failure(let error):
+                    self?.showAlert(title: "读取支付方式失败", message: error.localizedDescription)
+                }
+            }
+        }
     }
     
     @objc private func dismissKeyboard() {

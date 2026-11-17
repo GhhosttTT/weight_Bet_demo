@@ -42,15 +42,10 @@ class PaymentMethodViewModel {
             return
         }
         
-        // Build parameters
-        // Note: In production, you should tokenize the card using Stripe SDK
-        // and send only the token to the backend
+        // 当前后端只接收支付方式标识。演示环境使用卡号后四位生成脱敏标识，生产环境应替换为支付网关返回的 token。
+        let lastFourDigits = String(cleanedCardNumber.suffix(4))
         let parameters: [String: Any] = [
-            "card_number": cleanedCardNumber,
-            "expiry_month": month,
-            "expiry_year": year,
-            "cvv": cvv,
-            "cardholder_name": cardHolder
+            "payment_method_id": "card_\(lastFourDigits)"
         ]
         
         // Bind payment method

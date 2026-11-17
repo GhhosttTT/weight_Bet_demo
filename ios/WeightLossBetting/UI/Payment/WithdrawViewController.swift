@@ -244,14 +244,25 @@ class WithdrawViewController: UIViewController {
             return
         }
         
-        // TODO: In production, get actual bank account details from user's profile
-        let bankAccount = BankAccount(
-            bankName: "ICBC",
-            accountNumber: "6222 0212 0012 3456 789",
-            accountHolderName: "张三"
-        )
-        
-        viewModel.withdraw(amount: amount, bankAccount: bankAccount)
+        guard let userId = AuthRepository.shared.getCurrentUserId(), !userId.isEmpty else {
+            showAlert(title: "登录状态已失效", message: "请重新登录后再提现")
+            return
+        }
+
+        UserRepository.shared.getUserProfile(userId: userId, forceRefresh: true) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case .success(let user):
+                    guard let paymentMethodId = user.paymentMethod, !paymentMethodId.isEmpty else {
+                        self?.showAlert(title: "尚未绑定提现方式", message: "请先在个人资料中绑定支付方式")
+                        return
+                    }
+                    self?.viewModel.withdraw(amount: amount, paymentMethodId: paymentMethodId)
+                case .failure(let error):
+                    self?.showAlert(title: "读取提现方式失败", message: error.localizedDescription)
+                }
+            }
+        }
     }
     
     @objc private func dismissKeyboard() {

@@ -55,9 +55,9 @@ class PaymentRepository: BaseRepository {
         return result
     }
     
-    func withdraw(amount: Double, bankAccount: BankAccount) async -> NetworkResult<WithdrawResult> {
+    func withdraw(amount: Double, paymentMethodId: String) async -> NetworkResult<WithdrawResult> {
         let result = await safeApiCall { completion in
-            self.apiService.withdraw(amount: amount, completion: completion)
+            self.apiService.withdraw(amount: amount, paymentMethodId: paymentMethodId, completion: completion)
         }
             
         return result

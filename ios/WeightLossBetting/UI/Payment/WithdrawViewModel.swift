@@ -59,11 +59,11 @@ class WithdrawViewModel {
         }
     }
     
-    func withdraw(amount: Double, bankAccount: BankAccount) {
+    func withdraw(amount: Double, paymentMethodId: String) {
         withdrawState = .loading
         
         Task {
-            let result = await paymentRepository.withdraw(amount: amount, bankAccount: bankAccount)
+            let result = await paymentRepository.withdraw(amount: amount, paymentMethodId: paymentMethodId)
             
             switch result {
             case .success(let withdrawResult):

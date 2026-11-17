@@ -64,6 +64,11 @@
             android:name=".ui.profile.EditProfileActivity"
             android:exported="false"
             android:theme="@style/Theme.WeightLossBetting" />
+
+        <activity
+            android:name=".ui.profile.PaymentMethodActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
         
         <!-- 对赌计划功能 (Task 22) -->
         <activity

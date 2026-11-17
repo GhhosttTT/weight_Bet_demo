@@ -84,6 +84,10 @@ class ProfileFragment : Fragment() {
             val intent = Intent(requireContext(), EditProfileActivity::class.java)
             startActivity(intent)
         }
+
+        binding.btnPaymentMethod.setOnClickListener {
+            startActivity(Intent(requireContext(), PaymentMethodActivity::class.java))
+        }
         
         binding.btnLogout.setOnClickListener {
             lifecycleScope.launch {

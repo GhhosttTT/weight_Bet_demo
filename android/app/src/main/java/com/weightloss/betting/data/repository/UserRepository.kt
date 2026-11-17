@@ -65,6 +65,18 @@ class UserRepository @Inject constructor(
             else -> result
         }
     }
+
+    suspend fun bindPaymentMethod(userId: String, paymentMethodId: String): NetworkResult<User> {
+        return when (val result = safeApiCall {
+            apiService.bindPaymentMethod(userId, BindPaymentMethodRequest(paymentMethodId))
+        }) {
+            is NetworkResult.Success -> {
+                cacheManager.cacheUser(result.data)
+                result
+            }
+            else -> result
+        }
+    }
     
     /**
      * 获取账户余额

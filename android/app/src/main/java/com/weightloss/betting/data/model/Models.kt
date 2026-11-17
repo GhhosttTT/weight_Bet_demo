@@ -62,6 +62,10 @@ data class User(
     val updatedAt: Date
 )
 
+data class BindPaymentMethodRequest(
+    @SerializedName("payment_method_id") val paymentMethodId: String
+)
+
 data class UpdateUserRequest(
     val nickname: String?,
     val gender: String?,

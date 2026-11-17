@@ -36,6 +36,12 @@ interface ApiService {
         @Path("userId") userId: String,
         @Body request: UpdateUserRequest
     ): Response<User>
+
+    @POST("api/users/{userId}/payment-methods")
+    suspend fun bindPaymentMethod(
+        @Path("userId") userId: String,
+        @Body request: BindPaymentMethodRequest
+    ): Response<User>
     
     @GET("api/payments/users/{userId}/balance")
     suspend fun getBalance(@Path("userId") userId: String): Response<Balance>

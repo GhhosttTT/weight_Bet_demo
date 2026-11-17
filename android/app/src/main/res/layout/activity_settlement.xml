@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:text="第 1 轮"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/brand_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 

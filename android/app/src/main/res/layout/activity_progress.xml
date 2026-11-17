@@ -42,14 +42,14 @@
                 android:layout_height="16dp"
                 android:layout_marginTop="24dp"
                 android:max="100"
-                android:progressTint="@color/colorPrimary" />
+                android:progressTint="@color/brand_primary" />
 
             <TextView
                 android:id="@+id/tvProgressPercent"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="10dp"
-                android:textColor="@color/colorPrimary"
+                android:textColor="@color/brand_primary"
                 android:textSize="22sp"
                 android:textStyle="bold" />
 

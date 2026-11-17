@@ -1,10 +1,36 @@
 """
 审计日志数据模型
 """
+import json
 from sqlalchemy import Column, String, DateTime, Text, ForeignKey, JSON
+from sqlalchemy.types import TypeDecorator
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
+
+
+class JSONText(TypeDecorator):
+    """SQLite 使用 TEXT，PostgreSQL 使用 JSON，保持测试与生产字段语义一致。"""
+    impl = Text
+    cache_ok = True
+
+    def load_dialect_impl(self, dialect):
+        if dialect.name == "postgresql":
+            return dialect.type_descriptor(JSON())
+        return dialect.type_descriptor(Text())
+
+    def process_bind_param(self, value, dialect):
+        if value is None or dialect.name == "postgresql":
+            return value
+        return json.dumps(value, ensure_ascii=False)
+
+    def process_result_value(self, value, dialect):
+        if value is None or dialect.name == "postgresql":
+            return value
+        try:
+            return json.loads(value)
+        except (TypeError, ValueError):
+            return value
 
 
 class AuditLog(Base):
@@ -23,7 +49,7 @@ class AuditLog(Base):
     resource_id = Column(String(36), nullable=True)  # 资源ID
     
     # 详细信息
-    details = Column(JSON, nullable=True)  # 操作详情
+    details = Column(JSONText, nullable=True)  # 操作详情
     ip_address = Column(String(45), nullable=True)  # IP地址
     user_agent = Column(Text, nullable=True)  # 用户代理
     

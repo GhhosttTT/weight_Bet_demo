@@ -10,7 +10,7 @@ import uuid
 from datetime import datetime, timedelta, date
 from app.models.user import User
 from app.models.betting_plan import BettingPlan, PlanStatus
-from app.models.check_in import CheckIn
+from app.models.check_in import CheckIn, ReviewStatus
 from app.models.settlement import Settlement
 from app.models.comment import Comment
 from app.models.badge import UserBadge, BadgeType
@@ -83,29 +83,41 @@ class SocialService:
             # Redis not available, continue without cache
             logger.warning("Redis cache unavailable: {}", e)
         
-        # Calculate total weight loss for each user
-        results = db.query(
+        # 以首条和最新已审核打卡的差值计算减重，避免用 min/max 把增重误判成减重。
+        rows = db.query(
             CheckIn.user_id,
             User.nickname,
-            func.min(CheckIn.weight).label('min_weight'),
-            func.max(CheckIn.weight).label('max_weight')
+            CheckIn.weight,
+            CheckIn.check_in_date,
+            CheckIn.created_at,
         ).join(
             User, CheckIn.user_id == User.id
-        ).group_by(
-            CheckIn.user_id, User.nickname
+        ).filter(
+            CheckIn.review_status == ReviewStatus.APPROVED
+        ).order_by(
+            CheckIn.user_id.asc(),
+            CheckIn.check_in_date.asc(),
+            CheckIn.created_at.asc(),
         ).all()
-        
-        # Calculate weight loss and sort
+
+        first_and_latest = {}
+        for user_id, nickname, weight, check_in_date, created_at in rows:
+            if user_id not in first_and_latest:
+                first_and_latest[user_id] = {
+                    "nickname": nickname,
+                    "first_weight": weight,
+                }
+            first_and_latest[user_id]["latest_weight"] = weight
+
         leaderboard = []
-        for user_id, nickname, min_weight, max_weight in results:
-            if min_weight and max_weight:
-                weight_loss = max_weight - min_weight
-                if weight_loss > 0:
-                    leaderboard.append({
-                        "user_id": user_id,
-                        "nickname": nickname,
-                        "value": weight_loss
-                    })
+        for user_id, values in first_and_latest.items():
+            weight_loss = values["first_weight"] - values["latest_weight"]
+            if weight_loss > 0:
+                leaderboard.append({
+                    "user_id": user_id,
+                    "nickname": values["nickname"],
+                    "value": weight_loss,
+                })
         
         leaderboard.sort(key=lambda x: x["value"], reverse=True)
         leaderboard = leaderboard[:limit]
@@ -168,7 +180,8 @@ class SocialService:
         for user in users:
             # Get user's check-ins ordered by date
             check_ins = db.query(CheckIn).filter(
-                CheckIn.user_id == user.id
+                CheckIn.user_id == user.id,
+                CheckIn.review_status == ReviewStatus.APPROVED
             ).order_by(desc(CheckIn.check_in_date)).all()
             
             if not check_ins:

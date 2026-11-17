@@ -91,6 +91,21 @@ class TestTransitionStatus:
         db_session.refresh(test_plan)
         assert test_plan.status == PlanStatus.ACTIVE
         assert test_plan.activated_at is not None
+
+    def test_transition_waiting_double_check_to_active(self, db_session: Session, test_plan: BettingPlan):
+        """参与者接受后，待二次确认状态可以进入进行中。"""
+        test_plan.status = PlanStatus.WAITING_DOUBLE_CHECK
+        db_session.commit()
+
+        result = PlanStatusManager.transition_status(
+            db_session,
+            test_plan.id,
+            PlanStatus.WAITING_DOUBLE_CHECK,
+            PlanStatus.ACTIVE
+        )
+
+        assert result.status == PlanStatus.ACTIVE
+        assert result.activated_at is not None
     
     def test_transition_pending_to_rejected(self, db_session: Session, test_plan: BettingPlan):
         """测试从 PENDING 转换到 REJECTED"""
@@ -174,20 +189,20 @@ class TestTransitionStatus:
         assert result.status == PlanStatus.COMPLETED
     
     def test_transition_active_to_expired(self, db_session: Session, test_plan: BettingPlan):
-        """测试从 ACTIVE 转换到 EXPIRED"""
+        """进行中计划不能绕过结算转换为 EXPIRED"""
         # 先转换到 ACTIVE
         test_plan.status = PlanStatus.ACTIVE
         db_session.commit()
         
-        result = PlanStatusManager.transition_status(
-            db_session,
-            test_plan.id,
-            PlanStatus.ACTIVE,
-            PlanStatus.EXPIRED
-        )
-        
-        assert result.status == PlanStatus.EXPIRED
-        assert result.expiry_checked_at is not None
+        with pytest.raises(InvalidStateTransitionError):
+            PlanStatusManager.transition_status(
+                db_session,
+                test_plan.id,
+                PlanStatus.ACTIVE,
+                PlanStatus.EXPIRED
+            )
+        db_session.refresh(test_plan)
+        assert test_plan.status == PlanStatus.ACTIVE
     
     def test_invalid_transition_pending_to_completed(self, db_session: Session, test_plan: BettingPlan):
         """测试非法转换: PENDING -> COMPLETED"""
@@ -478,6 +493,34 @@ class TestAbandonPlan:
         ).first()
         assert final_balance.available_balance == initial_available + 100.0
         assert final_balance.frozen_balance == initial_frozen - 100.0
+
+    def test_abandon_waiting_double_check_unfreezes_both_users(
+        self,
+        db_session: Session,
+        active_plan_with_balance: BettingPlan,
+        test_user: User,
+        second_user: User,
+    ):
+        """待二次确认计划放弃时，创建者和参与者资金都应退回。"""
+        from app.models.balance import Balance
+
+        active_plan_with_balance.status = PlanStatus.WAITING_DOUBLE_CHECK
+        db_session.commit()
+
+        result = PlanStatusManager.abandon_plan(
+            db_session,
+            active_plan_with_balance.id,
+            test_user.id,
+        )
+
+        assert result.success is True
+        assert active_plan_with_balance.status == PlanStatus.CANCELLED
+        creator_balance = db_session.query(Balance).filter(Balance.user_id == test_user.id).one()
+        participant_balance = db_session.query(Balance).filter(Balance.user_id == second_user.id).one()
+        assert creator_balance.available_balance == 500.0
+        assert creator_balance.frozen_balance == 0.0
+        assert participant_balance.available_balance == 500.0
+        assert participant_balance.frozen_balance == 0.0
     
     def test_abandon_pending_plan_not_creator(
         self,
@@ -752,13 +795,13 @@ class TestCheckExpiredPlans:
         db_session.refresh(user)
         return user
     
-    def test_check_expired_plans_marks_expired(
+    def test_check_expired_plans_marks_settlement_due(
         self,
         db_session: Session,
         test_user: User,
         second_user: User
     ):
-        """测试检查过期计划并标记为 EXPIRED"""
+        """测试检查到期 ACTIVE 计划但保留 ACTIVE 进入结算"""
         # 创建一个已过期的 active 计划
         expired_plan = BettingPlan(
             id=str(uuid.uuid4()),
@@ -785,12 +828,12 @@ class TestCheckExpiredPlans:
         # 验证结果
         assert len(expired_plans) == 1
         assert expired_plans[0].id == expired_plan.id
-        assert expired_plans[0].status == PlanStatus.EXPIRED
+        assert expired_plans[0].status == PlanStatus.ACTIVE
         assert expired_plans[0].expiry_checked_at is not None
         
         # 验证数据库中的状态
         db_session.refresh(expired_plan)
-        assert expired_plan.status == PlanStatus.EXPIRED
+        assert expired_plan.status == PlanStatus.ACTIVE
         assert expired_plan.expiry_checked_at is not None
     
     def test_check_expired_plans_ignores_non_active(
@@ -919,7 +962,7 @@ class TestCheckExpiredPlans:
         
         # 验证所有计划都被标记为 EXPIRED
         for plan in expired_plans:
-            assert plan.status == PlanStatus.EXPIRED
+            assert plan.status == PlanStatus.ACTIVE
             assert plan.expiry_checked_at is not None
     
     def test_check_expired_plans_sends_notifications(
@@ -1024,11 +1067,11 @@ class TestCheckExpiredPlans:
         
         # 验证状态仍然被更新
         assert len(expired_plans) == 1
-        assert expired_plans[0].status == PlanStatus.EXPIRED
+        assert expired_plans[0].status == PlanStatus.ACTIVE
         
         # 验证数据库中的状态
         db_session.refresh(expired_plan)
-        assert expired_plan.status == PlanStatus.EXPIRED
+        assert expired_plan.status == PlanStatus.ACTIVE
 
 
 class TestMarkAsExpired:
@@ -1062,26 +1105,26 @@ class TestMarkAsExpired:
         assert "计划不存在" in str(exc_info.value)
     
     def test_mark_as_expired_from_active_status(self, db_session: Session, test_plan: BettingPlan):
-        """测试从 ACTIVE 状态标记为过期"""
+        """进行中计划不能绕过结算直接标记为过期"""
         # 先设置为 ACTIVE
         test_plan.status = PlanStatus.ACTIVE
         db_session.commit()
         
-        result = PlanStatusManager.mark_as_expired(db_session, test_plan.id)
-        
-        assert result.status == PlanStatus.EXPIRED
-        assert result.expiry_checked_at is not None
+        with pytest.raises(InvalidStateTransitionError):
+            PlanStatusManager.mark_as_expired(db_session, test_plan.id)
+        db_session.refresh(test_plan)
+        assert test_plan.status == PlanStatus.ACTIVE
     
     def test_mark_as_expired_from_completed_status(self, db_session: Session, test_plan: BettingPlan):
-        """测试从 COMPLETED 状态标记为过期（虽然不常见，但方法允许）"""
+        """已完成计划不能再次标记为过期"""
         # 先设置为 COMPLETED
         test_plan.status = PlanStatus.COMPLETED
         db_session.commit()
         
-        result = PlanStatusManager.mark_as_expired(db_session, test_plan.id)
-        
-        # mark_as_expired 不验证状态，直接设置
-        assert result.status == PlanStatus.EXPIRED
+        with pytest.raises(InvalidStateTransitionError):
+            PlanStatusManager.mark_as_expired(db_session, test_plan.id)
+        db_session.refresh(test_plan)
+        assert test_plan.status == PlanStatus.COMPLETED
 
 
 class TestPermissionValidation:
@@ -1451,7 +1494,8 @@ class TestStateTransitionEdgeCases:
     
     def test_all_valid_transitions_from_active(self, db_session: Session, test_user: User):
         """测试从 ACTIVE 状态的所有合法转换"""
-        valid_targets = [PlanStatus.CANCELLED, PlanStatus.COMPLETED, PlanStatus.EXPIRED]
+        # ACTIVE 到期需要进入结算流程，不能由状态机直接标记 EXPIRED。
+        valid_targets = [PlanStatus.CANCELLED, PlanStatus.COMPLETED]
         
         for target_status in valid_targets:
             # 为每个转换创建新计划

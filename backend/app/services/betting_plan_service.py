@@ -24,8 +24,8 @@ class BettingPlanService:
     @staticmethod
     def create_plan(db: Session, creator_id: str, request: CreatePlanRequest) -> PlanResponse:
         # validate input
-        if request.bet_amount <= 0:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="赌金金额必须大于 0")
+        if request.bet_amount < 0.01:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="赌金金额最低为 0.01 元")
         if request.end_date <= request.start_date:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="结束日期必须晚于开始日期")
         duration = (request.end_date - request.start_date).days
@@ -140,6 +140,8 @@ class BettingPlanService:
                 except Exception:
                     logger.error("Failed to rollback plan creation after invitation error: {}", str(e))
                 logger.error("Failed to create invitation for plan {}: {}", plan_id, str(e))
+                if isinstance(e, HTTPException):
+                    raise e
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                     detail=f"创建邀请失败: {str(e)}"
@@ -233,6 +235,23 @@ class BettingPlanService:
         # Cannot accept own plan
         if plan.creator_id == participant_id:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="不能接受自己创建的计划")
+
+        # 有指定邀请时，只有被邀请人可以接受；没有邀请记录的计划保持开放接受兼容。
+        from app.models.invitation import Invitation, InvitationStatus
+        invitation = db.query(Invitation).filter(
+            Invitation.plan_id == plan_id
+        ).first()
+        if invitation:
+            if invitation.invitee_id != participant_id:
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="只有被邀请用户可以接受该计划"
+                )
+            if invitation.status not in (InvitationStatus.PENDING, InvitationStatus.VIEWED):
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="该邀请已被处理，无法再次接受"
+                )
             
         # Check if already accepted
         if plan.participant_id is not None:
@@ -264,7 +283,6 @@ class BettingPlanService:
     
         # Update invitation status if exists
         try:
-            from app.models.invitation import Invitation, InvitationStatus
             invitation = db.query(Invitation).filter(
                 Invitation.plan_id == plan_id
             ).first()
@@ -300,7 +318,7 @@ class BettingPlanService:
     @staticmethod
     def confirm_plan(db: Session, plan_id: str, user_id: str) -> PlanResponse:
         """
-        确认计划目标，双方都确认后计划变为进行中
+        创建者确认参与者目标后计划变为进行中
         状态流转：WAITING_DOUBLE_CHECK -> ACTIVE
         """
         plan = db.query(BettingPlan).filter(
@@ -310,16 +328,15 @@ class BettingPlanService:
         if not plan:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="计划不存在")
             
-        # 只有计划参与者可以确认
-        if plan.creator_id != user_id and plan.participant_id != user_id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="无权确认此计划")
+        # 当前产品流程由创建者审核参与者目标并确认生效。
+        if plan.creator_id != user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="只有创建者可以确认计划生效")
             
         # 必须处于待二次确认状态
         if plan.status != PlanStatus.WAITING_DOUBLE_CHECK:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="当前状态不需要确认")
             
-        # 这里简化处理：任意一方确认即生效，或根据需求调整为双方确认
-        # 更新计划状态为进行中
+        # 创建者确认后计划正式生效。
         plan.status = PlanStatus.ACTIVE
         plan.activated_at = datetime.utcnow()
         
@@ -398,8 +415,8 @@ class BettingPlanService:
 
         # 情况2：已接受邀请的参与者拒绝计划
         if plan.participant_id == user_id:
-            # Only allowed when plan is in PENDING status
-            if plan.status != PlanStatus.PENDING:
+            # 接受后进入待二次确认，参与者仍可拒绝并退回双方冻结资金。
+            if plan.status not in (PlanStatus.PENDING, PlanStatus.WAITING_DOUBLE_CHECK):
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="当前状态不能拒绝")
             
             # Update invitation status if exists
@@ -424,11 +441,19 @@ class BettingPlanService:
 
             try:
                 db.commit()
-                # Unfreeze creator funds
-                try:
-                    PaymentService.unfreeze_funds(db, plan.creator_id, plan_id)
-                except Exception:
-                    logger.error("Failed to unfreeze creator funds for plan %s, user %s", plan_id, plan.creator_id)
+                # 双方都已冻结时，拒绝必须同时退回双方资金。
+                for refund_user_id in (plan.creator_id, user_id):
+                    try:
+                        if not PaymentService.unfreeze_funds(db, refund_user_id, plan_id):
+                            logger.error(
+                                "Failed to unfreeze funds for plan %s, user %s",
+                                plan_id, refund_user_id
+                            )
+                    except Exception:
+                        logger.error(
+                            "Failed to unfreeze funds for plan %s, user %s",
+                            plan_id, refund_user_id
+                        )
             except Exception as e:
                 logger.error("DB error when participant rejecting plan %s: %s", plan_id, str(e))
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="拒绝计划失败，请稍后重试")
@@ -466,27 +491,29 @@ class BettingPlanService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="计划不存在")
         if plan.creator_id != user_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="只有创建者可以取消计划")
-        if plan.status == PlanStatus.ACTIVE:
-            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="只能取消未生效的计划")
+        if plan.status not in (PlanStatus.PENDING, PlanStatus.WAITING_DOUBLE_CHECK):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="只有待接受或待二次确认的计划可以取消"
+            )
 
         participant_id = plan.participant_id
         plan.status = PlanStatus.CANCELLED
         plan.participant_id = None
 
         try:
-            db.commit()
-            # Unfreeze creator funds
-            try:
-                PaymentService.unfreeze_funds(db, plan.creator_id, plan_id)
-            except Exception:
-                logger.error("Failed to unfreeze creator funds for plan %s", plan_id)
-            # Unfreeze participant funds if any
+            # 状态和资金流水在同一个事务中提交，避免出现半完成取消。
+            refund_user_ids = [plan.creator_id]
             if participant_id:
-                try:
-                    PaymentService.unfreeze_funds(db, participant_id, plan_id)
-                except Exception:
-                    logger.error("Failed to unfreeze participant funds for plan %s, participant %s", plan_id, participant_id)
+                refund_user_ids.append(participant_id)
+            for refund_user_id in refund_user_ids:
+                if not PaymentService.unfreeze_funds(
+                    db, refund_user_id, plan_id, commit=False
+                ):
+                    raise RuntimeError("资金解冻失败: {}".format(refund_user_id))
+            db.commit()
         except Exception as e:
+            db.rollback()
             logger.error("DB error when cancelling plan %s: %s", plan_id, str(e))
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="取消计划失败，请稍后重试")
 
@@ -508,6 +535,11 @@ class BettingPlanService:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="计划不存在")
         if plan.creator_id != user_id:
             raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="只有创建者可以撤销计划")
+        if plan.status != PlanStatus.PENDING:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="只有待接受的计划可以撤销"
+            )
         # Can only revoke if no participant has accepted
         if plan.participant_id is not None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="只能撤销未被接受的计划")
@@ -516,13 +548,13 @@ class BettingPlanService:
         plan.participant_id = None
 
         try:
+            if not PaymentService.unfreeze_funds(
+                db, plan.creator_id, plan_id, commit=False
+            ):
+                raise RuntimeError("资金解冻失败: {}".format(plan.creator_id))
             db.commit()
-            # Unfreeze creator funds
-            try:
-                PaymentService.unfreeze_funds(db, plan.creator_id, plan_id)
-            except Exception:
-                logger.error("Failed to unfreeze creator funds for plan %s", plan_id)
         except Exception as e:
+            db.rollback()
             logger.error("DB error when revoking plan %s: %s", plan_id, str(e))
             raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="撤销计划失败，请稍后重试")
 

@@ -52,7 +52,7 @@ class CheckInViewController: UIViewController {
         let label = UILabel()
         label.text = "上传体重秤照片 (可选)"
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -104,7 +104,7 @@ class CheckInViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("提交打卡", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -134,7 +134,7 @@ class CheckInViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "每日打卡"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         setupUI()
         setupBindings()

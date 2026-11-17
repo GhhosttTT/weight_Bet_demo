@@ -86,6 +86,21 @@
             android:name=".ui.checkin.CheckInActivity"
             android:exported="false"
             android:theme="@style/Theme.WeightLossBetting" />
+
+        <activity
+            android:name=".ui.checkin.ProgressActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+
+        <activity
+            android:name=".ui.checkin.CheckInHistoryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+
+        <activity
+            android:name=".ui.settlement.SettlementActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
         
         <!-- 支付功能 (Task 24) -->
         <activity
@@ -111,6 +126,11 @@
         
         <activity
             android:name=".ui.social.BadgesActivity"
+            android:exported="false"
+            android:theme="@style/Theme.WeightLossBetting" />
+
+        <activity
+            android:name=".ui.social.CommentsActivity"
             android:exported="false"
             android:theme="@style/Theme.WeightLossBetting" />
         

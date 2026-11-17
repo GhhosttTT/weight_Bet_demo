@@ -10,6 +10,7 @@ class PlansViewController: UIViewController {
     private var filterSegmentedControl: UISegmentedControl!
     private var emptyStateLabel: UILabel!
     private var loadingIndicator: UIActivityIndicatorView!
+    private var createFloatingButton: UIButton!
     
     private var userId: String? {
         return AuthRepository.shared.getCurrentUserId()
@@ -20,7 +21,7 @@ class PlansViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "我的对赌计划"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         // Listen for navigation requests from notifications
         print("🔵 [PlansVC] 正在注册监听通知：navigateToNotificationType")
@@ -49,6 +50,13 @@ class PlansViewController: UIViewController {
         filterSegmentedControl = UISegmentedControl(items: ["全部", "待接受", "进行中", "已完成"])
         filterSegmentedControl.selectedSegmentIndex = 0
         filterSegmentedControl.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
+        filterSegmentedControl.selectedSegmentTintColor = AppTheme.Colors.primary
+        filterSegmentedControl.setTitleTextAttributes([
+            .foregroundColor: AppTheme.Colors.secondaryLabel
+        ], for: .normal)
+        filterSegmentedControl.setTitleTextAttributes([
+            .foregroundColor: UIColor.white
+        ], for: .selected)
         filterSegmentedControl.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(filterSegmentedControl)
         
@@ -61,6 +69,9 @@ class PlansViewController: UIViewController {
         tableView.estimatedRowHeight = 120
         tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
+        tableView.backgroundColor = AppTheme.Colors.background
+        tableView.separatorStyle = .none
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 88, right: 0)
         
         // Refresh control
         refreshControl = UIRefreshControl()
@@ -71,7 +82,7 @@ class PlansViewController: UIViewController {
         emptyStateLabel = UILabel()
         emptyStateLabel.text = "暂无对赌计划"
         emptyStateLabel.textAlignment = .center
-        emptyStateLabel.textColor = .secondaryLabel
+        emptyStateLabel.textColor = AppTheme.Colors.secondaryLabel
         emptyStateLabel.font = .systemFont(ofSize: 16)
         emptyStateLabel.isHidden = true
         emptyStateLabel.translatesAutoresizingMaskIntoConstraints = false
@@ -83,9 +94,19 @@ class PlansViewController: UIViewController {
         loadingIndicator.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(loadingIndicator)
         
-        // Create plan button
-        let createButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(createPlanTapped))
-        navigationItem.rightBarButtonItem = createButton
+        // 与 Android FAB 对齐：页面右下角固定创建入口。
+        createFloatingButton = UIButton(type: .system)
+        createFloatingButton.translatesAutoresizingMaskIntoConstraints = false
+        createFloatingButton.setImage(UIImage(systemName: "plus"), for: .normal)
+        createFloatingButton.tintColor = .white
+        createFloatingButton.backgroundColor = AppTheme.Colors.primary
+        createFloatingButton.layer.cornerRadius = 28
+        createFloatingButton.layer.shadowColor = UIColor.black.cgColor
+        createFloatingButton.layer.shadowOpacity = 0.16
+        createFloatingButton.layer.shadowOffset = CGSize(width: 0, height: 3)
+        createFloatingButton.layer.shadowRadius = 6
+        createFloatingButton.addTarget(self, action: #selector(createPlanTapped), for: .touchUpInside)
+        view.addSubview(createFloatingButton)
         
         // Layout
         NSLayoutConstraint.activate([
@@ -97,6 +118,11 @@ class PlansViewController: UIViewController {
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+
+            createFloatingButton.widthAnchor.constraint(equalToConstant: 56),
+            createFloatingButton.heightAnchor.constraint(equalToConstant: 56),
+            createFloatingButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            createFloatingButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
             
             emptyStateLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             emptyStateLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor),
@@ -190,7 +216,10 @@ extension PlansViewController: UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "PlanCell", for: indexPath) as! PlanCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "PlanCell", for: indexPath) as? PlanCell else {
+            return UITableViewCell(style: .default, reuseIdentifier: nil)
+        }
+        cell.layoutMargins = UIEdgeInsets(top: 6, left: 16, bottom: 6, right: 16)
         let plan = viewModel.filteredPlans[indexPath.row]
         cell.configure(with: plan)
         return cell
@@ -227,22 +256,27 @@ class PlanCell: UITableViewCell {
     }
     
     private func setupUI() {
+        backgroundColor = AppTheme.Colors.background
+        contentView.backgroundColor = AppTheme.Colors.secondaryBackground
+        contentView.layer.cornerRadius = 20
+        contentView.layer.masksToBounds = true
+
         statusLabel.font = .boldSystemFont(ofSize: 14)
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(statusLabel)
         
         betAmountLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        betAmountLabel.textColor = .systemRed
+        betAmountLabel.textColor = AppTheme.Colors.error
         betAmountLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(betAmountLabel)
         
         dateRangeLabel.font = .systemFont(ofSize: 14)
-        dateRangeLabel.textColor = .secondaryLabel
+        dateRangeLabel.textColor = AppTheme.Colors.secondaryLabel
         dateRangeLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(dateRangeLabel)
         
         goalLabel.font = .systemFont(ofSize: 14)
-        goalLabel.textColor = .label
+        goalLabel.textColor = AppTheme.Colors.label
         goalLabel.numberOfLines = 0
         goalLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(goalLabel)
@@ -270,13 +304,13 @@ class PlanCell: UITableViewCell {
         switch plan.status {
         case .pending:
             statusLabel.text = "待接受"
-            statusLabel.textColor = .systemOrange
+            statusLabel.textColor = AppTheme.Colors.accent
         case .pendingConfirmation:
             statusLabel.text = "待二次确认"
-            statusLabel.textColor = .systemPurple
+            statusLabel.textColor = AppTheme.Colors.primaryDark
         case .active:
             statusLabel.text = "进行中"
-            statusLabel.textColor = .systemGreen
+            statusLabel.textColor = AppTheme.Colors.success
         case .completed:
             statusLabel.text = "已完成"
             statusLabel.textColor = .systemGray

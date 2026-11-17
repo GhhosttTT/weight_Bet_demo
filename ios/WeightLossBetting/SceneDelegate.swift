@@ -11,10 +11,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             return 
         }
         
+        AppTheme.apply()
         print("✅ Got window scene: \(windowScene)")
         window = UIWindow(windowScene: windowScene)
-        window?.backgroundColor = .white
-        window?.overrideUserInterfaceStyle = .unspecified
+        window?.backgroundColor = AppTheme.Colors.background
+        window?.overrideUserInterfaceStyle = .light
         
         // Check if user is already logged in
         let authRepository = AuthRepository.shared

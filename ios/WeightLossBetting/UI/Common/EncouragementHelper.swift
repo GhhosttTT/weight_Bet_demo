@@ -49,8 +49,8 @@ class EncouragementHelper {
         let button = UIButton(type: .system)
         button.setTitle("👍 鼓励", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 14)
-        button.backgroundColor = .systemBlue.withAlphaComponent(0.1)
-        button.setTitleColor(.systemBlue, for: .normal)
+        button.backgroundColor = AppTheme.Colors.primary.withAlphaComponent(0.1)
+        button.setTitleColor(AppTheme.Colors.primary, for: .normal)
         button.layer.cornerRadius = 8
         button.contentEdgeInsets = UIEdgeInsets(top: 8, left: 16, bottom: 8, right: 16)
         

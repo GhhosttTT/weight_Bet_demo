@@ -36,7 +36,7 @@ class TransactionResponse(BaseModel):
 
 class ChargeRequest(BaseModel):
     """充值请求"""
-    amount: float = Field(..., gt=0.0)
+    amount: float = Field(..., ge=0.01)
     payment_method_id: Optional[str] = Field(None, alias="paymentMethodId")
     
     class Config:
@@ -45,7 +45,7 @@ class ChargeRequest(BaseModel):
 
 class WithdrawRequest(BaseModel):
     """提现请求"""
-    amount: float = Field(..., gt=0.0)
+    amount: float = Field(..., ge=0.01)
     payment_method_id: str
 
 

@@ -17,12 +17,21 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="减肥对赌"
+            android:text="BetFit"
             android:textSize="36sp"
             android:textStyle="bold"
             android:textColor="@color/purple_700"
             android:layout_marginTop="64dp"
-            android:layout_marginBottom="64dp" />
+            android:layout_marginBottom="8dp" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="减肥对赌挑战"
+            android:textSize="16sp"
+            android:textStyle="normal"
+            android:textColor="@color/xui_config_color_text_content"
+            android:layout_marginBottom="40dp" />
 
         <!-- Email Input -->
         <com.google.android.material.textfield.TextInputLayout

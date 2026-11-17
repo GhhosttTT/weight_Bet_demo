@@ -1,7 +1,7 @@
 """
 争议记录数据模型
 """
-from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Enum as SQLEnum
+from sqlalchemy import Column, String, DateTime, ForeignKey, Text, Enum as SQLEnum, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -19,6 +19,13 @@ class DisputeStatus(str, enum.Enum):
 class Dispute(Base):
     """争议记录模型"""
     __tablename__ = "disputes"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "settlement_id", "user_id",
+            name="uq_dispute_settlement_user"
+        ),
+    )
     
     id = Column(String(36), primary_key=True, index=True)
     settlement_id = Column(String(36), ForeignKey("settlements.id"), nullable=False, index=True)

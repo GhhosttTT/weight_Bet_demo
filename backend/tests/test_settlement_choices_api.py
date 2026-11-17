@@ -37,6 +37,9 @@ app.dependency_overrides[get_db] = override_get_db
 @pytest.fixture(scope="function")
 def client():
     """创建测试客户端"""
+    # 多个接口测试模块都会修改 app.dependency_overrides；每个用例重新
+    # 绑定本模块的数据库，避免收集顺序导致连接到已清理的测试库。
+    app.dependency_overrides[get_db] = override_get_db
     Base.metadata.create_all(bind=engine)
     with TestClient(app) as test_client:
         yield test_client
@@ -50,21 +53,25 @@ def test_user(client):
     user_data = {
         "email": f"test_{uuid.uuid4()}@test.com",
         "password": "Test123456",
-        "nickname": "TestUser"
+        "nickname": "TestUser",
+        "gender": "male",
+        "age": 30,
+        "height": 175.0,
+        "current_weight": 80.0,
     }
     response = client.post("/api/auth/register", json=user_data)
-    assert response.status_code == 200
+    assert response.status_code == 201
     
     # 登录获取 token
     login_data = {
         "email": user_data["email"],
         "password": "Test123456"
     }
-    response = client.post("/api/auth/login", data=login_data)
+    response = client.post("/api/auth/login", json=login_data)
     assert response.status_code == 200
     
     token = response.json()["access_token"]
-    return {"user_id": response.json()["user"]["id"], "token": token}
+    return {"user_id": response.json()["user_id"], "token": token}
 
 
 @pytest.fixture
@@ -77,23 +84,35 @@ def test_plan_with_participant(client, test_user):
     participant_data = {
         "email": f"participant_{uuid.uuid4()}@test.com",
         "password": "Test123456",
-        "nickname": "Participant"
+        "nickname": "Participant",
+        "gender": "female",
+        "age": 28,
+        "height": 165.0,
+        "current_weight": 75.0,
     }
     response = client.post("/api/auth/register", json=participant_data)
-    participant_id = response.json()["user"]["id"]
+    participant_id = response.json()["user_id"]
     
     # 创建计划
     plan_data = {
         "participant_email": participant_data["email"],
         "bet_amount": 100.0,
-        "start_date": (datetime.utcnow()).isoformat(),
+        "start_date": (datetime.utcnow() - timedelta(days=2)).isoformat(),
         "end_date": (datetime.utcnow() - timedelta(days=1)).isoformat(),  # 已到期
         "description": "Test plan",
+        "initial_weight": 80.0,
+        "target_weight": 75.0,
         "creator_initial_weight": 80.0,
         "creator_target_weight": 75.0,
         "creator_target_weight_loss": 5.0
     }
     headers = {"Authorization": f"Bearer {creator_token}"}
+    charge_response = client.post(
+        "/api/payments/charge",
+        json={"amount": 200.0},
+        headers=headers,
+    )
+    assert charge_response.status_code == 200
     response = client.post("/api/betting-plans", json=plan_data, headers=headers)
     plan_id = response.json()["id"]
     
@@ -102,16 +121,27 @@ def test_plan_with_participant(client, test_user):
         "email": participant_data["email"],
         "password": "Test123456"
     }
-    response = client.post("/api/auth/login", data=login_data)
+    response = client.post("/api/auth/login", json=login_data)
     participant_token = response.json()["access_token"]
+
+    participant_headers = {"Authorization": f"Bearer {participant_token}"}
+    charge_response = client.post(
+        "/api/payments/charge",
+        json={"amount": 200.0},
+        headers=participant_headers,
+    )
+    assert charge_response.status_code == 200
     
     accept_data = {
         "initial_weight": 75.0,
         "target_weight": 70.0,
         "target_weight_loss": 5.0
     }
-    headers = {"Authorization": f"Bearer {participant_token}"}
-    response = client.post(f"/api/betting-plans/{plan_id}/accept", json=accept_data, headers=headers)
+    response = client.post(
+        f"/api/betting-plans/{plan_id}/accept",
+        json=accept_data,
+        headers=participant_headers,
+    )
     
     # 创建者确认
     headers = {"Authorization": f"Bearer {creator_token}"}
@@ -128,6 +158,23 @@ def test_plan_with_participant(client, test_user):
 
 class TestSettlementChoiceAPI:
     """结算选择 API 测试类"""
+
+    def test_plan_details_requires_authentication(self, client, test_plan_with_participant):
+        """计划详情不能匿名读取"""
+        plan_id = test_plan_with_participant["plan_id"]
+        response = client.get(f"/api/betting-plans/{plan_id}")
+        assert response.status_code == 403
+
+    def test_plan_details_allows_participant(self, client, test_plan_with_participant):
+        """计划参与者可以读取详情"""
+        plan_id = test_plan_with_participant["plan_id"]
+        token = test_plan_with_participant["participant_token"]
+        response = client.get(
+            f"/api/betting-plans/{plan_id}",
+            headers={"Authorization": f"Bearer {token}"},
+        )
+        assert response.status_code == 200
+        assert response.json()["id"] == plan_id
     
     def test_submit_choice_success(self, client, test_plan_with_participant):
         """测试提交选择成功"""
@@ -160,14 +207,18 @@ class TestSettlementChoiceAPI:
         outsider_data = {
             "email": f"outsider_{uuid.uuid4()}@test.com",
             "password": "Test123456",
-            "nickname": "Outsider"
+            "nickname": "Outsider",
+            "gender": "other",
+            "age": 30,
+            "height": 175.0,
+            "current_weight": 80.0,
         }
         response = client.post("/api/auth/register", json=outsider_data)
         login_data = {
             "email": outsider_data["email"],
             "password": "Test123456"
         }
-        response = client.post("/api/auth/login", data=login_data)
+        response = client.post("/api/auth/login", json=login_data)
         outsider_token = response.json()["access_token"]
         
         choice_data = {
@@ -182,7 +233,7 @@ class TestSettlementChoiceAPI:
         )
         
         assert response.status_code == 403
-        assert "您不是该计划的参与者" in response.json()["detail"]
+        assert "您不是该计划的参与者" in response.json()["message"]
     
     def test_submit_choice_invalid_data(self, client, test_plan_with_participant):
         """测试无效数据"""
@@ -228,6 +279,7 @@ class TestSettlementChoiceAPI:
         assert data["current_round"] == 1
         assert data["creator_submitted"] is True
         assert data["participant_submitted"] is False
+        assert data["current_user_submitted"] is True
         assert data["creator_choice"] is not None
     
     def test_match_choices(self, client, test_plan_with_participant):
@@ -279,7 +331,7 @@ class TestSettlementChoiceAPI:
         client.post(f"/api/settlement-choices/{plan_id}", json=choice_data, headers=headers)
         
         # 检查超时（应该未达到 24 小时）
-        response = client.post(
+        response = client.get(
             f"/api/settlement-choices/{plan_id}/check-timeout?timeout_hours=24",
             headers=headers
         )

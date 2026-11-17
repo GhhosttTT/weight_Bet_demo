@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/xui_config_color_background"
     android:fillViewport="true">
 
     <LinearLayout
@@ -38,7 +39,7 @@
                     android:layout_height="wrap_content"
                     android:text="昵称"
                     android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/xui_config_color_text_content"
                     android:layout_marginEnd="16dp" />
                 <TextView
                     android:id="@+id/tvNickname"
@@ -54,7 +55,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/xui_config_color_text_content"
                 android:alpha="0.2" />
 
             <!-- 邮箱 -->
@@ -68,7 +69,7 @@
                     android:layout_height="wrap_content"
                     android:text="邮箱"
                     android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/xui_config_color_text_content"
                     android:layout_marginEnd="16dp" />
                 <TextView
                     android:id="@+id/tvEmail"
@@ -83,7 +84,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/xui_config_color_text_content"
                 android:alpha="0.2" />
 
             <!-- 性别 -->
@@ -97,7 +98,7 @@
                     android:layout_height="wrap_content"
                     android:text="性别"
                     android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/xui_config_color_text_content"
                     android:layout_marginEnd="16dp" />
                 <TextView
                     android:id="@+id/tvGender"
@@ -110,7 +111,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/xui_config_color_text_content"
                 android:alpha="0.2" />
 
             <!-- 年龄 -->
@@ -124,7 +125,7 @@
                     android:layout_height="wrap_content"
                     android:text="年龄"
                     android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/xui_config_color_text_content"
                     android:layout_marginEnd="16dp" />
                 <TextView
                     android:id="@+id/tvAge"
@@ -137,7 +138,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/xui_config_color_text_content"
                 android:alpha="0.2" />
 
             <!-- 身高 -->
@@ -151,7 +152,7 @@
                     android:layout_height="wrap_content"
                     android:text="身高 (cm)"
                     android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/xui_config_color_text_content"
                     android:layout_marginEnd="16dp" />
                 <TextView
                     android:id="@+id/tvHeight"
@@ -164,7 +165,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/xui_config_color_text_content"
                 android:alpha="0.2" />
 
             <!-- 当前体重 -->
@@ -178,7 +179,7 @@
                     android:layout_height="wrap_content"
                     android:text="当前体重 (kg)"
                     android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/xui_config_color_text_content"
                     android:layout_marginEnd="16dp" />
                 <TextView
                     android:id="@+id/tvCurrentWeight"
@@ -193,7 +194,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/xui_config_color_text_content"
                 android:alpha="0.2" />
 
             <!-- 目标体重 -->
@@ -207,7 +208,7 @@
                     android:layout_height="wrap_content"
                     android:text="目标体重 (kg)"
                     android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="@color/xui_config_color_text_content"
                     android:layout_marginEnd="16dp" />
                 <TextView
                     android:id="@+id/tvTargetWeight"
@@ -237,7 +238,7 @@
             android:text="退出登录"
             android:textSize="16sp"
             android:layout_marginTop="16dp"
-            android:backgroundTint="@android:color/holo_red_light" />
+            android:backgroundTint="@color/xui_config_color_error" />
 
         <!-- 加载进度条 -->
         <ProgressBar

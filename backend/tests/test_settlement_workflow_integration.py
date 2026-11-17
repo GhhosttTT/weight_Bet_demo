@@ -34,6 +34,7 @@ app.dependency_overrides[get_db] = override_get_db
 @pytest.fixture(scope="function")
 def client():
     """创建测试客户端"""
+    app.dependency_overrides[get_db] = override_get_db
     Base.metadata.create_all(bind=engine)
     with TestClient(app) as test_client:
         yield test_client
@@ -46,12 +47,24 @@ def register_and_login(client, email, password="Test123456"):
     response = client.post("/api/auth/register", json={
         "email": email,
         "password": password,
-        "nickname": email.split("@")[0]
+        "nickname": email.split("@")[0],
+        "gender": "other",
+        "age": 30,
+        "height": 175.0,
+        "current_weight": 80.0,
     })
-    user_id = response.json()["user"]["id"]
+    assert response.status_code == 201
+    user_id = response.json()["user_id"]
+
+    charge_response = client.post(
+        "/api/payments/charge",
+        json={"amount": 200.0},
+        headers={"Authorization": f"Bearer {response.json()['access_token']}"},
+    )
+    assert charge_response.status_code == 200
     
     # 登录
-    response = client.post("/api/auth/login", data={
+    response = client.post("/api/auth/login", json={
         "email": email,
         "password": password
     })
@@ -64,9 +77,11 @@ def create_test_plan(client, creator_token, participant_email):
     response = client.post("/api/betting-plans", json={
         "participant_email": participant_email,
         "bet_amount": 100.0,
-        "start_date": (datetime.utcnow()).isoformat(),
+        "start_date": (datetime.utcnow() - timedelta(days=2)).isoformat(),
         "end_date": (datetime.utcnow() - timedelta(days=1)).isoformat(),
         "description": "Integration test plan",
+        "initial_weight": 80.0,
+        "target_weight": 75.0,
         "creator_initial_weight": 80.0,
         "creator_target_weight": 75.0,
         "creator_target_weight_loss": 5.0

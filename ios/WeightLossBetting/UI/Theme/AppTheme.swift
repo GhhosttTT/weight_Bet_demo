@@ -6,22 +6,22 @@ struct AppTheme {
     // MARK: - Colors
     
     struct Colors {
-        static let primary = UIColor(red: 0.592, green: 0.373, blue: 0.988, alpha: 1.0)
-        static let primaryLight = UIColor(red: 0.702, green: 0.514, blue: 0.992, alpha: 1.0)
-        static let primaryDark = UIColor(red: 0.455, green: 0.227, blue: 0.851, alpha: 1.0)
-        static let secondary = UIColor.systemGreen
-        static let accent = UIColor.systemOrange
+        static let primary = UIColor(red: 0.910, green: 0.365, blue: 0.290, alpha: 1.0)
+        static let primaryLight = UIColor(red: 0.969, green: 0.714, blue: 0.659, alpha: 1.0)
+        static let primaryDark = UIColor(red: 0.725, green: 0.259, blue: 0.208, alpha: 1.0)
+        static let secondary = UIColor(red: 0.090, green: 0.165, blue: 0.227, alpha: 1.0)
+        static let accent = UIColor(red: 0.180, green: 0.616, blue: 0.529, alpha: 1.0)
         static let error = UIColor.systemRed
         static let warning = UIColor.systemYellow
-        static let success = UIColor.systemGreen
+        static let success = UIColor(red: 0.180, green: 0.616, blue: 0.529, alpha: 1.0)
         
-        static let background = UIColor.systemBackground
-        static let secondaryBackground = UIColor.secondarySystemBackground
-        static let tertiaryBackground = UIColor.tertiarySystemBackground
+        static let background = UIColor(red: 0.969, green: 0.961, blue: 0.941, alpha: 1.0)
+        static let secondaryBackground = UIColor.white
+        static let tertiaryBackground = UIColor(red: 0.937, green: 0.929, blue: 0.906, alpha: 1.0)
         
-        static let label = UIColor.label
-        static let secondaryLabel = UIColor.secondaryLabel
-        static let tertiaryLabel = UIColor.tertiaryLabel
+        static let label = UIColor(red: 0.090, green: 0.165, blue: 0.227, alpha: 1.0)
+        static let secondaryLabel = UIColor(red: 0.322, green: 0.380, blue: 0.420, alpha: 1.0)
+        static let tertiaryLabel = UIColor(red: 0.500, green: 0.545, blue: 0.565, alpha: 1.0)
         
         static let separator = UIColor.separator
     }

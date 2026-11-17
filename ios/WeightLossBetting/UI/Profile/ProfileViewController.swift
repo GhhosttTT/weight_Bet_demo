@@ -27,7 +27,7 @@ class ProfileViewController: UIViewController {
     private let emailLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -36,7 +36,11 @@ class ProfileViewController: UIViewController {
     private let infoStackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .vertical
-        stackView.spacing = 16
+        stackView.spacing = 0
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 8, leading: 16, bottom: 8, trailing: 16)
+        stackView.backgroundColor = AppTheme.Colors.secondaryBackground
+        stackView.layer.cornerRadius = 12
         stackView.translatesAutoresizingMaskIntoConstraints = false
         return stackView
     }()
@@ -44,9 +48,9 @@ class ProfileViewController: UIViewController {
     private let editButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("编辑个人资料", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -54,9 +58,9 @@ class ProfileViewController: UIViewController {
     private let paymentButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("管理支付方式", for: .normal)
-        button.backgroundColor = .systemGreen
+        button.backgroundColor = AppTheme.Colors.secondaryBackground
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
         button.isHidden = true  // 隐藏：管理支付方式功能
         return button
@@ -65,9 +69,11 @@ class ProfileViewController: UIViewController {
     private let notificationButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("通知设置", for: .normal)
-        button.backgroundColor = .systemOrange
-        button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.backgroundColor = AppTheme.Colors.secondaryBackground
+        button.setTitleColor(AppTheme.Colors.primary, for: .normal)
+        button.layer.borderWidth = 1
+        button.layer.borderColor = AppTheme.Colors.primary.cgColor
+        button.layer.cornerRadius = 12
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -75,7 +81,8 @@ class ProfileViewController: UIViewController {
     private let logoutButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("退出登录", for: .normal)
-        button.setTitleColor(.systemRed, for: .normal)
+        button.setTitleColor(AppTheme.Colors.error, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -109,8 +116,8 @@ class ProfileViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        title = "Profile"
-        view.backgroundColor = .systemBackground
+        title = "个人信息"
+        view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -136,21 +143,21 @@ class ProfileViewController: UIViewController {
             contentView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
             contentView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
             
-            nicknameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 32),
-            nicknameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
-            nicknameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
+            nicknameLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 24),
+            nicknameLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            nicknameLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             
             emailLabel.topAnchor.constraint(equalTo: nicknameLabel.bottomAnchor, constant: 8),
             emailLabel.leadingAnchor.constraint(equalTo: nicknameLabel.leadingAnchor),
             emailLabel.trailingAnchor.constraint(equalTo: nicknameLabel.trailingAnchor),
             
-            infoStackView.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: 32),
-            infoStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
-            infoStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
+            infoStackView.topAnchor.constraint(equalTo: emailLabel.bottomAnchor, constant: 24),
+            infoStackView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            infoStackView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             
-            editButton.topAnchor.constraint(equalTo: infoStackView.bottomAnchor, constant: 32),
-            editButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 32),
-            editButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -32),
+            editButton.topAnchor.constraint(equalTo: infoStackView.bottomAnchor, constant: 24),
+            editButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
+            editButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
             editButton.heightAnchor.constraint(equalToConstant: 50),
             
             // paymentButton 已隐藏，跳过布局约束
@@ -162,7 +169,7 @@ class ProfileViewController: UIViewController {
             
             logoutButton.topAnchor.constraint(equalTo: notificationButton.bottomAnchor, constant: 16),
             logoutButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            logoutButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -32),
+            logoutButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
@@ -226,11 +233,12 @@ class ProfileViewController: UIViewController {
     private func addInfoRow(title: String, value: String) {
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
+        containerView.backgroundColor = AppTheme.Colors.secondaryBackground
         
         let titleLabel = UILabel()
         titleLabel.text = title
         titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        titleLabel.textColor = .secondaryLabel
+        titleLabel.textColor = AppTheme.Colors.secondaryLabel
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let valueLabel = UILabel()

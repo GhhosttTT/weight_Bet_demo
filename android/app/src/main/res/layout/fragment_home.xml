@@ -5,180 +5,116 @@
     android:layout_height="match_parent"
     android:fillViewport="true"
     android:background="@color/xui_config_color_background">
-
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
-
+        android:paddingStart="20dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="24dp">
         <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="减肥对赌"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="@color/xui_config_color_text_title"
-            android:layout_marginBottom="24dp" />
-
-        <!-- Quick actions -->
-        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginBottom="16dp">
-
-            <!-- 替换 RoundButton 为 MaterialButton -->
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCreatePlan"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="创建计划"
-                android:textSize="16sp"
-                android:layout_marginEnd="8dp"
-                app:cornerRadius="12dp"
-                android:backgroundTint="@color/purple_500"
-                android:textColor="@color/white" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCheckIn"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="每日打卡"
-                android:textSize="16sp"
-                android:layout_marginStart="8dp"
-                app:cornerRadius="12dp"
-                android:backgroundTint="@color/teal_200"
-                android:textColor="@color/black" />
-
-        </LinearLayout>
-
-        <!-- Statistics Card -->
+            android:text="欢迎来到减肥对赌"
+            android:textColor="@color/xui_config_color_text_title"
+            android:textSize="28sp"
+            android:textStyle="bold" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:text="和朋友一起挑战减肥目标"
+            android:textColor="@color/xui_config_color_text_content"
+            android:textSize="16sp" />
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
-
+            android:layout_marginTop="16dp"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="#1AE85D4A"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="2dp">
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:padding="20dp">
-
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="我的统计"
-                    android:textSize="20sp"
-                    android:textStyle="bold"
+                    android:text="计划概览"
                     android:textColor="@color/xui_config_color_text_title"
-                    android:layout_marginBottom="16dp" />
-
-                <LinearLayout
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+                <TextView
+                    android:id="@+id/tvCheckInStats"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvActivePlans"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/purple_500" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="进行中的计划"
-                            android:textSize="14sp"
-                            android:textColor="@color/xui_config_color_text_gray"
-                            android:layout_marginTop="4dp" />
-
-                    </LinearLayout>
-
-                    <View
-                        android:layout_width="1dp"
-                        android:layout_height="match_parent"
-                        android:background="@color/xui_config_color_divider" />
-
-                    <LinearLayout
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:orientation="vertical"
-                        android:gravity="center">
-
-                        <TextView
-                            android:id="@+id/tvTotalCheckIns"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="0"
-                            android:textSize="28sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/teal_200" />
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="累计打卡"
-                            android:textSize="14sp"
-                            android:textColor="@color/xui_config_color_text_gray"
-                            android:layout_marginTop="4dp" />
-
-                    </LinearLayout>
-
-                </LinearLayout>
-
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:layout_marginTop="16dp"
-                    android:layout_marginBottom="16dp"
-                    android:background="@color/xui_config_color_divider" />
-
-                <LinearLayout
+                    android:layout_marginTop="14dp"
+                    android:text="今日打卡：--"
+                    android:textColor="@color/xui_config_color_text_title"
+                    android:textSize="15sp" />
+                <TextView
+                    android:id="@+id/tvBalance"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="账户余额"
-                        android:textSize="16sp"
-                        android:textColor="@color/xui_config_color_text_content" />
-
-                    <TextView
-                        android:id="@+id/tvBalance"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:gravity="end"
-                        android:text="¥0.00"
-                        android:textSize="24sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/purple_700" />
-
-                </LinearLayout>
-
+                    android:layout_marginTop="8dp"
+                    android:text="钱包余额：¥--"
+                    android:textColor="@color/xui_config_color_text_title"
+                    android:textSize="15sp" />
             </LinearLayout>
-
         </androidx.cardview.widget.CardView>
-
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCreatePlan"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical|start"
+            android:text="创建计划&#10;发起新的减肥挑战"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:backgroundTint="@color/purple_500"
+            android:elevation="2dp"
+            app:cornerRadius="20dp"
+            app:icon="@android:drawable/ic_input_add"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconTint="@color/white" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMyPlans"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:layout_marginBottom="12dp"
+            android:gravity="center_vertical|start"
+            android:text="我的计划&#10;查看所有对赌计划"
+            android:textColor="@color/purple_700"
+            android:textSize="16sp"
+            android:backgroundTint="@color/white"
+            android:elevation="2dp"
+            app:cornerRadius="20dp"
+            app:icon="@android:drawable/ic_menu_sort_by_size"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconTint="@color/purple_500"
+            app:strokeColor="@color/purple_500"
+            app:strokeWidth="1dp" />
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCheckIn"
+            android:layout_width="match_parent"
+            android:layout_height="88dp"
+            android:gravity="center_vertical|start"
+            android:text="每日打卡&#10;记录今天的体重"
+            android:textColor="@color/teal_700"
+            android:textSize="16sp"
+            android:backgroundTint="#14A8E0D3"
+            android:elevation="2dp"
+            app:cornerRadius="20dp"
+            app:icon="@android:drawable/ic_menu_edit"
+            app:iconGravity="textStart"
+            app:iconPadding="16dp"
+            app:iconTint="@color/teal_700"
+            app:strokeColor="@color/teal_700"
+            app:strokeWidth="1dp" />
     </LinearLayout>
-
 </ScrollView>

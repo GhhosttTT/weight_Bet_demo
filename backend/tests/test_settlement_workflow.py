@@ -26,10 +26,13 @@ sys.path.insert(0, str(project_root))
 from app.database import Base
 from app.models.user import User
 from app.models.betting_plan import BettingPlan
+from app.models.balance import Balance
 from app.models.settlement_choice import SettlementChoice
+from app.models.settlement import Settlement
 from app.schemas.settlement_choice import SettlementChoiceRequest
 from app.services.settlement_choice_service import SettlementChoiceService
 from app.services.settlement_service import SettlementService
+from app.services.payment_service import PaymentService
 from app.api.settlement_choices import check_settlement_deadline
 
 
@@ -45,6 +48,8 @@ TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engin
 @pytest.fixture(scope="function")
 def db_session():
     """创建测试数据库会话"""
+    # 清理旧版本测试库，避免保留已删除的 CHECK 约束。
+    Base.metadata.drop_all(bind=engine)
     Base.metadata.create_all(bind=engine)
     db = TestingSessionLocal()
     yield db
@@ -77,6 +82,8 @@ def test_users(db_session):
     )
     db_session.add(user1)
     db_session.add(user2)
+    db_session.add(Balance(user_id=user1.id, available_balance=1000.0, frozen_balance=0.0))
+    db_session.add(Balance(user_id=user2.id, available_balance=1000.0, frozen_balance=0.0))
     db_session.commit()
     
     return [user1, user2]
@@ -105,6 +112,13 @@ def expired_plan(db_session, test_users):
     )
     db_session.add(plan)
     db_session.commit()
+
+    assert PaymentService.freeze_funds(
+        db_session, creator.id, plan.id, plan.bet_amount
+    ).success
+    assert PaymentService.freeze_funds(
+        db_session, participant.id, plan.id, plan.bet_amount
+    ).success
     
     return plan
 

@@ -12,7 +12,7 @@ class LoginViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         // Set the logo image (using SF Symbol)
         imageView.image = UIImage(systemName: "target")
-        imageView.tintColor = .systemBlue
+        imageView.tintColor = AppTheme.Colors.primary
         return imageView
     }()
     
@@ -21,7 +21,7 @@ class LoginViewController: UIViewController {
         label.text = "BetFit"
         label.font = UIFont.boldSystemFont(ofSize: 36)
         label.textAlignment = .center
-        label.textColor = .label
+        label.textColor = AppTheme.Colors.label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,7 +31,7 @@ class LoginViewController: UIViewController {
         label.text = "减肥对赌挑战"
         label.font = UIFont.systemFont(ofSize: 16, weight: .medium)
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -58,9 +58,9 @@ class LoginViewController: UIViewController {
     private let loginButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("登录", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -77,9 +77,9 @@ class LoginViewController: UIViewController {
         button.setTitle("使用 Google 登录", for: .normal)
         button.backgroundColor = .white
         button.setTitleColor(.black, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.layer.borderWidth = 1
-        button.layer.borderColor = UIColor.lightGray.cgColor
+        button.layer.borderColor = AppTheme.Colors.separator.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -88,7 +88,7 @@ class LoginViewController: UIViewController {
         let label = UILabel()
         label.text = "或者"
         label.textAlignment = .center
-        label.textColor = .gray
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -137,7 +137,16 @@ class LoginViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
+
+        [emailTextField, passwordTextField].forEach { field in
+            field.backgroundColor = AppTheme.Colors.secondaryBackground
+            field.layer.cornerRadius = AppTheme.CornerRadius.medium
+            field.layer.borderWidth = 1
+            field.layer.borderColor = AppTheme.Colors.separator.cgColor
+            field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
+            field.leftViewMode = .always
+        }
         
         view.addSubview(logoImageView)
         view.addSubview(appTitleLabel)

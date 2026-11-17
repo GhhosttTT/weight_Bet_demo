@@ -38,7 +38,7 @@ class WithdrawViewController: UIViewController {
         let label = UILabel()
         label.text = "Available Balance: ¥0.00"
         label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -56,7 +56,7 @@ class WithdrawViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("确认提现", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        button.backgroundColor = UIColor.systemGreen  // 使用绿色表示提现
+        button.backgroundColor = AppTheme.Colors.success  // 使用绿色表示提现
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 10
         button.layer.shadowColor = UIColor.black.cgColor
@@ -78,7 +78,7 @@ class WithdrawViewController: UIViewController {
         let label = UILabel()
         label.text = "Note: Withdrawals may take 1-3 business days to process. A withdrawal fee of 2% applies."
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.numberOfLines = 0
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -104,7 +104,7 @@ class WithdrawViewController: UIViewController {
     
     private func setupUI() {
         title = "Withdraw"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         // Add subviews
         view.addSubview(scrollView)
@@ -181,11 +181,11 @@ class WithdrawViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("¥\(Int(amount))", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)  // 稍微缩小字体
-        button.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)  // 使用淡蓝色背景
-        button.setTitleColor(.systemBlue, for: .normal)  // 蓝色字体
+        button.backgroundColor = AppTheme.Colors.primary.withAlphaComponent(0.1)  // 使用淡蓝色背景
+        button.setTitleColor(AppTheme.Colors.primary, for: .normal)  // 蓝色字体
         button.layer.cornerRadius = 8
         button.layer.borderWidth = 1  // 添加边框
-        button.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.3).cgColor
+        button.layer.borderColor = AppTheme.Colors.primary.withAlphaComponent(0.3).cgColor
         button.addTarget(self, action: #selector(quickAmountButtonTapped(_:)), for: .touchUpInside)
         button.tag = Int(amount)
         return button

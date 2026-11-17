@@ -40,7 +40,7 @@ class InviteViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "邀请参与者"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         setupUI()
         setupKeyboardHandling()
@@ -72,7 +72,7 @@ class InviteViewController: UIViewController {
         searchButton = UIButton(type: .system)
         searchButton.setTitle("搜索", for: .normal)
         searchButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        searchButton.backgroundColor = .systemGreen
+        searchButton.backgroundColor = AppTheme.Colors.success
         searchButton.setTitleColor(.white, for: .normal)
         searchButton.layer.cornerRadius = 10
         searchButton.addTarget(self, action: #selector(searchTapped), for: .touchUpInside)
@@ -83,7 +83,7 @@ class InviteViewController: UIViewController {
         resultLabel = UILabel()
         resultLabel.text = ""
         resultLabel.font = .systemFont(ofSize: 14)
-        resultLabel.textColor = .systemGreen
+        resultLabel.textColor = AppTheme.Colors.success
         resultLabel.numberOfLines = 0
         resultLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(resultLabel)
@@ -92,7 +92,7 @@ class InviteViewController: UIViewController {
         userInfoLabel = UILabel()
         userInfoLabel.text = ""
         userInfoLabel.font = .systemFont(ofSize: 14)
-        userInfoLabel.textColor = .secondaryLabel
+        userInfoLabel.textColor = AppTheme.Colors.secondaryLabel
         userInfoLabel.numberOfLines = 0
         userInfoLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(userInfoLabel)
@@ -101,7 +101,7 @@ class InviteViewController: UIViewController {
         inviteButton = UIButton(type: .system)
         inviteButton.setTitle("发送邀请", for: .normal)
         inviteButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
-        inviteButton.backgroundColor = .systemBlue
+        inviteButton.backgroundColor = AppTheme.Colors.primary
         inviteButton.setTitleColor(.white, for: .normal)
         inviteButton.layer.cornerRadius = 12
         inviteButton.addTarget(self, action: #selector(inviteTapped), for: .touchUpInside)
@@ -234,7 +234,7 @@ class InviteViewController: UIViewController {
                 switch result {
                 case .success(let user):
                     self?.resultLabel.text = "✅ 找到用户"
-                    self?.resultLabel.textColor = .systemGreen
+                    self?.resultLabel.textColor = AppTheme.Colors.success
                     let nicknameText = user.nickname ?? "(未设置)"
                     self?.userInfoLabel.text = "昵称：\(nicknameText)\n\n请确认这是您要邀请的好友"
                     self?.inviteButton.isHidden = false
@@ -243,7 +243,7 @@ class InviteViewController: UIViewController {
 
                 case .failure(let error):
                     self?.resultLabel.text = "❌ 未找到用户"
-                    self?.resultLabel.textColor = .systemRed
+                    self?.resultLabel.textColor = AppTheme.Colors.error
                     self?.userInfoLabel.text = "邮箱：\(email)\n\n该用户不存在或未注册"
                     self?.inviteButton.isHidden = true
                     self?.searchedUserEmail = nil

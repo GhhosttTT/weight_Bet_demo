@@ -32,7 +32,7 @@
         android:layout_gravity="center"
         android:text="暂无勋章"
         android:textSize="16sp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="@color/xui_config_color_text_content"
         android:visibility="gone" />
 
     <ProgressBar

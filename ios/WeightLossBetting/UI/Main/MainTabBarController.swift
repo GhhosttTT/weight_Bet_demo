@@ -69,9 +69,9 @@ class MainTabBarController: UITabBarController {
     // MARK: - Setup
     
     private func setupTabBar() {
-        tabBar.tintColor = .systemBlue
-        tabBar.unselectedItemTintColor = .systemGray
-        tabBar.backgroundColor = .systemBackground
+        tabBar.tintColor = AppTheme.Colors.primary
+        tabBar.unselectedItemTintColor = AppTheme.Colors.secondaryLabel
+        tabBar.backgroundColor = AppTheme.Colors.background
         
         // Add shadow
         tabBar.layer.shadowColor = UIColor.black.cgColor
@@ -142,7 +142,7 @@ class HomeViewController: UIViewController {
     private let welcomeLabel: UILabel = {
         let label = UILabel()
         label.text = "欢迎来到减肥对赌"
-        label.font = .boldSystemFont(ofSize: 24)
+        label.font = .systemFont(ofSize: 28, weight: .bold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -151,7 +151,7 @@ class HomeViewController: UIViewController {
         let label = UILabel()
         label.text = "和朋友一起挑战减肥目标"
         label.font = .systemFont(ofSize: 16)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -167,17 +167,18 @@ class HomeViewController: UIViewController {
     // 新增：统计卡片
     private let statsCardView: UIView = {
         let view = UIView()
-        view.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)
-        view.layer.cornerRadius = 12
+        view.backgroundColor = AppTheme.Colors.primary.withAlphaComponent(0.12)
+        view.layer.cornerRadius = 24
+        view.applyShadow(style: AppTheme.Shadow.small())
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
     
     private let checkInStatsLabel: UILabel = {
         let label = UILabel()
-        label.text = "今日打卡：--"
+        label.text = "进行中的计划：--"
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.textColor = .label
+        label.textColor = AppTheme.Colors.label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -186,7 +187,7 @@ class HomeViewController: UIViewController {
         let label = UILabel()
         label.text = "钱包余额：¥--"
         label.font = .systemFont(ofSize: 15, weight: .medium)
-        label.textColor = .label
+        label.textColor = AppTheme.Colors.label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -194,7 +195,7 @@ class HomeViewController: UIViewController {
     private let refreshButton: UIButton = {
         let button = UIButton(type: .system)
         button.setImage(UIImage(systemName: "arrow.clockwise"), for: .normal)
-        button.tintColor = .systemBlue
+        button.tintColor = AppTheme.Colors.primaryDark
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -213,7 +214,7 @@ class HomeViewController: UIViewController {
     
     private func setupUI() {
         title = "首页"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -244,10 +245,10 @@ class HomeViewController: UIViewController {
             subtitleLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
             // 统计卡片在副标题下方
-            statsCardView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 16),
+            statsCardView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 20),
             statsCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             statsCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            statsCardView.heightAnchor.constraint(equalToConstant: 90),
+            statsCardView.heightAnchor.constraint(equalToConstant: 104),
             
             // 快速操作在统计卡片下方
             quickActionsStackView.topAnchor.constraint(equalTo: statsCardView.bottomAnchor, constant: 24),
@@ -297,37 +298,10 @@ class HomeViewController: UIViewController {
             DispatchQueue.main.async {
                 switch result {
                 case .success(let plans):
-                    let today = Date()
-                    let dateFormatter = DateFormatter()
-                    dateFormatter.dateFormat = "yyyy-MM-dd"
-                    let todayString = dateFormatter.string(from: today)
-                    
-                    var checkedInCount = 0
-                    
-                    let group = DispatchGroup()
-                    
-                    for plan in plans {
-                        group.enter()
-                        APIService.shared.getCheckInHistory(planId: plan.id, userId: userId) { checkInResult in
-                            if case .success(let checkIns) = checkInResult {
-                                let checkedInToday = checkIns.contains { checkIn in
-                                    let checkInDateStr = dateFormatter.string(from: checkIn.checkInDate)
-                                    return checkInDateStr == todayString && checkIn.userId == userId
-                                }
-                                if checkedInToday {
-                                    checkedInCount += 1
-                                }
-                            }
-                            group.leave()
-                        }
-                    }
-                    
-                    group.notify(queue: .main) {
-                        self?.checkInStatsLabel.text = "今日打卡：\(checkedInCount)/\(plans.count)"
-                    }
+                    self?.checkInStatsLabel.text = "进行中的计划：\(plans.count)"
                     
                 case .failure:
-                    self?.checkInStatsLabel.text = "今日打卡：--"
+                    self?.checkInStatsLabel.text = "进行中的计划：--"
                 }
             }
         }
@@ -372,13 +346,14 @@ class HomeViewController: UIViewController {
     
     private func createQuickActionButton(title: String, subtitle: String, icon: String, action: Selector) -> UIButton {
         let button = UIButton(type: .system)
-        button.backgroundColor = .secondarySystemBackground
-        button.layer.cornerRadius = 12
+        button.backgroundColor = AppTheme.Colors.secondaryBackground
+        button.layer.cornerRadius = 20
+        button.applyShadow(style: AppTheme.Shadow.small())
         button.contentHorizontalAlignment = .left
         button.addTarget(self, action: action, for: .touchUpInside)
         
         let iconImageView = UIImageView(image: UIImage(systemName: icon))
-        iconImageView.tintColor = .systemBlue
+        iconImageView.tintColor = AppTheme.Colors.primary
         iconImageView.contentMode = .scaleAspectFit
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -390,11 +365,11 @@ class HomeViewController: UIViewController {
         let subtitleLabel = UILabel()
         subtitleLabel.text = subtitle
         subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = .secondaryLabel
+        subtitleLabel.textColor = AppTheme.Colors.secondaryLabel
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let chevronImageView = UIImageView(image: UIImage(systemName: "chevron.right"))
-        chevronImageView.tintColor = .tertiaryLabel
+        chevronImageView.tintColor = AppTheme.Colors.tertiaryLabel
         chevronImageView.contentMode = .scaleAspectFit
         chevronImageView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -404,7 +379,7 @@ class HomeViewController: UIViewController {
         button.addSubview(chevronImageView)
         
         NSLayoutConstraint.activate([
-            button.heightAnchor.constraint(equalToConstant: 80),
+            button.heightAnchor.constraint(equalToConstant: 88),
             
             iconImageView.leadingAnchor.constraint(equalTo: button.leadingAnchor, constant: 16),
             iconImageView.centerYAnchor.constraint(equalTo: button.centerYAnchor),
@@ -462,31 +437,42 @@ class HomeViewController: UIViewController {
                     dateFormatter.dateFormat = "yyyy-MM-dd"
                     let todayString = dateFormatter.string(from: today)
                     
-                    // Check all plans for today's check-in
+                    // 等所有计划的查询完成后再决定展示哪一个页面，避免并发回调导致重复弹窗或过早进入打卡页。
                     var alreadyCheckedInPlanIds: [String] = []
-                    
+                    var historyLoadFailed = false
+                    let group = DispatchGroup()
+
                     for plan in plans {
+                        group.enter()
                         // Check if already checked in today for this plan
                         APIService.shared.getCheckInHistory(planId: plan.id, userId: userId) { checkInResult in
-                            if case .success(let checkIns) = checkInResult {
-                                let checkedInToday = checkIns.contains { checkIn in
-                                    let checkInDateStr = dateFormatter.string(from: checkIn.checkInDate)
-                                    return checkInDateStr == todayString && checkIn.userId == userId
+                            DispatchQueue.main.async {
+                                if case .success(let checkIns) = checkInResult {
+                                    let checkedInToday = checkIns.contains { checkIn in
+                                        let checkInDateStr = dateFormatter.string(from: checkIn.checkInDate)
+                                        return checkInDateStr == todayString && checkIn.userId == userId
+                                    }
+                                    if checkedInToday {
+                                        alreadyCheckedInPlanIds.append(plan.id)
+                                    }
+                                } else {
+                                    historyLoadFailed = true
                                 }
-                                
-                                if checkedInToday {
-                                    alreadyCheckedInPlanIds.append(plan.id)
-                                }
+                                group.leave()
                             }
-                            
-                            // After checking all plans, show appropriate UI
-                            if alreadyCheckedInPlanIds.count == plans.count {
-                                // All plans checked in today
-                                self.showAlreadyCheckedInAlert()
-                            } else {
-                                // Show plan selection for check-in
-                                self.showPlanSelectionForCheckIn(plans: plans, alreadyCheckedInPlanIds: alreadyCheckedInPlanIds)
-                            }
+                        }
+                    }
+
+                    group.notify(queue: .main) {
+                        if historyLoadFailed {
+                            self.showAlert(message: "打卡状态加载失败，请检查网络后重试")
+                        } else if alreadyCheckedInPlanIds.count == plans.count {
+                            self.showAlreadyCheckedInAlert()
+                        } else {
+                            self.showPlanSelectionForCheckIn(
+                                plans: plans,
+                                alreadyCheckedInPlanIds: alreadyCheckedInPlanIds
+                            )
                         }
                     }
                     

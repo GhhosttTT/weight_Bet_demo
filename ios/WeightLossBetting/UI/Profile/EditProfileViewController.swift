@@ -69,7 +69,7 @@ class EditProfileViewController: UIViewController {
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("Save Changes", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -112,7 +112,7 @@ class EditProfileViewController: UIViewController {
     
     private func setupUI() {
         title = "Edit Profile"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -139,7 +139,7 @@ class EditProfileViewController: UIViewController {
         let label = UILabel()
         label.text = text
         label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }

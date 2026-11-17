@@ -3,7 +3,7 @@
 Notification Schemas
 """
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import List, Optional
 from datetime import datetime
 from enum import Enum
 
@@ -56,4 +56,4 @@ class NotificationResponse(BaseModel):
     """Notification response"""
     success: bool
     message: str
-    failed_tokens: Optional[list[str]] = None
+    failed_tokens: Optional[List[str]] = None

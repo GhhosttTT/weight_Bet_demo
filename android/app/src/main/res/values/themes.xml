@@ -6,6 +6,7 @@
         <item name="colorPrimaryDark">@color/purple_700</item>
         <item name="colorAccent">@color/purple_200</item>
         <item name="android:statusBarColor">@color/purple_700</item>
+        <item name="android:navigationBarColor">@color/xui_config_color_background</item>
         
         <!-- XUI 兼容属性 -->
         <item name="XUIThemeStyle">@style/XUITheme.Phone</item>

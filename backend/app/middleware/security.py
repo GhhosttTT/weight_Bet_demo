@@ -10,6 +10,7 @@ import re
 import html
 from typing import Any, Dict
 import json
+from urllib.parse import unquote_plus
 
 logger = get_logger()
 
@@ -32,6 +33,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         r"(\bINSERT\b.*\bINTO\b)",
         r"(\bUPDATE\b.*\bSET\b)",
         r"(\bDELETE\b.*\bFROM\b)",
+        r"(;\s*(?:DROP|SELECT|INSERT|UPDATE|DELETE|ALTER|CREATE)\b)",
         r"(\bDROP\b.*\bTABLE\b)",
         r"(\bEXEC\b|\bEXECUTE\b)",
         r"(;.*--)",
@@ -83,6 +85,16 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             # 检查查询参数
             for key, value in request.query_params.items():
                 self._validate_input(key, value, "query parameter")
+
+            # Starlette 会把未编码的分号当作查询分隔符，导致恶意片段
+            # 被拆成新的键值对；同时检查原始 query string，避免绕过检测。
+            raw_query = request.scope.get("query_string", b"").decode(
+                "utf-8", errors="replace"
+            )
+            if raw_query:
+                self._validate_input(
+                    "__raw_query__", unquote_plus(raw_query), "query string"
+                )
             
             # 检查请求体 (如果是 JSON)
             if request.headers.get("content-type", "").startswith("application/json"):
@@ -136,10 +148,21 @@ class SecurityMiddleware(BaseHTTPMiddleware):
     
     async def _get_request_body(self, request: Request) -> Any:
         """
-        获取请求体内容
+        获取请求体内容，并把已读取的 body 重新提供给下游处理器。
+
+        BaseHTTPMiddleware 读取 receive channel 后不会自动把内容回放给
+        路由层；如果不回放，带 JSON body 的请求可能在 TestClient/ASGI
+        server 中一直等待剩余请求体。
         """
         try:
             body_bytes = await request.body()
+            async def receive():
+                return {
+                    "type": "http.request",
+                    "body": body_bytes,
+                    "more_body": False,
+                }
+            request._receive = receive
             if body_bytes:
                 return json.loads(body_bytes)
         except Exception as e:

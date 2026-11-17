@@ -7,8 +7,9 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.redis_client import get_redis
 from app.logger import get_logger
-from typing import Optional
+from typing import Optional, Tuple
 import time
+import uuid
 
 logger = get_logger()
 
@@ -81,7 +82,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         client_ip = request.client.host if request.client else "unknown"
         return f"ip:{client_ip}"
     
-    async def _check_rate_limit(self, identifier: str) -> tuple[bool, int, int]:
+    async def _check_rate_limit(self, identifier: str) -> Tuple[bool, int, int]:
         """
         检查是否超过限流阈值
         
@@ -108,7 +109,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             pipe.zcard(key)
             
             # 3. 添加当前请求
-            pipe.zadd(key, {str(current_time): current_time})
+            # member 必须按请求唯一；仅使用秒级时间戳会让同一秒内的请求
+            # 相互覆盖，导致限流计数失真。score 仍使用时间戳用于窗口清理。
+            request_member = "{}:{}".format(current_time, uuid.uuid4().hex)
+            pipe.zadd(key, {request_member: current_time})
             
             # 4. 设置过期时间
             pipe.expire(key, self.window_size + 10)

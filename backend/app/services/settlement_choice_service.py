@@ -4,6 +4,7 @@
 """
 import uuid
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 from datetime import datetime, timedelta
 from typing import Optional, Tuple
@@ -24,6 +25,30 @@ logger = get_logger()
 
 class SettlementChoiceService:
     """结算选择服务类"""
+
+    @staticmethod
+    def _validate_settlement_window(plan: BettingPlan) -> None:
+        """确保计划已经进入可结算窗口。"""
+        if plan.status != PlanStatus.ACTIVE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="只有进行中的计划可以提交结算选择"
+            )
+        if not plan.participant_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="计划尚未形成完整参与关系，无法提交结算选择"
+            )
+
+        current_time = (
+            datetime.now(plan.end_date.tzinfo)
+            if plan.end_date.tzinfo else datetime.utcnow()
+        )
+        if current_time < plan.end_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="计划尚未到期，暂不能提交结算选择"
+            )
     
     @staticmethod
     def submit_choice(
@@ -48,7 +73,9 @@ class SettlementChoiceService:
             HTTPException: 计划不存在、已结算或重复提交
         """
         # 获取计划
-        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        plan = db.query(BettingPlan).filter(
+            BettingPlan.id == plan_id
+        ).with_for_update().first()
         if not plan:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -62,12 +89,17 @@ class SettlementChoiceService:
                 detail="您不是该计划的参与者"
             )
         
-        # 检查计划状态
-        if plan.status == PlanStatus.COMPLETED:
+        # 已存在结算记录时，计划状态可能尚未被旧数据同步，仍需禁止追加选择。
+        if (
+            plan.status == PlanStatus.COMPLETED
+            or db.query(Settlement).filter(Settlement.plan_id == plan_id).first()
+        ):
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="计划已结算"
             )
+
+        SettlementChoiceService._validate_settlement_window(plan)
         
         # 确定当前轮次
         current_round = SettlementChoiceService._get_current_round(db, plan_id)
@@ -115,6 +147,11 @@ class SettlementChoiceService:
             
         except Exception as e:
             db.rollback()
+            if isinstance(e, IntegrityError):
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="您已在当前轮次提交过选择"
+                )
             logger.error("Failed to submit settlement choice: {}", str(e), exc_info=True)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -123,16 +160,11 @@ class SettlementChoiceService:
     
     @staticmethod
     def _get_current_round(db: Session, plan_id: str) -> int:
-        """获取当前轮次（不自动推进，需要显式调用 advance_round）"""
-        latest_choice = db.query(SettlementChoice).filter(
-            SettlementChoice.plan_id == plan_id
-        ).order_by(SettlementChoice.round.desc()).first()
-        
-        if not latest_choice:
+        """读取计划持久化的当前轮次。"""
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        if not plan:
             return 1
-        
-        # 返回最新的轮次，不自动推进
-        return latest_choice.round
+        return plan.settlement_round or 1
     
     @staticmethod
     def get_selection_status(
@@ -157,8 +189,21 @@ class SettlementChoiceService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="计划不存在"
             )
-        
+
+        if user_id not in (plan.creator_id, plan.participant_id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="您不是该计划的参与者"
+            )
+
         current_round = SettlementChoiceService._get_current_round(db, plan_id)
+
+        # 查询接口允许已完成计划读取最终状态；变更接口仍由窗口校验拦截。
+        settlement = db.query(Settlement).filter(
+            Settlement.plan_id == plan_id
+        ).first()
+        if not settlement:
+            SettlementChoiceService._validate_settlement_window(plan)
         
         # 获取双方选择
         creator_choice = db.query(SettlementChoice).filter(
@@ -172,28 +217,30 @@ class SettlementChoiceService:
             SettlementChoice.user_id == plan.participant_id,
             SettlementChoice.round == current_round
         ).first()
+
+        current_user_choice = (
+            creator_choice if user_id == plan.creator_id else participant_choice
+        )
         
         # 检查是否已结算
-        settlement_exists = db.query(Settlement).filter(
-            Settlement.plan_id == plan_id
-        ).first() is not None
-        
         return SettlementSelectionStatus(
             plan_id=plan_id,
             current_round=current_round,
             creator_submitted=creator_choice is not None,
             participant_submitted=participant_choice is not None,
+            current_user_submitted=current_user_choice is not None,
             creator_choice=SettlementChoiceResponse.from_orm(creator_choice) if creator_choice else None,
             participant_choice=SettlementChoiceResponse.from_orm(participant_choice) if participant_choice else None,
             matched=False,  # 将在比对接口中设置
-            settlement_completed=settlement_exists,
-            in_arbitration=current_round > 3
+            settlement_completed=settlement is not None,
+            in_arbitration=bool(settlement and settlement.in_arbitration)
         )
     
     @staticmethod
     def match_choices(
         db: Session,
-        plan_id: str
+        plan_id: str,
+        requesting_user_id: Optional[str] = None
     ) -> SettlementMatchingResult:
         """
         比对双方选择并执行匹配逻辑
@@ -211,6 +258,20 @@ class SettlementChoiceService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="计划不存在"
             )
+
+        if requesting_user_id and requesting_user_id not in (plan.creator_id, plan.participant_id):
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="您不是该计划的参与者"
+            )
+
+        if db.query(Settlement).filter(Settlement.plan_id == plan_id).first():
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="计划已结算"
+            )
+
+        SettlementChoiceService._validate_settlement_window(plan)
         
         current_round = SettlementChoiceService._get_current_round(db, plan_id)
         
@@ -307,6 +368,9 @@ class SettlementChoiceService:
             )
         else:
             logger.info("Going to next round for plan {}", plan_id)
+            # 选择不匹配后立即持久化轮次，下一次提交才能进入下一轮。
+            plan.settlement_round = current_round + 1
+            db.commit()
             return SettlementMatchingResult(
                 matched=False,
                 go_to_next_round=True,
@@ -318,7 +382,8 @@ class SettlementChoiceService:
     def check_timeout_and_advance(
         db: Session,
         plan_id: str,
-        timeout_hours: int = 24
+        timeout_hours: int = 24,
+        requesting_user_id: Optional[str] = None
     ) -> Tuple[bool, str]:
         """
         检查超时并自动推进（如果一方超时未选）
@@ -334,6 +399,26 @@ class SettlementChoiceService:
         plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
         if not plan:
             return False, "计划不存在"
+
+        if requesting_user_id and requesting_user_id not in (plan.creator_id, plan.participant_id):
+            return False, "您不是该计划的参与者"
+
+        if db.query(Settlement).filter(Settlement.plan_id == plan_id).first():
+            return False, "计划已结算"
+
+        if plan.status != PlanStatus.ACTIVE:
+            return False, "只有进行中的计划可以检查结算超时"
+        if not plan.participant_id:
+            return False, "计划尚未形成完整参与关系"
+        current_time = (
+            datetime.now(plan.end_date.tzinfo)
+            if plan.end_date.tzinfo else datetime.utcnow()
+        )
+        if current_time < plan.end_date:
+            return False, "计划尚未到期"
+
+        if timeout_hours < 1 or timeout_hours > 168:
+            return False, "超时时间必须在 1 到 168 小时之间"
         
         current_round = SettlementChoiceService._get_current_round(db, plan_id)
         
@@ -391,4 +476,6 @@ class SettlementChoiceService:
                 return False, "进入仲裁失败"
         else:
             logger.info("Timeout, advancing to round {} for plan {}", next_round, plan_id)
+            plan.settlement_round = next_round
+            db.commit()
             return True, f"Timeout, entered round {next_round}"

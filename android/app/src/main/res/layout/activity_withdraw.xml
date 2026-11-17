@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:text="• 最低提现金额: ¥10\n• 最高提现金额: ¥50,000\n• 提现将在1-3个工作日内到账"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/xui_config_color_text_content"
             android:lineSpacingExtra="4dp"
             android:layout_marginBottom="32dp" />
 

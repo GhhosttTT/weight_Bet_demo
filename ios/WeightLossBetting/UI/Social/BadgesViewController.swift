@@ -11,7 +11,7 @@ class BadgesViewController: UIViewController {
         layout.sectionInset = UIEdgeInsets(top: 16, left: 16, bottom: 16, right: 16)
         
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
-        collectionView.backgroundColor = .systemBackground
+        collectionView.backgroundColor = AppTheme.Colors.background
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         collectionView.register(BadgeCell.self, forCellWithReuseIdentifier: "BadgeCell")
         return collectionView
@@ -28,7 +28,7 @@ class BadgesViewController: UIViewController {
         let label = UILabel()
         label.text = "还没有获得任何勋章\n继续努力吧!"
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.numberOfLines = 0
         label.font = .systemFont(ofSize: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -65,7 +65,7 @@ class BadgesViewController: UIViewController {
     
     private func setupUI() {
         title = "我的勋章"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(collectionView)
         view.addSubview(activityIndicator)
@@ -172,7 +172,7 @@ class BadgeCell: UICollectionViewCell {
     
     private let containerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = AppTheme.Colors.secondaryBackground
         view.layer.cornerRadius = 12
         view.translatesAutoresizingMaskIntoConstraints = false
         return view

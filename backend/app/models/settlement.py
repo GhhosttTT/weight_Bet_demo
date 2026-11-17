@@ -1,7 +1,7 @@
 """
 结算记录数据模型
 """
-from sqlalchemy import Column, String, Float, DateTime, Boolean, ForeignKey, Text
+from sqlalchemy import Column, String, Float, DateTime, Boolean, ForeignKey, Text, false
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -31,7 +31,9 @@ class Settlement(Base):
     notes = Column(Text, nullable=True)
     
     # 仲裁标记
-    in_arbitration = Column(Boolean, server_default="false", nullable=False)
+    # 使用数据库布尔表达式，避免 SQLite 生成 DEFAULT 'false' 字符串，
+    # 该字符串无法通过 Boolean 的 0/1 CHECK 约束。
+    in_arbitration = Column(Boolean, server_default=false(), nullable=False)
     arbitration_fee = Column(Float, nullable=True)  # 仲裁费用（15%）
     
     # 时间戳

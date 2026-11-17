@@ -1,7 +1,7 @@
 """
 结算选择相关的 API 路由
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from datetime import datetime
@@ -81,7 +81,7 @@ async def match_settlement_choices(
     """
     比对双方结算选择
     
-    注意：此接口应该由定时任务或管理员调用，需要添加适当的认证机制
+    参与者可以读取当前匹配结果；真正的资金结算仍由结算服务执行。
     
     Args:
         plan_id: 计划 ID
@@ -91,8 +91,9 @@ async def match_settlement_choices(
     Returns:
         SettlementMatchingResult: 匹配结果
     """
-    # TODO: 添加 API 密钥或其他认证机制
-    result = SettlementChoiceService.match_choices(db, plan_id)
+    result = SettlementChoiceService.match_choices(
+        db, plan_id, requesting_user_id=current_user.id
+    )
     
     logger.info(
         "Settlement matching result for plan {}: matched={}, creator_won={}, arbitration={}",
@@ -105,14 +106,14 @@ async def match_settlement_choices(
 @router.get("/settlement-choices/{plan_id}/check-timeout")
 async def check_timeout_and_advance(
     plan_id: str,
-    timeout_hours: int = 24,
+    timeout_hours: int = Query(default=24, ge=1, le=168),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     """
     检查超时并自动推进到下一轮
     
-    注意：此接口应该由定时任务调用
+    参与者可以查询推进结果，超时范围由接口和服务层共同限制。
     
     Args:
         plan_id: 计划 ID
@@ -123,9 +124,8 @@ async def check_timeout_and_advance(
     Returns:
         dict: 处理结果
     """
-    # TODO: 添加 API 密钥或其他认证机制
     success, message = SettlementChoiceService.check_timeout_and_advance(
-        db, plan_id, timeout_hours
+        db, plan_id, timeout_hours, requesting_user_id=current_user.id
     )
     
     return {

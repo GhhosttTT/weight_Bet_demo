@@ -1,7 +1,7 @@
 """
 对赌计划数据模型
 """
-from sqlalchemy import Column, String, Float, DateTime, Enum as SQLEnum, ForeignKey, Text, Boolean
+from sqlalchemy import Column, String, Float, DateTime, Enum as SQLEnum, ForeignKey, Text, Boolean, Integer
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -62,6 +62,9 @@ class BettingPlan(Base):
     abandoned_by = Column(String(36), ForeignKey("users.id"), nullable=True)
     abandoned_at = Column(DateTime(timezone=True), nullable=True)
     expiry_checked_at = Column(DateTime(timezone=True), nullable=True)
+
+    # 结算选择当前轮次，必须持久化，避免“不匹配后进入下一轮”只停留在响应中。
+    settlement_round = Column(Integer, default=1, server_default="1", nullable=False)
 
     # 关系
     creator = relationship("User", foreign_keys=[creator_id])

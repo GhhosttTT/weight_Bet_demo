@@ -257,6 +257,45 @@
                 android:textColor="@color/black"
                 android:visibility="gone" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnProgress"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="查看进度"
+                android:textSize="16sp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
+                android:layout_marginBottom="16dp"
+                app:cornerRadius="20dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnCheckInHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="查看打卡历史"
+                android:textSize="16sp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
+                android:layout_marginBottom="16dp"
+                app:cornerRadius="20dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:visibility="gone" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnComments"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="查看评论"
+                android:textSize="16sp"
+                android:paddingTop="14dp"
+                android:paddingBottom="14dp"
+                android:layout_marginBottom="16dp"
+                app:cornerRadius="20dp"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:visibility="gone" />
+
             <!-- Abandon Plan Button (for pending and active plans) -->
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAbandonPlan"

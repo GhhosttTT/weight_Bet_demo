@@ -15,7 +15,7 @@ class NetworkDebugViewController: UIViewController {
     private let runButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("运行诊断", for: .normal)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +35,7 @@ class NetworkDebugViewController: UIViewController {
         super.viewDidLoad()
         
         title = "网络诊断"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         setupUI()
         

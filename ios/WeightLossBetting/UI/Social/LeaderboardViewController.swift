@@ -53,7 +53,7 @@ class LeaderboardViewController: UIViewController {
     
     private func setupUI() {
         title = "排行榜"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(segmentedControl)
         view.addSubview(tableView)
@@ -185,7 +185,7 @@ class LeaderboardCell: UITableViewCell {
     private let valueLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.textAlignment = .right
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -230,9 +230,9 @@ class LeaderboardCell: UITableViewCell {
         case 2:
             rankLabel.textColor = .systemGray
         case 3:
-            rankLabel.textColor = .systemOrange
+            rankLabel.textColor = AppTheme.Colors.accent
         default:
-            rankLabel.textColor = .label
+            rankLabel.textColor = AppTheme.Colors.label
         }
         
         // Format value based on type

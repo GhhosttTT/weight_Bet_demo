@@ -5,6 +5,8 @@ import pytest
 from datetime import datetime, timedelta
 from decimal import Decimal
 
+from app.services.settlement_service import SettlementService
+
 
 class TestSettlementService:
     """测试结算服务"""
@@ -266,17 +268,21 @@ class TestSettlementService:
         """测试结算金额精度"""
         # 测试奇数金额的平分
         bet_amount = Decimal("99.99")
-        total_amount = bet_amount * 2
-        platform_fee = total_amount * Decimal("0.10")
-        remaining_amount = total_amount - platform_fee
-        
-        creator_amount = remaining_amount / 2
-        participant_amount = remaining_amount / 2
-        
-        # 验证精度保持在两位小数
-        assert creator_amount.as_tuple().exponent >= -2
-        assert participant_amount.as_tuple().exponent >= -2
-        
+        creator_amount, participant_amount, platform_fee, total_amount = (
+            SettlementService._calculate_payouts(
+                bet_amount, creator_achieved=False, participant_achieved=False
+            )
+        )
+        creator_amount = Decimal(str(creator_amount))
+        participant_amount = Decimal(str(participant_amount))
+        platform_fee = Decimal(str(platform_fee))
+        total_amount = Decimal(str(total_amount))
+
+        # 业务返回数值最多保留两位小数，不要求 Decimal 保留末尾 0。
+        assert abs(creator_amount.as_tuple().exponent) <= 2
+        assert abs(participant_amount.as_tuple().exponent) <= 2
+        assert abs(platform_fee.as_tuple().exponent) <= 2
+
         # 验证资金守恒
         total_out = creator_amount + participant_amount + platform_fee
         assert abs(total_amount - total_out) < Decimal("0.01")

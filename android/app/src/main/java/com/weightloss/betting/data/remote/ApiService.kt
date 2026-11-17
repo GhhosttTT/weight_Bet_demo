@@ -98,6 +98,19 @@ interface ApiService {
         @Path("planId") planId: String,
         @Query("user_id") userId: String
     ): Response<ProgressStats>
+
+    // ==================== 结算选择 API ====================
+
+    @POST("api/settlement-choices/{planId}")
+    suspend fun submitSettlementChoice(
+        @Path("planId") planId: String,
+        @Body request: SettlementChoiceRequest
+    ): Response<SettlementChoiceResponse>
+
+    @GET("api/settlement-choices/{planId}/status")
+    suspend fun getSettlementStatus(
+        @Path("planId") planId: String
+    ): Response<SettlementSelectionStatus>
     
     // ==================== 支付 API ====================
     

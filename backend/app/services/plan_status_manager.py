@@ -22,8 +22,10 @@ class PlanStatusManager:
     
     # 定义合法的状态转换
     VALID_TRANSITIONS = {
-        PlanStatus.PENDING: [PlanStatus.ACTIVE, PlanStatus.REJECTED, PlanStatus.CANCELLED, PlanStatus.EXPIRED],
-        PlanStatus.ACTIVE: [PlanStatus.CANCELLED, PlanStatus.COMPLETED, PlanStatus.EXPIRED],
+        # PENDING -> ACTIVE 保留给旧客户端；新流程通过 WAITING_DOUBLE_CHECK 过渡。
+        PlanStatus.PENDING: [PlanStatus.WAITING_DOUBLE_CHECK, PlanStatus.ACTIVE, PlanStatus.REJECTED, PlanStatus.CANCELLED, PlanStatus.EXPIRED],
+        PlanStatus.WAITING_DOUBLE_CHECK: [PlanStatus.ACTIVE, PlanStatus.CANCELLED, PlanStatus.REJECTED, PlanStatus.EXPIRED],
+        PlanStatus.ACTIVE: [PlanStatus.CANCELLED, PlanStatus.COMPLETED],
         PlanStatus.COMPLETED: [],  # 已完成状态不能转换
         PlanStatus.CANCELLED: [],  # 已取消状态不能转换
         PlanStatus.REJECTED: [],   # 已拒绝状态不能转换
@@ -57,7 +59,7 @@ class PlanStatusManager:
         """
         try:
             # 获取计划
-            plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+            plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).with_for_update().first()
             
             if not plan:
                 raise ValueError(f"计划不存在: {plan_id}")
@@ -110,7 +112,11 @@ class PlanStatusManager:
     @staticmethod
     def check_expired_plans(db: Session) -> List[BettingPlan]:
         """
-        检查并标记过期计划
+        检查已到期、待进入结算的计划。
+
+        ACTIVE 计划到期后仍保持 ACTIVE，交由 SettlementService 结算。
+        这里仅记录扫描时间，不能把 ACTIVE 改成 EXPIRED，否则会绕过结算并
+        使冻结资金失去释放路径。
         
         Args:
             db: 数据库会话
@@ -123,16 +129,17 @@ class PlanStatusManager:
         expired_plans = []
         current_time = datetime.now()
         
-        # 查询所有可能过期的计划
+        # 只扫描尚未被本入口记录过的 ACTIVE 计划；结算扫描仍会独立检查
+        # ACTIVE + end_date <= now，因此记录 expiry_checked_at 不会阻止结算。
         active_plans = db.query(BettingPlan).filter(
             BettingPlan.status == PlanStatus.ACTIVE,
-            BettingPlan.end_date < current_time
-        ).all()
+            BettingPlan.end_date < current_time,
+            BettingPlan.expiry_checked_at.is_(None)
+        ).with_for_update().all()
         
         for plan in active_plans:
             try:
-                # 更新状态
-                plan.status = PlanStatus.EXPIRED
+                # ACTIVE 到期只记录已扫描，不改变状态。
                 plan.expiry_checked_at = current_time
                 db.add(plan)
                 db.commit()
@@ -156,7 +163,7 @@ class PlanStatusManager:
                 
                 expired_plans.append(plan)
                 
-                logger.info(f"Plan marked as expired: plan_id={plan.id}")
+                logger.info(f"Plan marked as settlement-due: plan_id={plan.id}")
                 
             except SQLAlchemyError as e:
                 db.rollback()
@@ -182,10 +189,15 @@ class PlanStatusManager:
         Raises:
             ValueError: 计划不存在
         """
-        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).with_for_update().first()
         
         if not plan:
             raise ValueError(f"计划不存在: {plan_id}")
+
+        if plan.status not in (PlanStatus.PENDING, PlanStatus.WAITING_DOUBLE_CHECK):
+            raise InvalidStateTransitionError(
+                "只有待接受或待二次确认的计划可以标记为过期；进行中计划必须先结算"
+            )
         
         plan.status = PlanStatus.EXPIRED
         plan.expiry_checked_at = datetime.now()
@@ -225,20 +237,20 @@ class PlanStatusManager:
         from app.schemas.payment import AbandonResult
         
         # 获取计划
-        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).with_for_update().first()
         
         if not plan:
             logger.warning(f"Plan not found: {plan_id}")
             raise ValueError(f"计划不存在: {plan_id}")
         
         # 验证用户权限
-        if plan.status == PlanStatus.PENDING:
-            # PENDING 状态只有创建者可以放弃
+        if plan.status in (PlanStatus.PENDING, PlanStatus.WAITING_DOUBLE_CHECK):
+            # 待接受和待二次确认状态都由创建者发起放弃。
             if plan.creator_id != user_id:
                 logger.warning(
                     f"User {user_id} is not the creator of plan {plan_id}"
                 )
-                raise ValueError("只有创建者可以放弃待接受状态的计划")
+                raise ValueError("只有创建者可以放弃待生效状态的计划")
         elif plan.status == PlanStatus.ACTIVE:
             # ACTIVE 状态双方都可以放弃
             if user_id != plan.creator_id and user_id != plan.participant_id:
@@ -256,7 +268,7 @@ class PlanStatusManager:
             )
         
         # 根据计划状态调用相应的放弃逻辑
-        if plan.status == PlanStatus.PENDING:
+        if plan.status in (PlanStatus.PENDING, PlanStatus.WAITING_DOUBLE_CHECK):
             return PlanStatusManager._abandon_pending_plan(db, plan, user_id)
         else:  # ACTIVE
             return PlanStatusManager._abandon_active_plan(db, plan, user_id)
@@ -291,6 +303,18 @@ class PlanStatusManager:
             if not unfreeze_success:
                 logger.error(f"Failed to unfreeze funds for user {user_id}, plan {plan.id}")
                 raise Exception("资金解冻失败")
+
+            # WAITING_DOUBLE_CHECK 时参与者也已冻结资金，需要一并退回。
+            if plan.participant_id:
+                participant_unfreeze_success = PaymentService.unfreeze_funds(
+                    db, plan.participant_id, plan.id
+                )
+                if not participant_unfreeze_success:
+                    logger.error(
+                        "Failed to unfreeze participant funds for plan %s",
+                        plan.id
+                    )
+                    raise Exception("参与者资金解冻失败")
             
             # 更新计划状态
             plan.status = PlanStatus.CANCELLED

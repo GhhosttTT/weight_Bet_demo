@@ -370,7 +370,7 @@ class TestPaymentService:
         
         for amount in invalid_amounts:
             # 验证金额无效
-            is_invalid = amount <= 0 or amount < Decimal("0.01")
+            is_invalid = amount < Decimal("0.01")
             assert is_invalid
         
         print("✓ 无效充值金额测试通过")
@@ -453,7 +453,7 @@ class TestPaymentService:
         
         for amount in invalid_amounts:
             # 验证金额无效
-            is_invalid = amount <= 0 or amount < Decimal("0.01")
+            is_invalid = amount < Decimal("0.01")
             assert is_invalid
         
         print("✓ 无效提现金额测试通过")

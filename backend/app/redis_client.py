@@ -4,6 +4,7 @@ Redis 客户端管理
 import redis
 from app.config import settings
 from typing import Optional
+import time
 
 
 class FakeRedis:
@@ -12,6 +13,14 @@ class FakeRedis:
     """
     def __init__(self):
         self._data = {}
+        self._sorted_sets = {}
+        self._expires = {}
+
+    def _purge_if_expired(self, key):
+        if key in self._expires and self._expires[key] <= time.time():
+            self._sorted_sets.pop(key, None)
+            self._data.pop(key, None)
+            self._expires.pop(key, None)
     
     def pipeline(self):
         return FakePipeline(self)
@@ -26,6 +35,8 @@ class FakeRedis:
     def delete(self, *keys):
         for key in keys:
             self._data.pop(key, None)
+            self._sorted_sets.pop(key, None)
+            self._expires.pop(key, None)
         return len(keys)
     
     def exists(self, key):
@@ -33,6 +44,28 @@ class FakeRedis:
     
     def setex(self, key, time, value):
         self._data[key] = value
+        return True
+
+    def zremrangebyscore(self, key, min_score, max_score):
+        self._purge_if_expired(key)
+        entries = self._sorted_sets.setdefault(key, {})
+        removed = [member for member, score in entries.items()
+                   if min_score <= score <= max_score]
+        for member in removed:
+            del entries[member]
+        return len(removed)
+
+    def zcard(self, key):
+        self._purge_if_expired(key)
+        return len(self._sorted_sets.get(key, {}))
+
+    def zadd(self, key, mapping):
+        self._purge_if_expired(key)
+        self._sorted_sets.setdefault(key, {}).update(mapping)
+        return len(mapping)
+
+    def expire(self, key, seconds):
+        self._expires[key] = time.time() + seconds
         return True
 
 
@@ -61,8 +94,11 @@ class FakePipeline:
         return self
     
     def execute(self):
-        # 返回假的结果
-        return [None, 0, 1, True]
+        results = []
+        for command in self.commands:
+            name, *args = command
+            results.append(getattr(self.client, name)(*args))
+        return results
 
 
 # 创建 Redis 客户端

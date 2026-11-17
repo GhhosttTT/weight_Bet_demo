@@ -8,6 +8,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from app.logger import get_logger
 import traceback
 from datetime import datetime
+from fastapi.encoders import jsonable_encoder
 
 logger = get_logger()
 
@@ -67,15 +68,18 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """处理请求验证错误"""
+    # Pydantic v2 的 errors() 可能包含 ValueError 等异常对象，直接交给
+    # JSONResponse 会触发二次序列化异常，导致原本的 422 变成 500。
+    validation_errors = jsonable_encoder(exc.errors())
     # 将错误转换为字符串，避免 loguru 格式化问题
-    error_details = str(exc.errors())
+    error_details = str(validation_errors)
     logger.error(
         "Validation error: {}",
         error_details,
         extra={
             "path": request.url.path,
             "method": request.method,
-            "errors": exc.errors()
+            "errors": validation_errors
         }
     )
     
@@ -83,7 +87,7 @@ async def validation_exception_handler(request: Request, exc: RequestValidationE
         error_type="Validation Error",
         message="请求参数验证失败",
         status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-        details={"validation_errors": exc.errors()}
+        details={"validation_errors": validation_errors}
     )
 
 

@@ -164,9 +164,33 @@ class TestInvitationServiceCreate:
             )
         
         assert exc_info.value.status_code == 409
-        assert "该计划已发送邀请" in exc_info.value.detail
+        assert "该用户已被邀请" in exc_info.value.detail
         
         print("✓ 重复邀请测试通过")
+
+    def test_create_invitation_same_plan_different_invitee(self, db_session: Session, test_users, test_plan):
+        """同一计划不能通过更换邮箱绕过单邀请约束"""
+        creator = test_users["creator"]
+        invitee = test_users["invitee"]
+        other = test_users["other"]
+
+        InvitationService.create_invitation(
+            db=db_session,
+            plan_id=test_plan.id,
+            inviter_id=creator.id,
+            invitee_email=invitee.email
+        )
+
+        with pytest.raises(HTTPException) as exc_info:
+            InvitationService.create_invitation(
+                db=db_session,
+                plan_id=test_plan.id,
+                inviter_id=creator.id,
+                invitee_email=other.email
+            )
+
+        assert exc_info.value.status_code == 409
+        assert "该计划已有其他邀请" in exc_info.value.detail
     
     def test_create_invitation_user_not_found(self, db_session: Session, test_users, test_plan):
         """测试被邀请用户不存在"""

@@ -5,6 +5,7 @@ import uuid
 from typing import Optional, List
 from datetime import datetime
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from fastapi import HTTPException, status
 
 from app.models.invitation import Invitation, InvitationStatus
@@ -81,26 +82,21 @@ class InvitationService:
                 detail="邮箱格式无效"
             )
         
-        # 步骤 3: 检查是否已存在邀请
-        # 只视为重复邀请当且仅当同一计划已对相同邮箱发出邀请
-        # 使用不区分大小写的比较以避免大小写产生的重复问题
-        try:
-            from sqlalchemy import func
-            existing_invitation = db.query(Invitation).filter(
-                Invitation.plan_id == plan_id,
-                func.lower(Invitation.invitee_email) == invitee_email.lower()
-            ).first()
-        except Exception:
-            # 如果 sqlalchemy.func 不可用则回退到简单比较
-            existing_invitation = db.query(Invitation).filter(
-                Invitation.plan_id == plan_id,
-                Invitation.invitee_email == invitee_email
-            ).first()
+        # 步骤 3: 检查计划是否已经有邀请
+        # invitations.plan_id 是唯一键，一个计划只允许保留一条邀请记录。
+        # 这里提前返回业务错误，避免第二条邀请在提交时变成数据库 500。
+        existing_invitation = db.query(Invitation).filter(
+            Invitation.plan_id == plan_id
+        ).first()
         if existing_invitation:
             logger.warning("Invitation already exists for plan {} and email {}", plan_id, invitee_email)
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail="该用户已被邀请"
+                detail=(
+                    "该用户已被邀请"
+                    if existing_invitation.invitee_email.lower() == invitee_email.lower()
+                    else "该计划已有其他邀请"
+                )
             )
         
         # 步骤 4: 搜索被邀请用户
@@ -133,7 +129,16 @@ class InvitationService:
         )
         
         db.add(invitation)
-        db.commit()
+        try:
+            db.commit()
+        except IntegrityError as exc:
+            # 并发请求可能同时通过前置查询，唯一约束仍是最终防线。
+            db.rollback()
+            logger.warning("Concurrent duplicate invitation for plan {}: {}", plan_id, str(exc))
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="该计划已有邀请"
+            )
         db.refresh(invitation)
         
         logger.info(

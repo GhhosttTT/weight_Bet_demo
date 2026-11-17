@@ -39,7 +39,7 @@ class CoachViewController: UIViewController {
     
     private let dailyTargetCard: UIView = {
         let view = UIView()
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = AppTheme.Colors.secondaryBackground
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -57,7 +57,7 @@ class CoachViewController: UIViewController {
         let label = UILabel()
         label.text = "--"
         label.font = .boldSystemFont(ofSize: 28)
-        label.textColor = .systemOrange
+        label.textColor = AppTheme.Colors.accent
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -67,7 +67,7 @@ class CoachViewController: UIViewController {
         let label = UILabel()
         label.text = "热量(千卡)"
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -77,7 +77,7 @@ class CoachViewController: UIViewController {
         let label = UILabel()
         label.text = "--"
         label.font = .boldSystemFont(ofSize: 28)
-        label.textColor = .systemBlue
+        label.textColor = AppTheme.Colors.primary
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -87,7 +87,7 @@ class CoachViewController: UIViewController {
         let label = UILabel()
         label.text = "饮水(ml)"
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -97,7 +97,7 @@ class CoachViewController: UIViewController {
         let label = UILabel()
         label.text = "--"
         label.font = .boldSystemFont(ofSize: 28)
-        label.textColor = .systemPurple
+        label.textColor = AppTheme.Colors.primaryDark
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -107,7 +107,7 @@ class CoachViewController: UIViewController {
         let label = UILabel()
         label.text = "睡眠(小时)"
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -117,7 +117,7 @@ class CoachViewController: UIViewController {
     
     private let exerciseCard: UIView = {
         let view = UIView()
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = AppTheme.Colors.secondaryBackground
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -143,7 +143,7 @@ class CoachViewController: UIViewController {
     
     private let dietCard: UIView = {
         let view = UIView()
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = AppTheme.Colors.secondaryBackground
         view.layer.cornerRadius = 16
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
@@ -169,7 +169,7 @@ class CoachViewController: UIViewController {
     
     private let tipsCard: UIView = {
         let view = UIView()
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = AppTheme.Colors.secondaryBackground
         view.layer.cornerRadius = 16
         view.isHidden = true
         view.translatesAutoresizingMaskIntoConstraints = false
@@ -187,7 +187,7 @@ class CoachViewController: UIViewController {
     private let tipsLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 16)
-        label.textColor = .label
+        label.textColor = AppTheme.Colors.label
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -205,7 +205,7 @@ class CoachViewController: UIViewController {
     
     private func setupUI() {
         title = "管家"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -392,7 +392,7 @@ class CoachViewController: UIViewController {
         let label = UILabel()
         label.text = text
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.font = .systemFont(ofSize: 14)
         label.numberOfLines = 0
         return label
@@ -449,13 +449,13 @@ class CoachViewController: UIViewController {
         let label = UILabel()
         label.text = text
         label.font = .systemFont(ofSize: 16)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         return label
     }
     
     private func createExerciseView(_ exercise: ExerciseRecommendation) -> UIView {
         let view = UIView()
-        view.backgroundColor = .tertiarySystemBackground
+        view.backgroundColor = AppTheme.Colors.tertiaryBackground
         view.layer.cornerRadius = 12
         view.translatesAutoresizingMaskIntoConstraints = false
         
@@ -474,7 +474,7 @@ class CoachViewController: UIViewController {
         intensityLabel.text = viewModel.getIntensityText(exercise.intensity)
         intensityLabel.font = .systemFont(ofSize: 14)
         intensityLabel.textColor = .white
-        intensityLabel.backgroundColor = .systemPurple
+        intensityLabel.backgroundColor = AppTheme.Colors.primaryDark
         intensityLabel.layer.cornerRadius = 16
         intensityLabel.clipsToBounds = true
         intensityLabel.textAlignment = .center
@@ -483,7 +483,7 @@ class CoachViewController: UIViewController {
         let descriptionLabel = UILabel()
         descriptionLabel.text = exercise.description
         descriptionLabel.font = .systemFont(ofSize: 14)
-        descriptionLabel.textColor = .secondaryLabel
+        descriptionLabel.textColor = AppTheme.Colors.secondaryLabel
         descriptionLabel.numberOfLines = 0
         descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
         
@@ -517,7 +517,7 @@ class CoachViewController: UIViewController {
     
     private func createDietView(_ diet: DietRecommendation) -> UIView {
         let view = UIView()
-        view.backgroundColor = .tertiarySystemBackground
+        view.backgroundColor = AppTheme.Colors.tertiaryBackground
         view.layer.cornerRadius = 12
         view.translatesAutoresizingMaskIntoConstraints = false
         
@@ -531,19 +531,19 @@ class CoachViewController: UIViewController {
             caloriesLabel.text = "\(calories)千卡"
         }
         caloriesLabel.font = .systemFont(ofSize: 16)
-        caloriesLabel.textColor = .systemOrange
+        caloriesLabel.textColor = AppTheme.Colors.accent
         caloriesLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let foodItemsLabel = UILabel()
         foodItemsLabel.text = diet.foodItems.joined(separator: "、")
         foodItemsLabel.font = .systemFont(ofSize: 16)
-        foodItemsLabel.textColor = .label
+        foodItemsLabel.textColor = AppTheme.Colors.label
         foodItemsLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let tipsLabel = UILabel()
         tipsLabel.text = diet.tips ?? ""
         tipsLabel.font = .systemFont(ofSize: 14)
-        tipsLabel.textColor = .secondaryLabel
+        tipsLabel.textColor = AppTheme.Colors.secondaryLabel
         tipsLabel.numberOfLines = 0
         tipsLabel.translatesAutoresizingMaskIntoConstraints = false
         

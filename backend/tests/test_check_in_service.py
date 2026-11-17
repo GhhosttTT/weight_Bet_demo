@@ -409,6 +409,31 @@ class TestGetCheckInHistory:
         
         assert len(history) == 3
 
+    def test_opponent_history_hides_unreviewed_records(self, db, active_plan):
+        """对手只能看到已审核打卡，本人可看到自己的待审核记录。"""
+        request = CreateCheckInRequest(
+            plan_id="plan1",
+            weight=79.5,
+            check_in_date=date.today(),
+        )
+        CheckInService.create_check_in(db, "user1", request)
+        check_in = db.query(CheckIn).filter(
+            CheckIn.plan_id == "plan1",
+            CheckIn.user_id == "user1",
+        ).one()
+        check_in.review_status = ReviewStatus.PENDING
+        db.commit()
+
+        own_history = CheckInService.get_check_in_history(
+            db, "plan1", "user1", viewer_user_id="user1"
+        )
+        opponent_history = CheckInService.get_check_in_history(
+            db, "plan1", "user1", viewer_user_id="user2"
+        )
+
+        assert len(own_history) == 1
+        assert opponent_history == []
+
 
 class TestGetProgress:
     """测试计算进度统计"""

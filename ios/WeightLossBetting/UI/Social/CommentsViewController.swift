@@ -16,7 +16,7 @@ class CommentsViewController: UIViewController {
     
     private let inputContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -78,7 +78,7 @@ class CommentsViewController: UIViewController {
     
     private func setupUI() {
         title = "评论"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(tableView)
         view.addSubview(inputContainerView)
@@ -282,7 +282,7 @@ class CommentCell: UITableViewCell {
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 12)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()

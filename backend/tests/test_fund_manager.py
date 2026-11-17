@@ -174,7 +174,7 @@ class TestFreezeFunds:
         assert result.error == "账户余额不存在"
     
     def test_freeze_funds_zero_amount(self, db_session: Session, test_user: User, test_plan: BettingPlan):
-        """测试冻结零金额"""
+        """测试冻结零金额被拒绝且余额不变"""
         result = FundManager.freeze_funds(
             db_session,
             test_user.id,
@@ -182,9 +182,12 @@ class TestFreezeFunds:
             0.0
         )
         
-        # 验证结果 - 零金额应该成功
-        assert result.success is True
-        assert result.transaction_id is not None
+        # 业务边界：冻结金额必须至少为 0.01 元
+        assert result.success is False
+        assert result.error == "冻结金额必须至少为 0.01"
+        balance = db_session.query(Balance).filter(Balance.user_id == test_user.id).first()
+        assert balance.available_balance == 1000.0
+        assert balance.frozen_balance == 0.0
         
         # 验证余额未变化
         balance = db_session.query(Balance).filter(

@@ -2,7 +2,7 @@
 结算选择数据模型
 记录用户在结算时对自己和对方是否达成目标的选择
 """
-from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Integer
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -11,6 +11,13 @@ from app.database import Base
 class SettlementChoice(Base):
     """用户结算选择模型"""
     __tablename__ = "settlement_choices"
+
+    __table_args__ = (
+        UniqueConstraint(
+            "plan_id", "user_id", "round",
+            name="uq_settlement_choice_plan_user_round"
+        ),
+    )
     
     id = Column(String(36), primary_key=True, index=True)
     plan_id = Column(String(36), ForeignKey("betting_plans.id"), nullable=False, index=True)

@@ -2,7 +2,9 @@
 """
 Notification API Routes
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Header, status
+from typing import Optional
+import secrets
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.middleware.auth import get_current_user
@@ -15,6 +17,7 @@ from app.schemas.notification import (
     NotificationResponse
 )
 from app.logger import get_logger
+from app.config import settings
 
 logger = get_logger()
 
@@ -94,18 +97,26 @@ async def send_notification(
     Returns:
         NotificationResponse: Notification response
     """
-    # TODO: Add admin check
+    # 当前 User 模型没有管理员/角色字段，不能把普通登录身份当作管理员。
+    # 系统内部通知由 NotificationService 直接调用；公开 API 仅允许用户
+    # 操作自己的通知目标，避免借接口向任意用户发送消息。
+    if request.user_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="当前账号无权向其他用户发送通知"
+        )
     return NotificationService.send_notification(db, request)
 
 
 @router.post("/notifications/scheduled-reminders")
 async def send_scheduled_check_in_reminders(
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    scheduler_key: Optional[str] = Header(default=None, alias="X-Scheduler-Key")
 ):
     """
     Send daily check-in reminders (scheduled task endpoint)
     
-    Note: This endpoint should be called by a scheduler and needs proper authentication
+    Note: This endpoint requires the configured scheduler key.
     
     Args:
         db: Database session
@@ -113,5 +124,14 @@ async def send_scheduled_check_in_reminders(
     Returns:
         dict: Statistics about sent reminders
     """
-    # TODO: Add API key or other authentication mechanism
+    if not settings.SCHEDULER_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="定时任务密钥未配置"
+        )
+    if not scheduler_key or not secrets.compare_digest(scheduler_key, settings.SCHEDULER_API_KEY):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="无权执行定时提醒任务"
+        )
     return NotificationService.send_daily_check_in_reminders(db)

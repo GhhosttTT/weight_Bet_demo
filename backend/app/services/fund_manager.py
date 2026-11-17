@@ -40,8 +40,35 @@ class FundManager:
         Validates: Requirements 7.1, 7.2, 7.3, 12.4
         """
         try:
+            if amount < 0.01:
+                return FreezeResult(
+                    success=False,
+                    transaction_id=None,
+                    error="冻结金额必须至少为 0.01"
+                )
+
+            # 与 PaymentService 保持一致：重试不能重复冻结同一计划资金。
+            existing_freeze = db.query(Transaction).filter(
+                Transaction.user_id == user_id,
+                Transaction.related_plan_id == plan_id,
+                Transaction.type == TransactionType.FREEZE,
+                Transaction.status == TransactionStatus.COMPLETED
+            ).with_for_update().first()
+            if existing_freeze:
+                if abs(existing_freeze.amount - amount) > 0.000001:
+                    return FreezeResult(
+                        success=False,
+                        transaction_id=None,
+                        error="同一计划冻结金额不一致"
+                    )
+                return FreezeResult(
+                    success=True,
+                    transaction_id=existing_freeze.id,
+                    error=None
+                )
+
             # 步骤 1: 获取用户余额
-            balance = db.query(Balance).filter(Balance.user_id == user_id).first()
+            balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
             if not balance:
                 logger.warning("Balance not found for user: {}", user_id)
                 return FreezeResult(
@@ -133,8 +160,7 @@ class FundManager:
         Validates: Requirements 5.2, 5.4, 7.1, 7.2, 7.3
         """
         try:
-            # 步骤 1: 获取用户余额
-            balance = db.query(Balance).filter(Balance.user_id == user_id).first()
+            balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
             if not balance:
                 logger.warning("Balance not found for user: {}", user_id)
                 return FreezeResult(
@@ -142,14 +168,14 @@ class FundManager:
                     transaction_id=None,
                     error="账户余额不存在"
                 )
-            
-            # 步骤 2: 查找冻结交易记录以获取金额
+
+            # 先锁定冻结流水，保证重复解冻请求串行化。
             freeze_transaction = db.query(Transaction).filter(
                 Transaction.user_id == user_id,
                 Transaction.related_plan_id == plan_id,
                 Transaction.type == TransactionType.FREEZE,
                 Transaction.status == TransactionStatus.COMPLETED
-            ).first()
+            ).with_for_update().first()
             
             if not freeze_transaction:
                 logger.warning(
@@ -162,7 +188,20 @@ class FundManager:
                     transaction_id=None,
                     error="未找到冻结记录"
                 )
-            
+
+            existing_unfreeze = db.query(Transaction).filter(
+                Transaction.user_id == user_id,
+                Transaction.related_plan_id == plan_id,
+                Transaction.type == TransactionType.UNFREEZE,
+                Transaction.status == TransactionStatus.COMPLETED
+            ).first()
+            if existing_unfreeze:
+                return FreezeResult(
+                    success=True,
+                    transaction_id=existing_unfreeze.id,
+                    error=None
+                )
+
             amount = freeze_transaction.amount
             
             # 步骤 3: 验证冻结余额充足性

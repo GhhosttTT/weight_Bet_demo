@@ -62,8 +62,8 @@ class TestBettingPlanService:
         ]
         
         for amount in invalid_amounts:
-            # 验证赌金必须大于 0
-            is_invalid = amount <= 0
+            # 业务规则：赌金必须至少为 0.01 元
+            is_invalid = amount < Decimal("0.01")
             assert is_invalid
         
         print("✓ 无效赌金金额测试通过")

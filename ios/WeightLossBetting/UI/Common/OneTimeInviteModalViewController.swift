@@ -16,7 +16,7 @@ final class OneTimeInviteModalViewController: UIViewController {
 
     private let container: UIView = {
         let v = UIView()
-        v.backgroundColor = .systemBackground
+        v.backgroundColor = AppTheme.Colors.background
         v.layer.cornerRadius = 12
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
@@ -33,7 +33,7 @@ final class OneTimeInviteModalViewController: UIViewController {
     private let messageLabel: UILabel = {
         let l = UILabel()
         l.numberOfLines = 0
-        l.textColor = .label
+        l.textColor = AppTheme.Colors.label
         l.translatesAutoresizingMaskIntoConstraints = false
         return l
     }()

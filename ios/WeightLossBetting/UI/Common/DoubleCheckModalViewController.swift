@@ -16,7 +16,7 @@ final class DoubleCheckModalViewController: UIViewController {
 
     private let container: UIView = {
         let v = UIView()
-        v.backgroundColor = .systemBackground
+        v.backgroundColor = AppTheme.Colors.background
         v.layer.cornerRadius = 12
         v.translatesAutoresizingMaskIntoConstraints = false
         return v
@@ -33,7 +33,7 @@ final class DoubleCheckModalViewController: UIViewController {
     private let messageLabel: UILabel = {
         let l = UILabel()
         l.numberOfLines = 0
-        l.textColor = .label
+        l.textColor = AppTheme.Colors.label
         l.text = "对方已接受计划并提交了目标体重，请您确认后开始计划。"
         l.translatesAutoresizingMaskIntoConstraints = false
         return l

@@ -1,10 +1,12 @@
 """
 结算相关的 API 路由
 """
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Header, Query
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from typing import Optional
 import uuid
+import secrets
 from datetime import datetime
 from app.database import get_db
 from app.middleware.auth import get_current_user
@@ -16,6 +18,7 @@ from app.services.settlement_service import SettlementService
 from app.schemas.settlement import SettlementResponse, SettlementCalculation
 from app.schemas.dispute import DisputeCreate, DisputeResponse
 from app.logger import get_logger
+from app.config import settings
 
 logger = get_logger()
 
@@ -202,7 +205,7 @@ async def submit_dispute(
         )
     
     # 检查是否已经提交过争议
-    existing_dispute = db.query(Dispute).filter(
+        existing_dispute = db.query(Dispute).filter(
         Dispute.settlement_id == settlement_id,
         Dispute.user_id == current_user.id
     ).first()
@@ -243,6 +246,12 @@ async def submit_dispute(
         
         return DisputeResponse.from_orm(dispute)
         
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="您已经提交过该结算争议"
+        )
     except Exception as e:
         db.rollback()
         logger.error("Failed to submit dispute: {}", str(e), exc_info=True)
@@ -255,7 +264,8 @@ async def submit_dispute(
 @router.post("/settlements/scheduled-task")
 async def run_scheduled_settlement_task(
     db: Session = Depends(get_db),
-    limit: int = 100
+    limit: int = Query(default=100, ge=1, le=500),
+    scheduler_key: Optional[str] = Header(default=None, alias="X-Scheduler-Key")
 ):
     """
     运行定时结算任务
@@ -269,5 +279,15 @@ async def run_scheduled_settlement_task(
     Returns:
         dict: 处理结果统计
     """
-    # TODO: 添加 API 密钥或其他认证机制
+    if not settings.SCHEDULER_API_KEY:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="定时任务密钥未配置"
+        )
+    if not scheduler_key or not secrets.compare_digest(scheduler_key, settings.SCHEDULER_API_KEY):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="无权执行定时结算任务"
+        )
+
     return SettlementService.process_scheduled_settlements(db, limit)

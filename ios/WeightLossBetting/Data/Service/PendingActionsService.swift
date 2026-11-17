@@ -1,7 +1,7 @@
 import Foundation
 import UIKit
 
-final class PendingActionsService {
+final class PendingActionsService: NSObject, UIAdaptivePresentationControllerDelegate {
     static let shared = PendingActionsService()
     private init() {}
 
@@ -12,6 +12,11 @@ final class PendingActionsService {
     // 防止重复弹窗的标志
     private var isShowingInviteModal = false
     private var isShowingDoubleCheckModal = false
+    private var isShowingSettlementModal = false
+
+    func presentationControllerDidDismiss(_ presentationController: UIPresentationController) {
+        isShowingSettlementModal = false
+    }
 
     // MARK: - Public
     func checkAndHandlePendingActions() {
@@ -70,9 +75,12 @@ final class PendingActionsService {
         }
         
         // Handle settlements - 与安卓端对齐
-        if let settlements = response.settlements, settlements.count > 0 {
+        if let settlements = response.settlements, settlements.count > 0, !isShowingSettlementModal {
             for settlement in settlements {
+                guard settlement.isPending ?? true else { continue }
                 await presentSettlementModal(settlement)
+                await waitForModalDismiss()
+                break
             }
         }
     }
@@ -154,10 +162,25 @@ final class PendingActionsService {
     }
     
     private func presentSettlementModal(_ settlement: SettlementItem) async {
+        isShowingSettlementModal = true
         await MainActor.run {
-            guard let top = topViewController() else { return }
-            // TODO: 实现结算弹窗
-            print("📋 [PendingActions] 显示结算弹窗：\(settlement.planId)")
+            guard let top = topViewController() else {
+                isShowingSettlementModal = false
+                return
+            }
+
+            let vc = SettlementViewController(
+                planId: settlement.planId,
+                opponentName: "对手",
+                planTitle: "对赌计划"
+            )
+            let navigationController = UINavigationController(rootViewController: vc)
+            navigationController.modalPresentationStyle = .pageSheet
+            top.present(navigationController, animated: true) { [weak self] in
+                // 结算页关闭后才允许下一次检查再次展示。
+                guard let self = self else { return }
+                navigationController.presentationController?.delegate = self
+            }
         }
     }
 

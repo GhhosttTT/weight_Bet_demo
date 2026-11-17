@@ -3,6 +3,7 @@
 """
 import uuid
 import time
+from decimal import Decimal, InvalidOperation, ROUND_HALF_UP
 from sqlalchemy.orm import Session
 from sqlalchemy import and_
 from fastapi import HTTPException, status
@@ -17,6 +18,92 @@ logger = get_logger()
 
 class PaymentService:
     """支付服务类"""
+
+    MIN_AMOUNT = 0.01
+    _CENT = Decimal("0.01")
+
+    @classmethod
+    def _normalize_amount(cls, amount, allow_zero=False):
+        """将金额统一按分和 ROUND_HALF_UP 处理，避免 float round 差异。"""
+        try:
+            value = Decimal(str(amount))
+        except (InvalidOperation, TypeError, ValueError):
+            return None
+
+        minimum = Decimal("0") if allow_zero else Decimal(str(cls.MIN_AMOUNT))
+        if not value.is_finite() or value < minimum:
+            return None
+        return value.quantize(cls._CENT, rounding=ROUND_HALF_UP)
+
+    @classmethod
+    def _money_float(cls, value):
+        return float(Decimal(str(value)).quantize(cls._CENT, rounding=ROUND_HALF_UP))
+
+    @classmethod
+    def _add_money(cls, left, right):
+        return cls._money_float(Decimal(str(left)) + Decimal(str(right)))
+
+    @classmethod
+    def _subtract_money(cls, left, right):
+        return cls._money_float(Decimal(str(left)) - Decimal(str(right)))
+
+    @staticmethod
+    def charge_funds(db: Session, user_id: str, amount: float) -> Balance:
+        """充值并写入流水，余额更新与流水写入在同一事务中完成。"""
+        normalized_amount = PaymentService._normalize_amount(amount)
+        if normalized_amount is None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="金额必须至少为 0.01")
+        amount = float(normalized_amount)
+
+        balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
+        if not balance:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="账户不存在")
+
+        balance.available_balance = PaymentService._add_money(
+            balance.available_balance, amount
+        )
+        balance.updated_at = datetime.utcnow()
+        db.add(Transaction(
+            id=str(uuid.uuid4()),
+            user_id=user_id,
+            type=TransactionType.CHARGE,
+            amount=amount,
+            status=TransactionStatus.COMPLETED,
+            completed_at=datetime.utcnow()
+        ))
+        db.commit()
+        db.refresh(balance)
+        return balance
+
+    @staticmethod
+    def withdraw_funds(db: Session, user_id: str, amount: float) -> WithdrawResult:
+        """提现并写入流水，余额不足时不产生任何流水。"""
+        normalized_amount = PaymentService._normalize_amount(amount)
+        if normalized_amount is None:
+            return WithdrawResult(success=False, transaction_id=None, error="金额必须至少为 0.01")
+        amount = float(normalized_amount)
+
+        balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
+        if not balance:
+            return WithdrawResult(success=False, transaction_id=None, error="账户不存在")
+
+        if balance.available_balance < amount:
+            return WithdrawResult(success=False, transaction_id=None, error="余额不足")
+
+        balance.available_balance = PaymentService._subtract_money(
+            balance.available_balance, amount
+        )
+        transaction_id = str(uuid.uuid4())
+        db.add(Transaction(
+            id=transaction_id,
+            user_id=user_id,
+            type=TransactionType.WITHDRAW,
+            amount=-amount,
+            status=TransactionStatus.COMPLETED,
+            completed_at=datetime.utcnow()
+        ))
+        db.commit()
+        return WithdrawResult(success=True, transaction_id=transaction_id, error=None)
     
     @staticmethod
     def _retry_with_exponential_backoff(
@@ -91,10 +178,30 @@ class PaymentService:
         Returns:
             FreezeResult: 冻结结果
         """
+        normalized_amount = PaymentService._normalize_amount(amount)
+        if normalized_amount is None:
+            return FreezeResult(success=False, transaction_id=None, error="冻结金额必须至少为 0.01")
+        amount = float(normalized_amount)
+
         def _freeze():
             try:
+                # 重试可能发生在数据库提交成功、客户端未收到结果之后。
+                # 同一用户和计划已有冻结流水时直接返回，避免重复扣款。
+                existing_freeze = db.query(Transaction).filter(
+                    and_(
+                        Transaction.user_id == user_id,
+                        Transaction.related_plan_id == plan_id,
+                        Transaction.type == TransactionType.FREEZE,
+                        Transaction.status == TransactionStatus.COMPLETED
+                    )
+                ).with_for_update().first()
+                if existing_freeze:
+                    if abs(existing_freeze.amount - amount) > 0.000001:
+                        return FreezeResult(success=False, transaction_id=None, error="同一计划冻结金额不一致")
+                    return FreezeResult(success=True, transaction_id=existing_freeze.id, error=None)
+
                 # 获取用户余额
-                balance = db.query(Balance).filter(Balance.user_id == user_id).first()
+                balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
                 if not balance:
                     logger.warning("Balance not found for user: {}", user_id)
                     return FreezeResult(success=False, transaction_id=None, error="账户余额不存在")
@@ -105,8 +212,12 @@ class PaymentService:
                     return FreezeResult(success=False, transaction_id=None, error="余额不足")
                 
                 # 冻结资金
-                balance.available_balance -= amount
-                balance.frozen_balance += amount
+                balance.available_balance = PaymentService._subtract_money(
+                    balance.available_balance, amount
+                )
+                balance.frozen_balance = PaymentService._add_money(
+                    balance.frozen_balance, amount
+                )
                 
                 # 创建交易记录
                 transaction_id = str(uuid.uuid4())
@@ -142,7 +253,8 @@ class PaymentService:
     def unfreeze_funds(
         db: Session,
         user_id: str,
-        plan_id: str
+        plan_id: str,
+        commit: bool = True
     ) -> bool:
         """
         解冻用户资金 (带重试机制)
@@ -157,6 +269,11 @@ class PaymentService:
         """
         def _unfreeze():
             try:
+                balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
+                if not balance:
+                    logger.warning("Balance not found for user: {}", user_id)
+                    return False
+
                 # 获取冻结交易记录
                 freeze_transaction = db.query(Transaction).filter(
                     and_(
@@ -165,23 +282,33 @@ class PaymentService:
                         Transaction.type == TransactionType.FREEZE,
                         Transaction.status == TransactionStatus.COMPLETED
                     )
-                ).first()
+                ).with_for_update().first()
                 
                 if not freeze_transaction:
                     logger.warning("Freeze transaction not found: user={}, plan={}", user_id, plan_id)
                     return False
+
+                # 同一冻结流水只允许解冻一次，支持异常回滚后的安全重试。
+                existing_unfreeze = db.query(Transaction).filter(
+                    and_(
+                        Transaction.user_id == user_id,
+                        Transaction.related_plan_id == plan_id,
+                        Transaction.type == TransactionType.UNFREEZE,
+                        Transaction.status == TransactionStatus.COMPLETED
+                    )
+                ).first()
+                if existing_unfreeze:
+                    return True
                 
                 amount = freeze_transaction.amount
                 
-                # 获取用户余额
-                balance = db.query(Balance).filter(Balance.user_id == user_id).first()
-                if not balance:
-                    logger.warning("Balance not found for user: {}", user_id)
-                    return False
-                
                 # 解冻资金
-                balance.frozen_balance -= amount
-                balance.available_balance += amount
+                balance.frozen_balance = PaymentService._subtract_money(
+                    balance.frozen_balance, amount
+                )
+                balance.available_balance = PaymentService._add_money(
+                    balance.available_balance, amount
+                )
                 
                 # 创建交易记录
                 transaction = Transaction(
@@ -195,7 +322,10 @@ class PaymentService:
                 )
                 db.add(transaction)
                 
-                db.commit()
+                if commit:
+                    db.commit()
+                else:
+                    db.flush()
                 
                 logger.info("Funds unfrozen successfully: user={}, amount={}, plan={}", user_id, amount, plan_id)
                 
@@ -212,6 +342,65 @@ class PaymentService:
         except Exception as e:
             logger.error("Unfreeze failed after retries: {}", str(e))
             return False
+
+    @staticmethod
+    def release_settlement_funds(
+        db: Session,
+        user_id: str,
+        plan_id: str,
+        amount: float,
+        settlement_id: str
+    ) -> bool:
+        """释放冻结本金并按结算结果入账，由调用方统一提交事务。"""
+        normalized_amount = PaymentService._normalize_amount(amount, allow_zero=True)
+        if normalized_amount is None:
+            raise ValueError("结算入账金额不能为负数")
+        amount = float(normalized_amount)
+
+        freeze_transaction = db.query(Transaction).filter(
+            and_(
+                Transaction.user_id == user_id,
+                Transaction.related_plan_id == plan_id,
+                Transaction.type == TransactionType.FREEZE,
+                Transaction.status == TransactionStatus.COMPLETED
+            )
+        ).with_for_update().first()
+        if not freeze_transaction:
+            logger.warning("Freeze transaction not found: user={}, plan={}", user_id, plan_id)
+            return False
+        if freeze_transaction.related_settlement_id:
+            logger.warning("Settlement funds already released: user={}, plan={}", user_id, plan_id)
+            return False
+        if amount > freeze_transaction.amount * 2:
+            logger.warning(
+                "Settlement amount exceeds the two-party pool: user={}, plan={}, amount={}",
+                user_id, plan_id, amount
+            )
+            return False
+
+        balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
+        if not balance or balance.frozen_balance < freeze_transaction.amount:
+            logger.warning("Frozen balance is insufficient: user={}, plan={}", user_id, plan_id)
+            return False
+
+        balance.frozen_balance = PaymentService._subtract_money(
+            balance.frozen_balance, freeze_transaction.amount
+        )
+        balance.available_balance = PaymentService._add_money(
+            balance.available_balance, amount
+        )
+        freeze_transaction.related_settlement_id = settlement_id
+        db.add(Transaction(
+            id=str(uuid.uuid4()),
+            user_id=user_id,
+            type=TransactionType.REFUND,
+            amount=amount,
+            status=TransactionStatus.COMPLETED,
+            related_plan_id=plan_id,
+            related_settlement_id=settlement_id,
+            completed_at=datetime.utcnow()
+        ))
+        return True
     
     @staticmethod
     def transfer_funds(
@@ -234,10 +423,28 @@ class PaymentService:
         Returns:
             TransferResult: 转账结果
         """
+        normalized_amount = PaymentService._normalize_amount(amount)
+        if normalized_amount is None:
+            return TransferResult(success=False, transaction_id=None, error="转账金额必须至少为 0.01")
+        amount = float(normalized_amount)
+
         def _transfer():
             try:
+                # 同一计划的转账重试直接返回原流水，避免提交成功后再次扣款。
+                existing_transfer = db.query(Transaction).filter(
+                    and_(
+                        Transaction.user_id == from_user_id,
+                        Transaction.type == TransactionType.TRANSFER,
+                        Transaction.amount == -amount,
+                        Transaction.related_plan_id == plan_id,
+                        Transaction.status == TransactionStatus.COMPLETED
+                    )
+                ).first()
+                if existing_transfer:
+                    return TransferResult(success=True, transaction_id=existing_transfer.id, error=None)
+
                 # 获取付款方余额
-                from_balance = db.query(Balance).filter(Balance.user_id == from_user_id).first()
+                from_balance = db.query(Balance).filter(Balance.user_id == from_user_id).with_for_update().first()
                 if not from_balance:
                     return TransferResult(success=False, transaction_id=None, error="付款方账户不存在")
                 
@@ -246,13 +453,17 @@ class PaymentService:
                     return TransferResult(success=False, transaction_id=None, error="付款方余额不足")
                 
                 # 获取收款方余额
-                to_balance = db.query(Balance).filter(Balance.user_id == to_user_id).first()
+                to_balance = db.query(Balance).filter(Balance.user_id == to_user_id).with_for_update().first()
                 if not to_balance:
                     return TransferResult(success=False, transaction_id=None, error="收款方账户不存在")
                 
                 # 执行转账
-                from_balance.available_balance -= amount
-                to_balance.available_balance += amount
+                from_balance.available_balance = PaymentService._subtract_money(
+                    from_balance.available_balance, amount
+                )
+                to_balance.available_balance = PaymentService._add_money(
+                    to_balance.available_balance, amount
+                )
                 
                 # 创建交易记录
                 transaction_id = str(uuid.uuid4())

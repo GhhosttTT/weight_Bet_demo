@@ -243,7 +243,6 @@ data class LeaderboardEntry(
 )
 
 data class CommentRequest(
-    val userId: String,
     val content: String
 )
 
@@ -251,6 +250,8 @@ data class Comment(
     val id: String,
     @SerializedName("user_id")
     val userId: String,
+    @SerializedName("user_nickname")
+    val userNickname: String,
     @SerializedName("plan_id")
     val planId: String,
     val content: String,

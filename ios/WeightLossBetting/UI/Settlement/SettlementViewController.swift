@@ -31,7 +31,7 @@ class SettlementViewController: UIViewController {
         let label = UILabel()
         label.text = "请确认您和对手的减重成果"
         label.font = .systemFont(ofSize: 16)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.textAlignment = .center
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -72,7 +72,7 @@ class SettlementViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("提交结算", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        button.backgroundColor = .systemBlue
+        button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
         button.isEnabled = false
@@ -84,7 +84,7 @@ class SettlementViewController: UIViewController {
         let label = UILabel()
         label.text = "注意：双方提交的结算结果必须一致，否则将延期结算。"
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.numberOfLines = 0
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -108,11 +108,16 @@ class SettlementViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupActions()
+        navigationItem.leftBarButtonItem = UIBarButtonItem(
+            barButtonSystemItem: .close,
+            target: self,
+            action: #selector(closeTapped)
+        )
     }
 
     // MARK: - Setup
     private func setupUI() {
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         title = "结算"
 
         view.addSubview(titleLabel)
@@ -198,7 +203,7 @@ class SettlementViewController: UIViewController {
                         preferredStyle: .alert
                     )
                     alert.addAction(UIAlertAction(title: "确定", style: .default) { [weak self] _ in
-                        self?.navigationController?.popViewController(animated: true)
+                        self?.closeScreen()
                     })
                     self?.present(alert, animated: true)
 
@@ -212,6 +217,18 @@ class SettlementViewController: UIViewController {
                     self?.present(alert, animated: true)
                 }
             }
+        }
+    }
+
+    @objc private func closeTapped() {
+        closeScreen()
+    }
+
+    private func closeScreen() {
+        if navigationController?.presentingViewController != nil {
+            dismiss(animated: true)
+        } else {
+            navigationController?.popViewController(animated: true)
         }
     }
 }

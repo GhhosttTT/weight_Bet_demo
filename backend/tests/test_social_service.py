@@ -145,6 +145,33 @@ class TestLeaderboards:
             db.add(check_in2)
         
         db.commit()
+
+        # 待审核的异常体重不能影响公开排行榜。
+        db.add(CheckIn(
+            id="checkin_pending_extreme",
+            user_id="user1",
+            plan_id="plan_wl_0",
+            weight=30.0,
+            check_in_date=date.today() - timedelta(days=9),
+            review_status=ReviewStatus.PENDING,
+        ))
+        db.add(CheckIn(
+            id="checkin_weight_gain_1",
+            user_id="user4",
+            plan_id="plan_wl_0",
+            weight=70.0,
+            check_in_date=date.today() - timedelta(days=2),
+            review_status=ReviewStatus.APPROVED,
+        ))
+        db.add(CheckIn(
+            id="checkin_weight_gain_2",
+            user_id="user4",
+            plan_id="plan_wl_0",
+            weight=80.0,
+            check_in_date=date.today(),
+            review_status=ReviewStatus.APPROVED,
+        ))
+        db.commit()
         
         # 获取减重排行榜
         leaderboard = SocialService.get_weight_loss_leaderboard(db, limit=10)

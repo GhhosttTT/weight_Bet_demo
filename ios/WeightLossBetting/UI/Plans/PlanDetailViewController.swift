@@ -63,7 +63,7 @@ class PlanDetailViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "计划详情"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         setupUI()
         setupBindings()
@@ -90,7 +90,7 @@ class PlanDetailViewController: UIViewController {
         // Bet amount
         let betAmountTitleLabel = createTitleLabel(text: "赌金金额")
         betAmountLabel = createValueLabel()
-        betAmountLabel.textColor = .systemRed
+        betAmountLabel.textColor = AppTheme.Colors.error
         betAmountLabel.font = .boldSystemFont(ofSize: 24)
         
         // Date range
@@ -138,7 +138,7 @@ class PlanDetailViewController: UIViewController {
         rejectButton = UIButton(type: .system)
         rejectButton.setTitle("拒绝计划", for: .normal)
         rejectButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        rejectButton.backgroundColor = .systemRed
+        rejectButton.backgroundColor = AppTheme.Colors.error
         rejectButton.setTitleColor(.white, for: .normal)
         rejectButton.layer.cornerRadius = 10
         rejectButton.addTarget(self, action: #selector(rejectTapped), for: .touchUpInside)
@@ -149,7 +149,7 @@ class PlanDetailViewController: UIViewController {
         acceptButton = UIButton(type: .system)
         acceptButton.setTitle("接受计划", for: .normal)
         acceptButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        acceptButton.backgroundColor = .systemGreen
+        acceptButton.backgroundColor = AppTheme.Colors.success
         acceptButton.setTitleColor(.white, for: .normal)
         acceptButton.layer.cornerRadius = 10
         acceptButton.addTarget(self, action: #selector(acceptTapped), for: .touchUpInside)
@@ -160,7 +160,7 @@ class PlanDetailViewController: UIViewController {
         confirmButton = UIButton(type: .system)
         confirmButton.setTitle("确认并开始", for: .normal)
         confirmButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
-        confirmButton.backgroundColor = .systemGreen
+        confirmButton.backgroundColor = AppTheme.Colors.success
         confirmButton.setTitleColor(.white, for: .normal)
         confirmButton.layer.cornerRadius = 12
         confirmButton.addTarget(self, action: #selector(confirmTapped), for: .touchUpInside)
@@ -171,7 +171,7 @@ class PlanDetailViewController: UIViewController {
         checkInButton = UIButton(type: .system)
         checkInButton.setTitle("打卡", for: .normal)
         checkInButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
-        checkInButton.backgroundColor = .systemBlue
+        checkInButton.backgroundColor = AppTheme.Colors.primary
         checkInButton.setTitleColor(.white, for: .normal)
         checkInButton.layer.cornerRadius = 12
         checkInButton.addTarget(self, action: #selector(checkInTapped), for: .touchUpInside)
@@ -182,7 +182,7 @@ class PlanDetailViewController: UIViewController {
         giveUpButton = UIButton(type: .system)
         giveUpButton.setTitle("放弃计划", for: .normal)
         giveUpButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        giveUpButton.backgroundColor = .systemOrange
+        giveUpButton.backgroundColor = AppTheme.Colors.accent
         giveUpButton.setTitleColor(.white, for: .normal)
         giveUpButton.layer.cornerRadius = 10
         giveUpButton.addTarget(self, action: #selector(giveUpTapped), for: .touchUpInside)
@@ -248,7 +248,7 @@ class PlanDetailViewController: UIViewController {
          descriptionTitleLabel, descriptionLabel,
          acceptPlanFormView, loadingIndicator].forEach { contentView.addSubview($0) }
         // 操作按钮改为悬浮在底部固定显示
-        actionButtonsView.backgroundColor = .systemBackground
+        actionButtonsView.backgroundColor = AppTheme.Colors.background
         actionButtonsView.layer.shadowColor = UIColor.black.cgColor
         actionButtonsView.layer.shadowOpacity = 0.1
         actionButtonsView.layer.shadowOffset = CGSize(width: 0, height: -2)
@@ -461,7 +461,7 @@ class PlanDetailViewController: UIViewController {
         let label = UILabel()
         label.text = text
         label.font = .systemFont(ofSize: 14, weight: .medium)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }
@@ -499,7 +499,7 @@ class PlanDetailViewController: UIViewController {
         case .pending:
             // 待接受阶段
             statusLabel.text = "待接受"
-            statusLabel.textColor = .systemOrange
+            statusLabel.textColor = AppTheme.Colors.accent
             
             if isCreator {
                 // 创建者：只能取消
@@ -516,7 +516,7 @@ class PlanDetailViewController: UIViewController {
         case .pendingConfirmation:
             // 待二次确认阶段
             statusLabel.text = "待二次确认"
-            statusLabel.textColor = .systemPurple
+            statusLabel.textColor = AppTheme.Colors.primaryDark
             
             if isCreator {
                 // 创建者：可以取消或确认开始
@@ -529,7 +529,7 @@ class PlanDetailViewController: UIViewController {
         case .active:
             // 进行中阶段
             statusLabel.text = "进行中"
-            statusLabel.textColor = .systemGreen
+            statusLabel.textColor = AppTheme.Colors.success
             showCheckInGiveUpButtons()
             
         case .completed:
@@ -607,7 +607,7 @@ class PlanDetailViewController: UIViewController {
         }
         // 强制显示，永不隐藏
         participantInfoLabel.isHidden = false
-        participantInfoLabel.textColor = .label
+        participantInfoLabel.textColor = AppTheme.Colors.label
         
         // Participant goal
         if let participantInitialWeight = plan.participantInitialWeight,
@@ -635,7 +635,7 @@ class PlanDetailViewController: UIViewController {
         checkInButton.isHidden = true
         giveUpButton.isHidden = false
         giveUpButton.setTitle("放弃计划", for: .normal)
-        giveUpButton.tintColor = .systemRed
+        giveUpButton.tintColor = AppTheme.Colors.error
     }
     
     private func showAcceptRejectForm() {
@@ -816,7 +816,7 @@ class PlanDetailViewController: UIViewController {
         messageLabel.textAlignment = .center
         messageLabel.font = .systemFont(ofSize: 14)
         if plan.status == .active {
-            messageLabel.textColor = .systemRed
+            messageLabel.textColor = AppTheme.Colors.error
         }
         
         // 添加复选框

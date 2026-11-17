@@ -1,7 +1,7 @@
 """
 交易记录数据模型
 """
-from sqlalchemy import Column, String, Float, DateTime, Enum as SQLEnum, ForeignKey
+from sqlalchemy import Column, String, Float, DateTime, Enum as SQLEnum, ForeignKey, Index
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import enum
@@ -38,8 +38,19 @@ class Transaction(Base):
     related_settlement_id = Column(String(36), ForeignKey("settlements.id"), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     completed_at = Column(DateTime(timezone=True), nullable=True)
-    
+
     user = relationship("User")
     
     def __repr__(self):
         return f"<Transaction(id={self.id}, type={self.type}, amount={self.amount})>"
+
+
+# 冻结流水也会回填 related_settlement_id，因此约束只作用于实际退款流水。
+Index(
+    "uq_transactions_user_settlement_refund",
+    Transaction.user_id,
+    Transaction.related_settlement_id,
+    unique=True,
+    sqlite_where=Transaction.type == TransactionType.REFUND,
+    postgresql_where=Transaction.type == TransactionType.REFUND,
+)

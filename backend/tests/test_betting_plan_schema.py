@@ -19,7 +19,10 @@ class TestBettingPlanExtensions:
         assert PlanStatus.EXPIRED.value == 'expired', "EXPIRED 状态的值应该是 'expired'"
         
         # 验证所有必需的状态
-        expected_statuses = {'pending', 'active', 'completed', 'cancelled', 'rejected', 'expired'}
+        expected_statuses = {
+            'pending', 'waiting_double_check', 'active',
+            'completed', 'cancelled', 'rejected', 'expired'
+        }
         actual_statuses = {status.value for status in PlanStatus}
         assert expected_statuses == actual_statuses, f"PlanStatus 应该包含所有状态: {expected_statuses}"
         

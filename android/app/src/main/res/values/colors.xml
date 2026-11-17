@@ -1,33 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Basic Colors -->
-    <color name="purple_200">#FFBB86FC</color>
-    <color name="purple_500">#FF6200EE</color>
-    <color name="purple_700">#FF3700B3</color>
-    <color name="teal_200">#FF03DAC5</color>
-    <color name="teal_700">#FF018786</color>
+    <color name="purple_200">#FFF7B6A8</color>
+    <color name="purple_500">#FFE85D4A</color>
+    <color name="purple_700">#FFB94235</color>
+    <color name="teal_200">#FFA8E0D3</color>
+    <color name="teal_700">#FF2E9D87</color>
     <color name="orange_500">#FFFF9800</color>
     <color name="blue_500">#FF2196F3</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     
-    <color name="colorPrimary">#FF6200EE</color>
-    <color name="colorPrimaryDark">#FF3700B3</color>
-    <color name="colorAccent">#FF03DAC5</color>
+    <color name="colorPrimary">#FFE85D4A</color>
+    <color name="colorPrimaryDark">#FFB94235</color>
+    <color name="colorAccent">#FF2E9D87</color>
 
     <!-- XUI Config Colors (Fallback if XUI fails to load them) -->
-    <color name="xui_config_color_background">#F5F5F5</color>
+    <color name="xui_config_color_background">#FFF7F5F0</color>
+    <color name="xui_config_color_primary">#FFE85D4A</color>
+    <color name="xui_config_color_secondary_background">#FFFFFFFF</color>
     <color name="xui_config_color_white">#FFFFFF</color>
     <color name="xui_config_color_black">#000000</color>
     <color name="xui_config_color_divider">#D8D8D8</color>
-    <color name="xui_config_color_text_title">#333333</color>
-    <color name="xui_config_color_text_main">#333333</color>
-    <color name="xui_config_color_text_content">#666666</color>
+    <color name="xui_config_color_text_title">#FF172A3A</color>
+    <color name="xui_config_color_text_main">#FF172A3A</color>
+    <color name="xui_config_color_text_content">#FF52616B</color>
     <color name="xui_config_color_text_sub">#999999</color>
     <color name="xui_config_color_text_gray">#999999</color>
     <color name="xui_config_color_text_hint">#CCCCCC</color>
     <color name="xui_config_color_error">#F44336</color>
-    <color name="xui_config_color_success">#4CAF50</color>
+    <color name="xui_config_color_success">#FF2E9D87</color>
     <color name="xui_config_color_info">#2196F3</color>
     <color name="xui_config_color_warning">#FF9800</color>
     <color name="xui_config_color_pure_black">#000000</color>

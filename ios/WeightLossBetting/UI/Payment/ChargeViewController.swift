@@ -47,7 +47,7 @@ class ChargeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("确认充值", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        button.backgroundColor = UIColor.systemBlue
+        button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 10
         button.layer.shadowColor = UIColor.black.cgColor
@@ -69,7 +69,7 @@ class ChargeViewController: UIViewController {
         let label = UILabel()
         label.text = "提示：充值将通过 Stripe 支付网关进行处理"
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.numberOfLines = 0
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -101,7 +101,7 @@ class ChargeViewController: UIViewController {
         // 锁定金额模式：不允许修改金额
         if lockAmount {
             amountTextField.isEnabled = false
-            amountTextField.textColor = .secondaryLabel
+            amountTextField.textColor = AppTheme.Colors.secondaryLabel
             quickAmountStackView.isUserInteractionEnabled = false
             quickAmountStackView.alpha = 0.5
             titleLabel.text = "支付计划保证金"
@@ -122,7 +122,7 @@ class ChargeViewController: UIViewController {
     
     private func setupUI() {
         title = "充值"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         // Add subviews
         view.addSubview(scrollView)
@@ -206,11 +206,11 @@ class ChargeViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("¥\(Int(amount))", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)  // 稍微缩小字体
-        button.backgroundColor = UIColor.systemBlue.withAlphaComponent(0.1)  // 使用淡蓝色背景
-        button.setTitleColor(.systemBlue, for: .normal)  // 蓝色字体
+        button.backgroundColor = AppTheme.Colors.primary.withAlphaComponent(0.1)  // 使用淡蓝色背景
+        button.setTitleColor(AppTheme.Colors.primary, for: .normal)  // 蓝色字体
         button.layer.cornerRadius = 8
         button.layer.borderWidth = 1  // 添加边框
-        button.layer.borderColor = UIColor.systemBlue.withAlphaComponent(0.3).cgColor
+        button.layer.borderColor = AppTheme.Colors.primary.withAlphaComponent(0.3).cgColor
         button.addTarget(self, action: #selector(quickAmountButtonTapped(_:)), for: .touchUpInside)
         button.tag = Int(amount)
         return button

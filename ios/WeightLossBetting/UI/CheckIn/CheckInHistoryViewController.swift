@@ -31,7 +31,7 @@ class CheckInHistoryViewController: UIViewController {
         let label = UILabel()
         label.text = "暂无打卡记录"
         label.textAlignment = .center
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.font = .systemFont(ofSize: 16)
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
@@ -55,7 +55,7 @@ class CheckInHistoryViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "打卡历史"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         setupUI()
         setupBindings()
@@ -171,7 +171,7 @@ class CheckInHistoryCell: UITableViewCell {
     private let weightLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 24, weight: .bold)
-        label.textColor = .systemBlue
+        label.textColor = AppTheme.Colors.primary
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -179,7 +179,7 @@ class CheckInHistoryCell: UITableViewCell {
     private let noteLabel: UILabel = {
         let label = UILabel()
         label.font = .systemFont(ofSize: 14)
-        label.textColor = .secondaryLabel
+        label.textColor = AppTheme.Colors.secondaryLabel
         label.numberOfLines = 2
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -241,13 +241,13 @@ class CheckInHistoryCell: UITableViewCell {
         switch checkIn.reviewStatus {
         case .pending:
             statusLabel.text = "待审核"
-            statusLabel.textColor = .systemOrange
+            statusLabel.textColor = AppTheme.Colors.accent
         case .approved:
             statusLabel.text = "已通过"
-            statusLabel.textColor = .systemGreen
+            statusLabel.textColor = AppTheme.Colors.success
         case .rejected:
             statusLabel.text = "已拒绝"
-            statusLabel.textColor = .systemRed
+            statusLabel.textColor = AppTheme.Colors.error
         }
     }
 }

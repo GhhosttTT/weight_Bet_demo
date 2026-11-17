@@ -3,6 +3,7 @@
 基于用户选择进行结算（不再自动根据打卡数据判定）
 """
 import uuid
+from decimal import Decimal, ROUND_HALF_UP, ROUND_DOWN
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from datetime import datetime, date
@@ -25,6 +26,36 @@ logger = get_logger()
 
 class SettlementService:
     """结算服务类"""
+
+    _CENT = Decimal("0.01")
+
+    @classmethod
+    def _calculate_payouts(cls, bet_amount, creator_achieved: bool, participant_achieved: bool):
+        """按分计算结算金额，避免浮点误差和分账后资金不守恒。"""
+        bet = Decimal(str(bet_amount)).quantize(cls._CENT, rounding=ROUND_HALF_UP)
+        total_bet = (bet * Decimal("2")).quantize(cls._CENT, rounding=ROUND_HALF_UP)
+
+        if creator_achieved and participant_achieved:
+            return float(bet), float(bet), 0.0, float(total_bet)
+        if creator_achieved and not participant_achieved:
+            return float(total_bet), 0.0, 0.0, float(total_bet)
+        if not creator_achieved and participant_achieved:
+            return 0.0, float(total_bet), 0.0, float(total_bet)
+
+        platform_fee = (total_bet * Decimal("0.10")).quantize(
+            cls._CENT, rounding=ROUND_HALF_UP
+        )
+        remaining = total_bet - platform_fee
+        creator_amount = (remaining / Decimal("2")).quantize(
+            cls._CENT, rounding=ROUND_DOWN
+        )
+        participant_amount = remaining - creator_amount
+        return (
+            float(creator_amount),
+            float(participant_amount),
+            float(platform_fee),
+            float(total_bet),
+        )
     
     @staticmethod
     def calculate_settlement(
@@ -45,7 +76,7 @@ class SettlementService:
             HTTPException: 计划不存在或状态错误
         """
         # 获取计划
-        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).with_for_update().first()
         if not plan:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -90,33 +121,22 @@ class SettlementService:
         creator_achieved = creator_weight_loss >= plan.creator_target_weight_loss
         participant_achieved = participant_weight_loss >= plan.participant_target_weight_loss
         
-        # 应用结算规则
-        total_bet = plan.bet_amount * 2
-        
+        # 应用结算规则，所有出账金额统一保留两位小数。
+        creator_amount, participant_amount, platform_fee, total_bet = SettlementService._calculate_payouts(
+            plan.bet_amount, creator_achieved, participant_achieved
+        )
+
         if creator_achieved and participant_achieved:
             # 双方都达成: 原路返还,无手续费
-            creator_amount = plan.bet_amount
-            participant_amount = plan.bet_amount
-            platform_fee = 0.0
             logger.info("Both achieved goals for plan {}", plan_id)
         elif not creator_achieved and not participant_achieved:
             # 双方都未达成: 扣除 10% 手续费后返还
-            platform_fee = total_bet * 0.10
-            remaining = total_bet - platform_fee
-            creator_amount = remaining / 2
-            participant_amount = remaining / 2
             logger.info("Neither achieved goals for plan {}, platform fee: {}", plan_id, platform_fee)
         elif creator_achieved and not participant_achieved:
             # 创建者达成,参与者未达成: 创建者获得全部
-            creator_amount = total_bet
-            participant_amount = 0.0
-            platform_fee = 0.0
             logger.info("Creator achieved goal for plan {}", plan_id)
         else:
             # 参与者达成,创建者未达成: 参与者获得全部
-            creator_amount = 0.0
-            participant_amount = total_bet
-            platform_fee = 0.0
             logger.info("Participant achieved goal for plan {}", plan_id)
         
         return SettlementCalculation(
@@ -147,11 +167,30 @@ class SettlementService:
             HTTPException: 计划不存在、状态错误或已结算
         """
         # 获取计划
-        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).with_for_update().first()
         if not plan:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="计划不存在"
+            )
+
+        if plan.status != PlanStatus.ACTIVE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="只有进行中的计划可以结算"
+            )
+
+        if not plan.participant_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="计划尚未形成完整参与关系，无法结算"
+            )
+
+        current_time = datetime.now(plan.end_date.tzinfo) if plan.end_date.tzinfo else datetime.utcnow()
+        if current_time < plan.end_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="计划尚未到期"
             )
             
         # 检查是否已结算
@@ -206,51 +245,32 @@ class SettlementService:
         creator_weight_loss = plan.creator_initial_weight - creator_final_weight
         participant_weight_loss = plan.participant_initial_weight - participant_final_weight
             
-        # 根据匹配结果确定输赢和金额分配
-        total_bet = plan.bet_amount * 2
-            
+        # 根据匹配结果确定输赢，再统一按分计算金额。
         if matching_result.get("both_achieved"):
             # 双方都达成：原路返还，无手续费
-            creator_amount = plan.bet_amount
-            participant_amount = plan.bet_amount
-            platform_fee = 0.0
             creator_achieved = True
             participant_achieved = True
-            logger.info("Both achieved goals for plan {}", plan_id)
-                
         elif matching_result.get("both_failed"):
             # 双方都未达成：扣除 10% 手续费后返还
-            platform_fee = total_bet * 0.10
-            remaining = total_bet - platform_fee
-            creator_amount = remaining / 2
-            participant_amount = remaining / 2
             creator_achieved = False
             participant_achieved = False
-            logger.info("Neither achieved goals for plan {}, platform fee: {}", plan_id, platform_fee)
-                
         elif matching_result.get("creator_won") is True:
             # 创建者获胜：创建者获得全部
-            creator_amount = total_bet
-            participant_amount = 0.0
-            platform_fee = 0.0
             creator_achieved = True
             participant_achieved = False
-            logger.info("Creator won for plan {}", plan_id)
-                
         elif matching_result.get("creator_won") is False:
             # 参与者获胜：参与者获得全部
-            creator_amount = 0.0
-            participant_amount = total_bet
-            platform_fee = 0.0
             creator_achieved = False
             participant_achieved = True
-            logger.info("Participant won for plan {}", plan_id)
-                
         else:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="无效的匹配结果"
             )
+
+        creator_amount, participant_amount, platform_fee, total_bet = SettlementService._calculate_payouts(
+            plan.bet_amount, creator_achieved, participant_achieved
+        )
         
         # 创建结算记录
         settlement_id = str(uuid.uuid4())
@@ -274,26 +294,15 @@ class SettlementService:
             # 开始事务 (db.begin() 已经由 FastAPI 的依赖注入处理)
             logger.info("Starting settlement transaction for plan {}", plan_id)
                     
-            # 1. 解冻双方资金
-            creator_unfreeze_success = PaymentService.unfreeze_funds(db, plan.creator_id, plan_id)
-            if not creator_unfreeze_success:
-                raise Exception("Failed to unfreeze funds for creator {}", plan.creator_id)
-                    
-            participant_unfreeze_success = PaymentService.unfreeze_funds(db, plan.participant_id, plan_id)
-            if not participant_unfreeze_success:
-                raise Exception("Failed to unfreeze funds for participant {}", plan.participant_id)
-                    
-            # 2. 转账给创建者 (如果有金额)
-            if creator_amount > 0:
-                # 注意：这里假设有一个平台账户，实际实现中需要处理
-                # 暂时跳过实际转账，只记录日志
-                logger.info("Transferring {} to creator {}", creator_amount, plan.creator_id)
-                # TODO: 实现实际的转账逻辑
-                    
-            # 3. 转账给参与者 (如果有金额)
-            if participant_amount > 0:
-                logger.info("Transferring {} to participant {}", participant_amount, plan.participant_id)
-                # TODO: 实现实际的转账逻辑
+            # 1. 在同一个事务中释放冻结本金并入账结算金额。
+            if not PaymentService.release_settlement_funds(
+                db, plan.creator_id, plan_id, creator_amount, settlement_id
+            ):
+                raise Exception("Failed to release settlement funds for creator")
+            if not PaymentService.release_settlement_funds(
+                db, plan.participant_id, plan_id, participant_amount, settlement_id
+            ):
+                raise Exception("Failed to release settlement funds for participant")
                     
             # 4. 更新计划状态
             plan.status = PlanStatus.COMPLETED

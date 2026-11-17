@@ -25,7 +25,7 @@ class CreatePlanViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         title = "创建对赌计划"
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppTheme.Colors.background
         
         setupUI()
         setupBindings()
@@ -110,7 +110,7 @@ class CreatePlanViewController: UIViewController {
         createButton = UIButton(type: .system)
         createButton.setTitle("创建计划", for: .normal)
         createButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
-        createButton.backgroundColor = .systemBlue
+        createButton.backgroundColor = AppTheme.Colors.primary
         createButton.setTitleColor(.white, for: .normal)
         createButton.layer.cornerRadius = 12
         createButton.addTarget(self, action: #selector(createTapped), for: .touchUpInside)

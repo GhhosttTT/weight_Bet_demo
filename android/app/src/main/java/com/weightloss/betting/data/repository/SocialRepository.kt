@@ -30,9 +30,9 @@ class SocialRepository @Inject constructor(
      */
     suspend fun postComment(
         planId: String,
-        request: CommentRequest
+        content: String
     ): NetworkResult<Comment> {
-        return safeApiCall { apiService.postComment(planId, request) }
+        return safeApiCall { apiService.postComment(planId, CommentRequest(content)) }
     }
     
     /**

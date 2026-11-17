@@ -2,10 +2,12 @@
 测试认证服务 (Task 3.6)
 """
 import pytest
+from pydantic import ValidationError
 from datetime import datetime, timedelta
 from app.services.auth_service import AuthService
 from app.models.user import User
 from app.core.security import verify_password, create_access_token
+from app.schemas.auth import RegisterRequest
 
 
 class TestAuthService:
@@ -50,8 +52,17 @@ class TestAuthService:
         ]
         
         for email in invalid_emails:
-            # 验证邮箱格式
-            assert "@" not in email or "." not in email.split("@")[-1] or email == ""
+            # 由注册请求模型统一执行邮箱格式校验。
+            with pytest.raises(ValidationError):
+                RegisterRequest(
+                    email=email,
+                    password="SecurePass123!",
+                    nickname="测试用户",
+                    gender="male",
+                    age=25,
+                    height=175.0,
+                    current_weight=80.0,
+                )
         
         print("✓ 无效邮箱验证测试通过")
     

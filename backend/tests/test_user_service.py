@@ -5,6 +5,8 @@ import pytest
 from datetime import datetime
 from decimal import Decimal
 
+from app.services.friend_search_service import FriendSearchService
+
 
 class TestUserService:
     """测试用户服务"""
@@ -356,8 +358,7 @@ class TestUserService:
         ]
         
         for email in valid_emails:
-            # 简单的邮箱格式验证
-            is_valid = "@" in email and "." in email.split("@")[-1]
+            is_valid = FriendSearchService.validate_email_format(email)
             assert is_valid
         
         # 无效邮箱
@@ -370,7 +371,7 @@ class TestUserService:
         ]
         
         for email in invalid_emails:
-            is_valid = "@" in email and "." in email.split("@")[-1] if email else False
+            is_valid = FriendSearchService.validate_email_format(email)
             assert not is_valid
         
         print("✓ 邮箱格式验证测试通过")

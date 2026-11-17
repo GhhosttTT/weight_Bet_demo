@@ -11,6 +11,7 @@ from app.database import Base, get_db
 from app.models.user import User
 from app.models.betting_plan import BettingPlan, PlanStatus
 from app.models.settlement_choice import SettlementChoice
+from app.models.settlement import Settlement
 from app.services.settlement_choice_service import SettlementChoiceService
 from app.schemas.settlement_choice import SettlementChoiceRequest
 
@@ -119,7 +120,7 @@ class TestSubmitChoice:
             SettlementChoiceService.submit_choice(
                 db_session, "non-existent-id", creator.id, request
             )
-        assert "计划不存在" in str(exc_info.value)
+        assert "计划不存在" in exc_info.value.detail
     
     def test_submit_choice_unauthorized_user(self, db_session, test_plan, test_users):
         """测试未授权用户"""
@@ -134,7 +135,7 @@ class TestSubmitChoice:
             SettlementChoiceService.submit_choice(
                 db_session, test_plan.id, unauthorized_user_id, request
             )
-        assert "您不是该计划的参与者" in str(exc_info.value)
+        assert "您不是该计划的参与者" in exc_info.value.detail
     
     def test_submit_choice_completed_plan(self, db_session, test_plan, test_users):
         """测试已完成计划"""
@@ -151,7 +152,33 @@ class TestSubmitChoice:
             SettlementChoiceService.submit_choice(
                 db_session, test_plan.id, creator.id, request
             )
-        assert "计划已结算" in str(exc_info.value)
+        assert "计划已结算" in exc_info.value.detail
+
+    def test_submit_choice_rejects_pending_plan(self, db_session, test_plan, test_users):
+        """未生效计划不能进入结算选择流程"""
+        creator, _ = test_users
+        test_plan.status = PlanStatus.PENDING
+        db_session.commit()
+
+        request = SettlementChoiceRequest(self_achieved=True, opponent_achieved=False)
+        with pytest.raises(Exception) as exc_info:
+            SettlementChoiceService.submit_choice(
+                db_session, test_plan.id, creator.id, request
+            )
+        assert "只有进行中的计划" in exc_info.value.detail
+
+    def test_submit_choice_rejects_before_end_date(self, db_session, test_plan, test_users):
+        """尚未到期的进行中计划不能提交结算选择"""
+        creator, _ = test_users
+        test_plan.end_date = datetime.utcnow() + timedelta(hours=1)
+        db_session.commit()
+
+        request = SettlementChoiceRequest(self_achieved=True, opponent_achieved=False)
+        with pytest.raises(Exception) as exc_info:
+            SettlementChoiceService.submit_choice(
+                db_session, test_plan.id, creator.id, request
+            )
+        assert "尚未到期" in exc_info.value.detail
     
     def test_submit_choice_duplicate(self, db_session, test_plan, test_users):
         """测试重复提交"""
@@ -171,7 +198,7 @@ class TestSubmitChoice:
             SettlementChoiceService.submit_choice(
                 db_session, test_plan.id, creator.id, request
             )
-        assert "您已在第" in str(exc_info.value)
+        assert "您已在第" in exc_info.value.detail
 
 
 class TestMatchChoices:
@@ -292,6 +319,10 @@ class TestMatchChoices:
             db_session.add(choice1)
             db_session.add(choice2)
             db_session.commit()
+
+        # 轮次现在由计划持久化，手工构造三轮数据时同步当前轮次。
+        test_plan.settlement_round = 3
+        db_session.commit()
             
         result = SettlementChoiceService.match_choices(db_session, test_plan.id)
             
@@ -326,6 +357,7 @@ class TestGetSelectionStatus:
         assert status.current_round == 1
         assert status.creator_submitted is False
         assert status.participant_submitted is False
+        assert status.current_user_submitted is False
         assert status.settlement_completed is False
     
     def test_get_status_one_submitted(self, db_session, test_plan, test_users):
@@ -341,7 +373,55 @@ class TestGetSelectionStatus:
         assert status.current_round == 1
         assert status.creator_submitted is True
         assert status.participant_submitted is False
+        assert status.current_user_submitted is True
         assert status.creator_choice is not None
+
+    def test_get_status_rejects_non_participant(self, db_session, test_plan, test_users):
+        """非参与者不能读取双方结算选择内容"""
+        outsider = User(
+            id=str(uuid.uuid4()),
+            email="outsider@test.com",
+            nickname="Outsider",
+            password_hash="hashed_pwd",
+            gender="male",
+            age=30,
+            height=175.0,
+            current_weight=80.0,
+        )
+        db_session.add(outsider)
+        db_session.commit()
+
+        with pytest.raises(Exception) as exc_info:
+            SettlementChoiceService.get_selection_status(
+                db_session, test_plan.id, outsider.id
+            )
+        assert "您不是该计划的参与者" in exc_info.value.detail
+
+    def test_get_status_allows_completed_plan(self, db_session, test_plan, test_users):
+        """已完成计划仍可读取结算选择状态"""
+        creator, _ = test_users
+        test_plan.status = PlanStatus.COMPLETED
+        db_session.add(Settlement(
+            id=str(uuid.uuid4()),
+            plan_id=test_plan.id,
+            creator_achieved=True,
+            participant_achieved=False,
+            creator_final_weight=75.0,
+            participant_final_weight=75.0,
+            creator_weight_loss=5.0,
+            participant_weight_loss=0.0,
+            creator_amount=200.0,
+            participant_amount=0.0,
+            platform_fee=0.0,
+            in_arbitration=False,
+        ))
+        db_session.commit()
+
+        result = SettlementChoiceService.get_selection_status(
+            db_session, test_plan.id, creator.id
+        )
+
+        assert result.settlement_completed is True
 
 
 class TestCheckTimeoutAndAdvance:

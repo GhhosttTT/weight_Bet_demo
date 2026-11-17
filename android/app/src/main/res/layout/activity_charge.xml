@@ -49,7 +49,7 @@
             android:layout_height="wrap_content"
             android:text="快捷金额"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/xui_config_color_text_content"
             android:layout_marginBottom="8dp" />
 
         <com.google.android.material.chip.ChipGroup
@@ -96,7 +96,7 @@
             android:layout_height="wrap_content"
             android:text="支付方式: Stripe"
             android:textSize="14sp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/xui_config_color_text_content"
             android:layout_marginBottom="32dp" />
 
         <!-- Charge button -->

@@ -11,6 +11,8 @@ from app.database import Base
 from app.models.user import User
 from app.models.betting_plan import BettingPlan, PlanStatus
 from app.models.check_in import CheckIn
+from app.models.balance import Balance
+from app.services.payment_service import PaymentService
 from app.services.arbitration_service import ArbitrationService
 
 
@@ -57,6 +59,8 @@ def test_users(db_session):
     )
     db_session.add(user1)
     db_session.add(user2)
+    db_session.add(Balance(user_id=user1.id, available_balance=1000.0, frozen_balance=0.0))
+    db_session.add(Balance(user_id=user2.id, available_balance=1000.0, frozen_balance=0.0))
     db_session.commit()
     return user1, user2
 
@@ -82,6 +86,8 @@ def test_plan(db_session, test_users):
     )
     db_session.add(plan)
     db_session.commit()
+    assert PaymentService.freeze_funds(db_session, creator.id, plan.id, 100.0).success
+    assert PaymentService.freeze_funds(db_session, participant.id, plan.id, 100.0).success
     return plan
 
 
@@ -246,7 +252,7 @@ class TestArbitrationService:
         
         with pytest.raises(Exception) as exc_info:
             ArbitrationService.start_arbitration(db_session, "non-existent-id")
-        assert "计划不存在" in str(exc_info.value)
+        assert "计划不存在" in exc_info.value.detail
     
     def test_arbitration_already_completed(self, db_session, test_plan, test_users):
         """测试已完成计划"""
@@ -256,7 +262,7 @@ class TestArbitrationService:
         
         with pytest.raises(Exception) as exc_info:
             ArbitrationService.start_arbitration(db_session, test_plan.id)
-        assert "计划已结算" in str(exc_info.value)
+        assert "只有进行中的计划可以仲裁" in exc_info.value.detail
     
     def test_arbitration_updates_plan_status(self, db_session, test_plan, test_users):
         """测试仲裁后计划状态更新"""

@@ -40,7 +40,7 @@ class GoalData(BaseModel):
 
 class CreatePlanRequest(BaseModel):
     """创建计划请求"""
-    bet_amount: float = Field(..., gt=0.0)
+    bet_amount: float = Field(..., ge=0.01)
     start_date: datetime
     end_date: datetime
     initial_weight: float = Field(..., ge=30.0, le=300.0)

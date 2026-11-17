@@ -8,6 +8,9 @@ import androidx.activity.viewModels
 import com.weightloss.betting.databinding.ActivityPlanDetailBinding
 import com.weightloss.betting.ui.base.BaseActivity
 import com.weightloss.betting.ui.checkin.CheckInActivity
+import com.weightloss.betting.ui.checkin.ProgressActivity
+import com.weightloss.betting.ui.checkin.CheckInHistoryActivity
+import com.weightloss.betting.ui.social.CommentsActivity
 import dagger.hilt.android.AndroidEntryPoint
 import java.text.SimpleDateFormat
 import java.util.*
@@ -220,8 +223,14 @@ class PlanDetailActivity : BaseActivity() {
         // Show check-in button ONLY for active plans
         if (plan.status == "active") {
             binding.btnCheckIn.visibility = View.VISIBLE
+            binding.btnProgress.visibility = View.VISIBLE
+            binding.btnCheckInHistory.visibility = View.VISIBLE
+            binding.btnComments.visibility = View.VISIBLE
         } else {
             binding.btnCheckIn.visibility = View.GONE
+            binding.btnProgress.visibility = View.GONE
+            binding.btnCheckInHistory.visibility = View.GONE
+            binding.btnComments.visibility = View.GONE
         }
         
         // Show invite button for pending plans without participant (creator's view)
@@ -273,6 +282,30 @@ class PlanDetailActivity : BaseActivity() {
                 val intent = Intent(this, CheckInActivity::class.java)
                 intent.putExtra("PLAN_ID", id)
                 startActivity(intent)
+            }
+        }
+
+        binding.btnProgress.setOnClickListener {
+            planId?.let { id ->
+                startActivity(Intent(this, ProgressActivity::class.java).apply {
+                    putExtra("PLAN_ID", id)
+                })
+            }
+        }
+
+        binding.btnCheckInHistory.setOnClickListener {
+            planId?.let { id ->
+                startActivity(Intent(this, CheckInHistoryActivity::class.java).apply {
+                    putExtra("PLAN_ID", id)
+                })
+            }
+        }
+
+        binding.btnComments.setOnClickListener {
+            planId?.let { id ->
+                startActivity(Intent(this, CommentsActivity::class.java).apply {
+                    putExtra("PLAN_ID", id)
+                })
             }
         }
         

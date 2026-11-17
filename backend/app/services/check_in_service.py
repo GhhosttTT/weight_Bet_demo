@@ -258,7 +258,8 @@ class CheckInService:
         plan_id: str,
         user_id: str,
         limit: int = 100,
-        offset: int = 0
+        offset: int = 0,
+        viewer_user_id: Optional[str] = None
     ) -> List[CheckInResponse]:
         """
         获取打卡历史
@@ -273,12 +274,17 @@ class CheckInService:
         Returns:
             List[CheckInResponse]: 打卡记录列表
         """
-        check_ins = db.query(CheckIn).filter(
+        query = db.query(CheckIn).filter(
             and_(
                 CheckIn.plan_id == plan_id,
                 CheckIn.user_id == user_id
             )
-        ).order_by(
+        )
+        # 查看对手时只返回已审核记录；本人查询保留待审核记录，便于展示处理状态。
+        if viewer_user_id and viewer_user_id != user_id:
+            query = query.filter(CheckIn.review_status == ReviewStatus.APPROVED)
+
+        check_ins = query.order_by(
             CheckIn.check_in_date.desc()
         ).limit(limit).offset(offset).all()
         

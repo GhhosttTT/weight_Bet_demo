@@ -28,25 +28,28 @@ class BalanceViewController: UIViewController {
     // Set up UI
     func setupUI() {
         title = "我的余额"
+        view.backgroundColor = AppTheme.Colors.background
+        historyTableView.backgroundColor = AppTheme.Colors.background
+        historyTableView.sectionHeaderHeight = 44
+        historyTableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 16, right: 0)
+
+        balanceLabel.font = UIFont.systemFont(ofSize: 32, weight: .bold)
+        balanceLabel.textColor = AppTheme.Colors.label
         
         // 设置按钮样式 - 使用渐变蓝色，更加协调
-        chargeButton.layer.cornerRadius = 10
-        chargeButton.backgroundColor = UIColor.systemBlue
+        chargeButton.layer.cornerRadius = 12
+        chargeButton.layer.masksToBounds = true
+        chargeButton.backgroundColor = AppTheme.Colors.primary
         chargeButton.setTitleColor(.white, for: .normal)
         chargeButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
         
-        withdrawButton.layer.cornerRadius = 10
-        withdrawButton.backgroundColor = UIColor.systemGreen
-        withdrawButton.setTitleColor(.white, for: .normal)
+        withdrawButton.layer.cornerRadius = 12
+        withdrawButton.layer.masksToBounds = true
+        withdrawButton.backgroundColor = AppTheme.Colors.secondaryBackground
+        withdrawButton.layer.borderWidth = 1
+        withdrawButton.layer.borderColor = AppTheme.Colors.primary.cgColor
+        withdrawButton.setTitleColor(AppTheme.Colors.primary, for: .normal)
         withdrawButton.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .semibold)
-        
-        // 设置按钮阴影效果
-        [chargeButton, withdrawButton].forEach { button in
-            button.layer.shadowColor = UIColor.black.cgColor
-            button.layer.shadowOffset = CGSize(width: 0, height: 2)
-            button.layer.shadowOpacity = 0.15
-            button.layer.shadowRadius = 4
-        }
         
         historyTableView.delegate = self
         historyTableView.dataSource = self
@@ -122,7 +125,10 @@ class BalanceViewController: UIViewController {
     // Charge button tapped event
     @IBAction func chargeButtonTapped(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let chargeVC = storyboard.instantiateViewController(withIdentifier: "ChargeViewController") as! ChargeViewController
+        guard let chargeVC = storyboard.instantiateViewController(withIdentifier: "ChargeViewController") as? ChargeViewController else {
+            view.makeToast("充值页面配置异常，请联系管理员", duration: 3.0, position: .bottom)
+            return
+        }
         navigationController?.pushViewController(chargeVC, animated: true)
     }
     
@@ -136,7 +142,10 @@ class BalanceViewController: UIViewController {
     // Withdraw button tapped event
     @IBAction func withdrawButtonTapped(_ sender: Any) {
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        let withdrawVC = storyboard.instantiateViewController(withIdentifier: "WithdrawViewController") as! WithdrawViewController
+        guard let withdrawVC = storyboard.instantiateViewController(withIdentifier: "WithdrawViewController") as? WithdrawViewController else {
+            view.makeToast("提现页面配置异常，请联系管理员", duration: 3.0, position: .bottom)
+            return
+        }
         navigationController?.pushViewController(withdrawVC, animated: true)
     }
 }
@@ -157,7 +166,9 @@ extension BalanceViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionCell", for: indexPath) as! TransactionTableViewCell
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: "TransactionCell", for: indexPath) as? TransactionTableViewCell else {
+            return UITableViewCell(style: .subtitle, reuseIdentifier: nil)
+        }
         
         switch viewModel.transactionsState {
         case .success(let transactions):
@@ -212,7 +223,7 @@ class TransactionTableViewCell: UITableViewCell {
         // 处理金额显示
         let amountSign = transaction.type == .refund || transaction.type == .unfreeze ? "+" : "-"
         transactionAmountLabel.text = amountSign + "¥" + String(format: "%.2f", abs(transaction.amount))
-        transactionAmountLabel.textColor = (transaction.type == .refund || transaction.type == .unfreeze) ? .systemGreen : .systemRed
+        transactionAmountLabel.textColor = (transaction.type == .refund || transaction.type == .unfreeze) ? AppTheme.Colors.success : AppTheme.Colors.error
         
         // 处理日期格式化
         transactionDateLabel.text = formatDate(date: transaction.createdAt)
@@ -221,13 +232,13 @@ class TransactionTableViewCell: UITableViewCell {
         switch transaction.status {
         case .pending:
             transactionStatusLabel.text = "Processing"
-            transactionStatusLabel.textColor = .systemOrange
+            transactionStatusLabel.textColor = AppTheme.Colors.accent
         case .completed:
             transactionStatusLabel.text = "Completed"
-            transactionStatusLabel.textColor = .systemGreen
+            transactionStatusLabel.textColor = AppTheme.Colors.success
         case .failed:
             transactionStatusLabel.text = "Failed"
-            transactionStatusLabel.textColor = .systemRed
+            transactionStatusLabel.textColor = AppTheme.Colors.error
         }
     }
     

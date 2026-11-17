@@ -3,6 +3,8 @@
 处理三次选择不匹配后的强制仲裁流程
 """
 import uuid
+from decimal import Decimal, ROUND_HALF_UP, ROUND_DOWN
+from datetime import datetime
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from typing import Optional
@@ -17,6 +19,8 @@ logger = get_logger()
 
 class ArbitrationService:
     """仲裁服务类"""
+
+    _CENT = Decimal("0.01")
     
     @staticmethod
     def start_arbitration(
@@ -39,11 +43,28 @@ class ArbitrationService:
         from app.services.check_in_service import CheckInService
         
         # 获取计划
-        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).with_for_update().first()
         if not plan:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="计划不存在"
+            )
+
+        if plan.status != PlanStatus.ACTIVE:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="只有进行中的计划可以仲裁"
+            )
+        if not plan.participant_id:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="计划尚未形成完整参与关系，无法仲裁"
+            )
+        current_time = datetime.now(plan.end_date.tzinfo) if plan.end_date.tzinfo else datetime.utcnow()
+        if current_time < plan.end_date:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="计划尚未到期"
             )
         
         # 检查是否已结算
@@ -84,8 +105,11 @@ class ArbitrationService:
         participant_achieved = participant_weight_loss >= plan.participant_target_weight_loss
         
         # 计算总金额和仲裁费
-        total_bet = plan.bet_amount * 2
-        arbitration_fee = total_bet * 0.15  # 15% 仲裁费
+        bet_amount = Decimal(str(plan.bet_amount)).quantize(ArbitrationService._CENT, rounding=ROUND_HALF_UP)
+        total_bet = (bet_amount * Decimal("2")).quantize(ArbitrationService._CENT, rounding=ROUND_HALF_UP)
+        arbitration_fee = (total_bet * Decimal("0.15")).quantize(
+            ArbitrationService._CENT, rounding=ROUND_HALF_UP
+        )
         remaining_amount = total_bet - arbitration_fee
         
         # 根据实际达成情况分配金额
@@ -107,14 +131,20 @@ class ArbitrationService:
             )
         else:
             # 其他情况（都达成或都未达成）：平分剩余金额
-            creator_amount = remaining_amount / 2
-            participant_amount = remaining_amount / 2
+            creator_amount = (remaining_amount / Decimal("2")).quantize(
+                ArbitrationService._CENT, rounding=ROUND_DOWN
+            )
+            participant_amount = remaining_amount - creator_amount
             logger.info(
                 "Arbitration result: Both {} . Splitting remaining amount: {} each (fee: {})",
                 "achieved" if creator_achieved else "failed",
                 creator_amount, arbitration_fee
             )
         
+        creator_amount = float(creator_amount)
+        participant_amount = float(participant_amount)
+        arbitration_fee = float(arbitration_fee)
+
         # 创建结算记录
         settlement_id = str(uuid.uuid4())
         settlement = Settlement(
@@ -135,24 +165,15 @@ class ArbitrationService:
         )
         
         try:
-            # 1. 解冻双方资金
-            creator_unfreeze_success = PaymentService.unfreeze_funds(db, plan.creator_id, plan_id)
-            if not creator_unfreeze_success:
-                raise Exception("Failed to unfreeze funds for creator")
-            
-            participant_unfreeze_success = PaymentService.unfreeze_funds(db, plan.participant_id, plan_id)
-            if not participant_unfreeze_success:
-                raise Exception("Failed to unfreeze funds for participant")
-            
-            # 2. 转账给创建者（如果有金额）
-            if creator_amount > 0:
-                logger.info("Transferring {} to creator {}", creator_amount, plan.creator_id)
-                # TODO: 实现实际的转账逻辑
-            
-            # 3. 转账给参与者（如果有金额）
-            if participant_amount > 0:
-                logger.info("Transferring {} to participant {}", participant_amount, plan.participant_id)
-                # TODO: 实现实际的转账逻辑
+            # 在当前事务中释放冻结本金并写入仲裁结算金额。
+            if not PaymentService.release_settlement_funds(
+                db, plan.creator_id, plan_id, creator_amount, settlement_id
+            ):
+                raise Exception("Failed to release arbitration funds for creator")
+            if not PaymentService.release_settlement_funds(
+                db, plan.participant_id, plan_id, participant_amount, settlement_id
+            ):
+                raise Exception("Failed to release arbitration funds for participant")
             
             # 4. 更新计划状态
             plan.status = PlanStatus.COMPLETED

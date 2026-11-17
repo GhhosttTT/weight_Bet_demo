@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from app.middleware.security import SecurityMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
+from app.redis_client import get_redis
 from unittest.mock import Mock, patch
 import time
 
@@ -32,6 +33,11 @@ def create_test_app():
 
 class TestRateLimitMiddleware:
     """测试限流中间件"""
+
+    @pytest.fixture(autouse=True)
+    def clear_rate_limit_state(self):
+        """隔离测试用例，避免共享 Redis 中的 IP 计数。"""
+        get_redis().delete("rate_limit:ip:testclient")
     
     def test_rate_limit_allows_requests_within_limit(self):
         """测试限流允许限制内的请求"""

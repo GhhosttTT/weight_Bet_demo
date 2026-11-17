@@ -1,7 +1,7 @@
 """
 对赌计划 API 路由
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List, Optional
 from app.database import get_db
@@ -9,6 +9,7 @@ from app.schemas.betting_plan import CreatePlanRequest, AcceptPlanRequest, PlanR
 from app.services.betting_plan_service import BettingPlanService
 from app.middleware.auth import get_current_user_id
 from app.models.betting_plan import PlanStatus, BettingPlan
+from app.models.invitation import Invitation, InvitationStatus
 from pydantic import BaseModel
 
 router = APIRouter()
@@ -37,6 +38,7 @@ def create_plan(
 @router.get("/{plan_id}", response_model=PlanResponse)
 def get_plan_details(
     plan_id: str,
+    current_user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_db)
 ):
     """
@@ -44,6 +46,25 @@ def get_plan_details(
     
     - **plan_id**: 计划 ID
     """
+    plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+    if not plan:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="计划不存在"
+        )
+
+    is_participant = current_user_id in (plan.creator_id, plan.participant_id)
+    has_active_invitation = db.query(Invitation).filter(
+        Invitation.plan_id == plan_id,
+        Invitation.invitee_id == current_user_id,
+        Invitation.status.in_([InvitationStatus.PENDING, InvitationStatus.VIEWED])
+    ).first() is not None
+    if not is_participant and not has_active_invitation:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="无权查看该计划详情"
+        )
+
     return BettingPlanService.get_plan_details(db, plan_id)
 
 

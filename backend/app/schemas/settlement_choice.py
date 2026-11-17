@@ -53,6 +53,7 @@ class SettlementSelectionStatus(BaseModel):
     current_round: int = Field(..., ge=1, le=3)
     creator_submitted: bool = False
     participant_submitted: bool = False
+    current_user_submitted: bool = False
     creator_choice: Optional[SettlementChoiceResponse] = None
     participant_choice: Optional[SettlementChoiceResponse] = None
     matched: bool = False

@@ -7,12 +7,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+    android:background="@color/xui_config_color_background"
         android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="我的计划"
+            android:text="我的对赌计划"
             android:textSize="24sp"
             android:textStyle="bold"
             android:padding="16dp" />
@@ -37,28 +38,52 @@
                     android:layout_height="wrap_content"
                     android:text="全部"
                     android:checked="true"
-                    android:checkable="true" />
+                    android:checkable="true"
+                    app:chipBackgroundColor="@color/chip_background"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:chipTextColor="@color/chip_text"
+                    app:checkedIconVisible="false"
+                    app:rippleColor="@color/xui_config_color_primary" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipPending"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="待接受"
-                    android:checkable="true" />
+                    android:checkable="true"
+                    app:chipBackgroundColor="@color/chip_background"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:chipTextColor="@color/chip_text"
+                    app:checkedIconVisible="false"
+                    app:rippleColor="@color/xui_config_color_primary" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipActive"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="进行中"
-                    android:checkable="true" />
+                    android:checkable="true"
+                    app:chipBackgroundColor="@color/chip_background"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:chipTextColor="@color/chip_text"
+                    app:checkedIconVisible="false"
+                    app:rippleColor="@color/xui_config_color_primary" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipCompleted"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="已完成"
-                    android:checkable="true" />
+                    android:checkable="true"
+                    app:chipBackgroundColor="@color/chip_background"
+                    app:chipStrokeColor="@color/chip_stroke"
+                    app:chipStrokeWidth="1dp"
+                    app:chipTextColor="@color/chip_text"
+                    app:checkedIconVisible="false"
+                    app:rippleColor="@color/xui_config_color_primary" />
 
             </com.google.android.material.chip.ChipGroup>
 
@@ -87,7 +112,7 @@
             android:layout_height="wrap_content"
             android:text="暂无计划"
             android:textSize="16sp"
-            android:textColor="@android:color/darker_gray"
+            android:textColor="@color/xui_config_color_text_content"
             android:layout_gravity="center"
             android:visibility="gone" />
 

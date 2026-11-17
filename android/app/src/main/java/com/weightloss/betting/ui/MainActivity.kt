@@ -24,6 +24,7 @@ import com.weightloss.betting.ui.plan.PlanListActivity
 import com.weightloss.betting.ui.plan.PlanListFragment
 import com.weightloss.betting.ui.profile.ProfileActivity
 import com.weightloss.betting.ui.profile.ProfileFragment
+import com.weightloss.betting.ui.settlement.SettlementActivity
 import com.weightloss.betting.util.EdgeSwipeBackHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -109,16 +110,25 @@ class MainActivity : AppCompatActivity() {
             val notificationType = it.getStringExtra("notification_type")
             val relatedId = it.getStringExtra("related_id")
             
-            // TODO: 根据通知类型跳转到相应页面
             when (notificationType) {
                 "invite", "plan_active" -> {
-                    // 跳转到计划详情
+                    if (!relatedId.isNullOrBlank()) {
+                        startActivity(Intent(this, PlanDetailActivity::class.java).apply {
+                            putExtra("PLAN_ID", relatedId)
+                        })
+                    }
                 }
                 "settlement" -> {
-                    // 跳转到结算详情
+                    if (!relatedId.isNullOrBlank()) {
+                        startActivity(Intent(this, SettlementActivity::class.java).apply {
+                            putExtra("PLAN_ID", relatedId)
+                        })
+                    }
                 }
                 "check_in_reminder" -> {
-                    // 跳转到打卡页面
+                    startActivity(Intent(this, CheckInActivity::class.java).apply {
+                        if (!relatedId.isNullOrBlank()) putExtra("PLAN_ID", relatedId)
+                    })
                 }
             }
         }
@@ -210,8 +220,8 @@ class MainActivity : AppCompatActivity() {
             .setPositiveButton("去结算") { _, _ ->
                 // 标记为已显示
                 prefs.edit().putBoolean(shownKey, true).apply()
-                // 跳转到计划详情页进行结算
-                val intent = Intent(this, PlanDetailActivity::class.java)
+                // 跳转到独立结算页
+                val intent = Intent(this, SettlementActivity::class.java)
                 intent.putExtra("PLAN_ID", settlement.planId)
                 startActivity(intent)
             }

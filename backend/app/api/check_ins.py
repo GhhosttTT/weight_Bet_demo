@@ -1,12 +1,13 @@
 """
 打卡相关的 API 路由
 """
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
 from app.middleware.auth import get_current_user_id
 from app.services.check_in_service import CheckInService
+from app.models.betting_plan import BettingPlan
 from app.schemas.check_in import (
     CreateCheckInRequest,
     ReviewCheckInRequest,
@@ -86,7 +87,18 @@ def get_check_in_history(
     - **limit**: 返回数量限制 (默认 100)
     - **offset**: 偏移量 (默认 0)
     """
-    return CheckInService.get_check_in_history(db, plan_id, user_id, limit, offset)
+    plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+    if not plan:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="计划不存在")
+    participant_ids = {plan.creator_id, plan.participant_id}
+    if current_user_id not in participant_ids:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="您不是该计划的参与者")
+    if user_id not in participant_ids:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="该用户不是该计划的参与者")
+
+    return CheckInService.get_check_in_history(
+        db, plan_id, user_id, limit, offset, viewer_user_id=current_user_id
+    )
 
 
 @router.get("/check-ins/plan/{plan_id}/progress", response_model=ProgressStats)

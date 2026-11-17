@@ -24,7 +24,8 @@ import javax.inject.Singleton
 @Singleton
 class CheckInRepository @Inject constructor(
     private val apiService: ApiService,
-    private val cacheManager: CacheManager
+    private val cacheManager: CacheManager,
+    private val offlineSyncService: OfflineSyncService
 ) : BaseRepository() {
     
     private val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
@@ -37,9 +38,33 @@ class CheckInRepository @Inject constructor(
      * 创建打卡记录 (支持离线)
      */
     suspend fun createCheckIn(data: CheckInData): NetworkResult<CheckIn> {
-        // TODO: Implement offline support without circular dependency
-        // For now, only online mode is supported
-            
+        if (!offlineSyncService.isNetworkAvailable()) {
+            if (data.userId.isBlank()) {
+                return NetworkResult.Error(NetworkException.ValidationError("离线打卡需要用户 ID"))
+            }
+            offlineSyncService.addOfflineCheckIn(
+                userId = data.userId,
+                planId = data.planId,
+                weight = data.weight,
+                checkInDate = data.checkInDate,
+                photoUrl = null,
+                note = data.note
+            )
+            val localCheckIn = CheckIn(
+                id = "offline-${UUID.randomUUID()}",
+                userId = data.userId,
+                planId = data.planId,
+                weight = data.weight,
+                checkInDate = data.checkInDate,
+                photoUrl = null,
+                note = data.note,
+                reviewStatus = "pending",
+                createdAt = Date()
+            )
+            cacheManager.cacheCheckIn(localCheckIn)
+            return NetworkResult.Success(localCheckIn)
+        }
+
         val request = CreateCheckInRequest(
             planId = data.planId,
             weight = data.weight,
@@ -124,15 +149,14 @@ class CheckInRepository @Inject constructor(
     }
     
     fun observePendingSyncCount(): Flow<Int> {
-        // TODO: Implement without circular dependency
-        return kotlinx.coroutines.flow.flowOf(0)
+        return offlineSyncService.observePendingCount()
     }
     
     /**
      * 手动触发同步
      */
     suspend fun syncOfflineCheckIns() {
-        // TODO: Implement without circular dependency
+        offlineSyncService.manualSync()
     }
     
     /**

@@ -62,9 +62,15 @@ class CheckInViewModel @Inject constructor(
     
         viewModelScope.launch {
             _checkInState.value = CheckInState.Loading
+
+            val userId = tokenManager.getUserId()
+            if (userId == null) {
+                _checkInState.value = CheckInState.Error("请先登录")
+                return@launch
+            }
     
             val checkInData = CheckInData(
-                userId = "",
+                userId = userId,
                 planId = planId,
                 weight = weightDouble,
                 checkInDate = Date(),
@@ -86,7 +92,9 @@ class CheckInViewModel @Inject constructor(
     }
 
     private suspend fun finishCheckIn(checkIn: CheckIn, photoPath: String?) {
-        if (photoPath != null) {
+        if (photoPath != null && checkIn.id.startsWith("offline-")) {
+            _photoUploadState.value = PhotoUploadState.Error("当前无网络，照片将在联网后重新选择并上传")
+        } else if (photoPath != null) {
             _photoUploadState.value = PhotoUploadState.Loading
             when (val uploadResult = checkInRepository.uploadPhoto(checkIn.id, photoPath)) {
                 is NetworkResult.Success -> {

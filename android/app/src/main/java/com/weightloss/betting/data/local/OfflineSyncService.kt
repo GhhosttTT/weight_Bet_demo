@@ -7,9 +7,10 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import com.weightloss.betting.data.local.dao.OfflineCheckInDao
 import com.weightloss.betting.data.local.entity.OfflineCheckInEntity
-import com.weightloss.betting.data.repository.CheckInData
+import com.weightloss.betting.data.model.CreateCheckInRequest
+import com.weightloss.betting.data.remote.ApiService
 import com.weightloss.betting.data.remote.NetworkResult
-import com.weightloss.betting.data.repository.CheckInRepository
+import com.weightloss.betting.data.repository.BaseRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -17,6 +18,8 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import java.util.Date
+import java.text.SimpleDateFormat
+import java.util.Locale
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -28,9 +31,9 @@ import javax.inject.Singleton
 class OfflineSyncService @Inject constructor(
     @ApplicationContext private val context: Context,
     private val offlineCheckInDao: OfflineCheckInDao,
-    private val checkInRepository: CheckInRepository,
+    private val apiService: ApiService,
     private val cacheManager: CacheManager
-) {
+) : BaseRepository() {
     
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
     private val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -120,16 +123,15 @@ class OfflineSyncService @Inject constructor(
             )
             
             // 尝试同步
-            val checkInData = CheckInData(
-                userId = offlineCheckIn.userId,
+            val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.CHINA)
+            val request = CreateCheckInRequest(
                 planId = offlineCheckIn.planId,
                 weight = offlineCheckIn.weight,
-                checkInDate = offlineCheckIn.checkInDate,
-                photoUrl = offlineCheckIn.photoUrl,
+                checkInDate = dateFormat.format(offlineCheckIn.checkInDate),
                 note = offlineCheckIn.note
             )
             
-            when (val result = checkInRepository.createCheckIn(checkInData)) {
+            when (val result = safeApiCall { apiService.createCheckIn(request) }) {
                 is NetworkResult.Success -> {
                     // 同步成功
                     offlineCheckInDao.updateOfflineCheckIn(

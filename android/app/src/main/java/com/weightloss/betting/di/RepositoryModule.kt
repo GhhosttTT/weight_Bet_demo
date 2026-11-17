@@ -50,9 +50,10 @@ object RepositoryModule {
     @Singleton
     fun provideCheckInRepository(
         apiService: ApiService,
-        cacheManager: CacheManager
+        cacheManager: CacheManager,
+        offlineSyncService: OfflineSyncService
     ): CheckInRepository {
-        return CheckInRepository(apiService, cacheManager)
+        return CheckInRepository(apiService, cacheManager, offlineSyncService)
     }
     
     @Provides

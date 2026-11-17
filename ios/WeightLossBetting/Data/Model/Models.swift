@@ -447,6 +447,60 @@ struct PendingActionsResponse: Codable {
     let settlements: [SettlementItem]?
 }
 
+// MARK: - Settlement Choice Models
+
+struct SettlementChoiceRequest: Codable {
+    let selfAchieved: Bool
+    let opponentAchieved: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case selfAchieved = "self_achieved"
+        case opponentAchieved = "opponent_achieved"
+    }
+}
+
+struct SettlementChoiceResponse: Codable {
+    let id: String
+    let planId: String
+    let userId: String
+    let selfAchieved: Bool
+    let opponentAchieved: Bool
+    let round: Int
+    let createdAt: Date
+
+    enum CodingKeys: String, CodingKey {
+        case id
+        case planId = "plan_id"
+        case userId = "user_id"
+        case selfAchieved = "self_achieved"
+        case opponentAchieved = "opponent_achieved"
+        case round
+        case createdAt = "created_at"
+    }
+}
+
+struct SettlementSelectionStatus: Codable {
+    let planId: String
+    let currentRound: Int
+    let creatorSubmitted: Bool
+    let participantSubmitted: Bool
+    let currentUserSubmitted: Bool
+    let matched: Bool
+    let settlementCompleted: Bool
+    let inArbitration: Bool
+
+    enum CodingKeys: String, CodingKey {
+        case planId = "plan_id"
+        case currentRound = "current_round"
+        case creatorSubmitted = "creator_submitted"
+        case participantSubmitted = "participant_submitted"
+        case currentUserSubmitted = "current_user_submitted"
+        case matched
+        case settlementCompleted = "settlement_completed"
+        case inArbitration = "in_arbitration"
+    }
+}
+
 // Lightweight model for user search results (invite preview)
 public struct UserPreview: Codable {
     let id: String

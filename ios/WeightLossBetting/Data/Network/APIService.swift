@@ -654,6 +654,39 @@ class APIService {
             }
     }
 
+    // MARK: - Settlement Choice Endpoints
+
+    func submitSettlementChoice(
+        planId: String,
+        selfAchieved: Bool,
+        opponentAchieved: Bool,
+        completion: @escaping (Result<SettlementChoiceResponse, Error>) -> Void
+    ) {
+        let parameters: [String: Any] = [
+            "self_achieved": selfAchieved,
+            "opponent_achieved": opponentAchieved
+        ]
+        session.request("\(baseURL)/settlement-choices/\(planId)",
+                       method: .post,
+                       parameters: parameters,
+                       encoding: JSONEncoding.default)
+            .validate()
+            .responseDecodable(of: SettlementChoiceResponse.self, decoder: decoder) { response in
+                self.handleDirectResponse(response, completion: completion)
+            }
+    }
+
+    func getSettlementSelectionStatus(
+        planId: String,
+        completion: @escaping (Result<SettlementSelectionStatus, Error>) -> Void
+    ) {
+        session.request("\(baseURL)/settlement-choices/\(planId)/status", method: .get)
+            .validate()
+            .responseDecodable(of: SettlementSelectionStatus.self, decoder: decoder) { response in
+                self.handleDirectResponse(response, completion: completion)
+            }
+    }
+
     func markInvitationSeen(invitationId: String, userId: String? = nil, completion: @escaping (Result<Void, Error>) -> Void) {
         var parameters: [String: Any] = [:]
         if let userId = userId {

@@ -113,6 +113,30 @@ class SettlementViewController: UIViewController {
             target: self,
             action: #selector(closeTapped)
         )
+        loadSettlementStatus()
+    }
+
+    private func loadSettlementStatus() {
+        submitButton.isEnabled = false
+        SettlementService.shared.getSettlementSelectionStatus(planId: planId) { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let status):
+                    if status.settlementCompleted {
+                        self.subtitleLabel.text = "结算已完成"
+                    } else if status.inArbitration {
+                        self.subtitleLabel.text = "双方结果多轮不一致，已进入仲裁"
+                    } else if status.currentUserSubmitted {
+                        self.subtitleLabel.text = "已提交本轮结果，等待对方确认"
+                    } else {
+                        self.submitButton.isEnabled = true
+                    }
+                case .failure(let error):
+                    self.subtitleLabel.text = error.localizedDescription
+                }
+            }
+        }
     }
 
     // MARK: - Setup
@@ -197,6 +221,7 @@ class SettlementViewController: UIViewController {
 
                 switch result {
                 case .success:
+                    self?.submitButton.isEnabled = false
                     let alert = UIAlertController(
                         title: "结算提交成功",
                         message: "您的结算结果已提交，等待对手确认。",

@@ -1,21 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- 主主题：修改父类为 MaterialComponents 以支持 TextInputLayout -->
-    <style name="Theme.WeightLossBetting" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryDark">@color/purple_700</item>
-        <item name="colorAccent">@color/purple_200</item>
-        <item name="android:statusBarColor">@color/purple_700</item>
-        <item name="android:navigationBarColor">@color/xui_config_color_background</item>
+    <style name="Theme.WeightLossBetting" parent="Theme.MaterialComponents.Light.NoActionBar">
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorPrimaryDark">@color/brand_primary_dark</item>
+        <item name="colorAccent">@color/brand_accent</item>
+        <item name="android:statusBarColor">@color/brand_primary_dark</item>
+        <item name="android:navigationBarColor">@color/brand_background</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">true</item>
         
         <!-- XUI 兼容属性 -->
         <item name="XUIThemeStyle">@style/XUITheme.Phone</item>
     </style>
 
     <style name="XUITheme.Purple" parent="XUITheme.Phone">
-        <item name="colorPrimary">@color/purple_500</item>
-        <item name="colorPrimaryDark">@color/purple_700</item>
-        <item name="colorAccent">@color/purple_200</item>
+        <item name="colorPrimary">@color/brand_primary</item>
+        <item name="colorPrimaryDark">@color/brand_primary_dark</item>
+        <item name="colorAccent">@color/brand_primary_light</item>
     </style>
     
     <!-- 常用 XUI 主题定义，防止其他库引用 -->

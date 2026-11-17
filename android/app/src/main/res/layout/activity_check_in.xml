@@ -79,7 +79,7 @@
                 android:paddingStart="32dp"
                 android:paddingEnd="32dp"
                 android:elevation="8dp"
-                android:backgroundTint="@color/teal_700" />
+                android:backgroundTint="@color/brand_accent" />
 
             <!-- Loading indicator -->
             <ProgressBar

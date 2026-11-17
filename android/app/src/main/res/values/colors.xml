@@ -15,6 +15,18 @@
     <color name="colorPrimaryDark">#FFB94235</color>
     <color name="colorAccent">#FF2E9D87</color>
 
+    <!-- Cross-platform design tokens. Values mirror ios/WeightLossBetting/UI/Theme/AppTheme.swift. -->
+    <color name="brand_primary">#FFE85D4A</color>
+    <color name="brand_primary_light">#FFF7B6A8</color>
+    <color name="brand_primary_dark">#FFB94235</color>
+    <color name="brand_accent">#FF2E9D87</color>
+    <color name="brand_accent_light">#FFA8E0D3</color>
+    <color name="brand_background">#FFF7F5F0</color>
+    <color name="brand_surface">#FFFFFFFF</color>
+    <color name="brand_surface_alt">#FFEFEDE7</color>
+    <color name="brand_text">#FF172A3A</color>
+    <color name="brand_text_secondary">#FF52616B</color>
+
     <!-- XUI Config Colors (Fallback if XUI fails to load them) -->
     <color name="xui_config_color_background">#FFF7F5F0</color>
     <color name="xui_config_color_primary">#FFE85D4A</color>

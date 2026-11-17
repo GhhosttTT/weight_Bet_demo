@@ -188,7 +188,7 @@
                     android:text="-"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/purple_700" />
+                    android:textColor="@color/brand_primary_dark" />
             </TableRow>
 
             <View
@@ -217,7 +217,7 @@
                     android:text="-"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    android:textColor="@color/teal_700" />
+                    android:textColor="@color/brand_accent" />
             </TableRow>
 
         </TableLayout>

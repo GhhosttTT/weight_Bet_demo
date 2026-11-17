@@ -396,6 +396,13 @@ class SocialService:
         Returns:
             List[CommentResponse]: List of comments
         """
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        if not plan:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Plan not found"
+            )
+
         comments = db.query(Comment, User.nickname).join(
             User, Comment.user_id == User.id
         ).filter(

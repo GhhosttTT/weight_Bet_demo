@@ -389,6 +389,14 @@ class TestComments:
         # 验证按时间倒序排列
         assert comments[0].created_at >= comments[1].created_at
         assert comments[1].created_at >= comments[2].created_at
+
+    def test_get_comments_plan_not_found(self, db):
+        """查询不存在的计划时返回 404，而不是误报为空评论列表"""
+        with pytest.raises(HTTPException) as exc_info:
+            SocialService.get_comments(db, "nonexistent_plan")
+
+        assert exc_info.value.status_code == 404
+        assert "Plan not found" in exc_info.value.detail
     
     def test_get_comments_with_limit(self, db, test_users, completed_plans):
         """测试限制评论数量"""

@@ -102,3 +102,12 @@ COMPLETED / CANCELLED / REJECTED / EXPIRED
 - Android XML、Python 编译和差异检查已通过。
 - iOS 需要 macOS/Xcode 才能完成真实编译和逐页截图验证。
 - 完整后端测试仍需要在安装完整 requirements 的干净环境中执行。
+
+## 8. 后台管理边界
+
+- 后台入口为 `/admin/`，与移动端共用同一个 FastAPI 服务和登录接口。
+- 普通注册用户默认角色为 `user`；只有数据库角色为 `admin` 的用户可以访问 `/api/admin/*`。
+- 首个管理员必须由部署人员执行 `python scripts/create_admin.py <email>` 提升，不能通过注册接口自助获得管理员权限。
+- 后台可以查看用户、计划、待审核打卡和结算争议，并记录打卡审核结果或争议处理结果。
+- 后台不直接修改用户余额、不绕过结算服务发放资金；资金变化仍只能通过资金服务和结算流程产生。
+- 后台争议处理的 `resolved_by` 和 `resolved_at` 必须记录实际管理员，普通用户接口不能伪造。

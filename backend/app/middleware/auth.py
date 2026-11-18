@@ -68,3 +68,13 @@ def get_current_user(
 def get_current_user_id(current_user: User = Depends(get_current_user)) -> str:
     """获取当前用户 ID"""
     return current_user.id
+
+
+def get_current_admin(current_user: User = Depends(get_current_user)) -> User:
+    """获取当前管理员；普通用户不能访问后台管理接口。"""
+    if current_user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="需要管理员权限"
+        )
+    return current_user

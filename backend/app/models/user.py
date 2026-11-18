@@ -25,6 +25,8 @@ class User(Base):
     # 认证信息
     email = Column(String(255), unique=True, index=True, nullable=False)
     password_hash = Column(String(255), nullable=False)
+    # 平台角色；默认用户必须显式提升为 admin，不能通过注册请求传入。
+    role = Column(String(20), default="user", server_default="user", nullable=False, index=True)
     
     # 个人信息
     nickname = Column(String(50), nullable=False)

@@ -168,6 +168,30 @@ def test_plan_with_participant(client, test_user):
 class TestSettlementChoiceAPI:
     """结算选择 API 测试类"""
 
+    def test_admin_dashboard_rejects_regular_user(self, client, test_user):
+        response = client.get(
+            "/api/admin/dashboard",
+            headers={"Authorization": f"Bearer {test_user['token']}"},
+        )
+        assert response.status_code == 403
+
+    def test_admin_dashboard_returns_business_counts(self, client, test_user):
+        db = TestingSessionLocal()
+        try:
+            db.query(User).filter(User.id == test_user["user_id"]).update({"role": "admin"})
+            db.commit()
+        finally:
+            db.close()
+
+        response = client.get(
+            "/api/admin/dashboard",
+            headers={"Authorization": f"Bearer {test_user['token']}"},
+        )
+        assert response.status_code == 200
+        body = response.json()
+        assert {"users", "active_plans", "pending_check_ins", "pending_disputes", "settlements"}.issubset(body)
+        assert body["users"] >= 1
+
     def test_abandon_requires_explicit_confirmation(self, client, test_plan_with_participant):
         plan = test_plan_with_participant
         response = client.post(

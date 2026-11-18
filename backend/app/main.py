@@ -124,6 +124,10 @@ UPLOADS_DIR = Path(__file__).resolve().parents[1] / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
+# 后台管理端是同一服务提供的轻量 Web 控制台，和移动端共用 API 与权限。
+ADMIN_DIR = Path(__file__).resolve().parents[1] / "admin"
+app.mount("/admin", StaticFiles(directory=str(ADMIN_DIR), html=True), name="admin")
+
 # 注册全局错误处理器
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_exception_handler)
@@ -186,7 +190,7 @@ async def health_check():
 
 
 # 导入路由
-from app.api import auth, users, payments, betting_plans, check_ins, settlements, settlement_choices, notifications, social, invitations, pending_actions, recommendations
+from app.api import auth, users, payments, betting_plans, check_ins, settlements, settlement_choices, notifications, social, invitations, pending_actions, recommendations, admin
 app.include_router(auth.router, prefix="/api/auth", tags=["认证"])
 app.include_router(users.router, prefix="/api/users", tags=["用户"])
 app.include_router(payments.router, prefix="/api/payments", tags=["支付"])
@@ -199,3 +203,4 @@ app.include_router(notifications.router, prefix="/api", tags=["通知"])
 app.include_router(social.router, prefix="/api/social", tags=["社交"])
 app.include_router(pending_actions.router, prefix="/api", tags=["邀请"])
 app.include_router(recommendations.router, prefix="/api/recommendations", tags=["推荐"])
+app.include_router(admin.router, prefix="/api/admin", tags=["后台管理"])

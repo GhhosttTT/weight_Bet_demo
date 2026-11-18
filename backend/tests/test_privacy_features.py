@@ -3,6 +3,7 @@
 """
 import pytest
 import json
+from pathlib import Path
 from datetime import datetime
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -235,6 +236,44 @@ class TestAccountDeletion:
         deleted_balance = db.query(Balance).filter(Balance.user_id == user.id).first()
         assert deleted_balance.available_balance == 0.0
         assert deleted_balance.frozen_balance == 0.0
+
+    def test_delete_user_account_removes_local_check_in_photo(self, db: Session):
+        user = User(
+            id="test_user_photo_delete",
+            email="photo-delete@example.com",
+            password_hash="hashed_password",
+            nickname="照片用户",
+            gender=Gender.OTHER,
+            age=30,
+            height=170.0,
+            current_weight=70.0,
+        )
+        db.add(user)
+        plan = BettingPlan(
+            id="photo-delete-plan", creator_id=user.id, status=PlanStatus.COMPLETED,
+            bet_amount=10, start_date=datetime.utcnow(), end_date=datetime.utcnow(),
+            creator_initial_weight=70, creator_target_weight=65, creator_target_weight_loss=5,
+        )
+        db.add(plan)
+        # 使用实际上传目录验证删除逻辑，结束后清理测试文件。
+        import app.services.user_service as user_service_module
+        actual_root = Path(user_service_module.__file__).resolve().parents[1] / "uploads" / "checkins"
+        actual_root.mkdir(parents=True, exist_ok=True)
+        actual_photo = actual_root / "photo-delete-test.jpg"
+        actual_photo.write_bytes(b"private-photo")
+        check_in = CheckIn(
+            id="photo-delete-check-in", user_id=user.id, plan_id=plan.id,
+            weight=70, check_in_date=datetime.utcnow().date(),
+            photo_url="/uploads/checkins/photo-delete-test.jpg",
+        )
+        db.add(check_in)
+        db.commit()
+        try:
+            UserService.delete_user_account(db=db, user_id=user.id, current_user_id=user.id)
+            assert not actual_photo.exists()
+        finally:
+            if actual_photo.exists():
+                actual_photo.unlink()
     
     def test_delete_with_active_plan(self, db: Session):
         """测试有活跃计划时无法删除"""

@@ -2,6 +2,7 @@
 用户服务
 """
 import json
+from pathlib import Path
 from typing import Dict, Any
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -16,6 +17,23 @@ from app.schemas.user import UserUpdate, UserResponse
 from app.logger import get_logger
 
 logger = get_logger()
+
+
+def _remove_local_check_in_photo(photo_url: str) -> None:
+    """删除账户匿名化时的本地照片，且限制路径在上传目录内。"""
+    prefix = "/uploads/checkins/"
+    if not photo_url or not photo_url.startswith(prefix):
+        return
+    filename = photo_url[len(prefix):]
+    upload_root = (Path(__file__).resolve().parents[1] / "uploads" / "checkins").resolve()
+    photo_path = (upload_root / filename).resolve()
+    if Path(filename).name != filename or upload_root not in photo_path.parents:
+        return
+    try:
+        if photo_path.is_file():
+            photo_path.unlink()
+    except OSError as error:
+        logger.warning("Failed to remove deleted user's check-in photo {}: {}", photo_path, error)
 
 
 class UserService:
@@ -373,6 +391,7 @@ class UserService:
         # 删除打卡记录中的敏感信息
         check_ins = db.query(CheckIn).filter(CheckIn.user_id == user_id).all()
         for check_in in check_ins:
+            _remove_local_check_in_photo(check_in.photo_url)
             check_in.photo_url = None
             check_in.note = None
         

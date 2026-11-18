@@ -3,6 +3,8 @@
     <string name="app_name">减肥对赌</string>
     <!-- 替换为 Google Cloud Console 中的 Web OAuth Client ID。 -->
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
+    <!-- Configure via a release-specific resource or local overlay; never commit a real key. -->
+    <string name="stripe_publishable_key">pk_test_replace_me</string>
     
     <!-- Gender options -->
     <string-array name="gender_options">

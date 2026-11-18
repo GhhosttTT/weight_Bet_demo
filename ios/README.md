@@ -8,7 +8,12 @@ Google 登录使用 `GoogleSignIn` Pod。请从 Google Cloud Console 下载 `Goo
 并加入 Xcode App Target；登录完成后客户端会把 ID Token 交给后端 `/api/auth/google`，由后端完成身份校验。
 
 充值使用 Stripe PaymentSheet。请执行 `pod install` 更新依赖，客户端请求 `/api/payments/charge/intent`
-获取 client secret，PaymentSheet 完成确认后由 Stripe Webhook 更新余额；提现仍需后续接入 Stripe Connect/Payout。
+获取 client secret，PaymentSheet 完成确认后由 Stripe Webhook 更新余额；提现使用 Stripe Connect Express，
+用户需要先完成提现账户认证。
+
+在 Xcode 的 Build Settings 增加 `STRIPE_PUBLISHABLE_KEY`，或在构建配置中注入同名变量；
+AppDelegate 会用它初始化 Stripe SDK。真实环境同时配置后端 `PAYMENT_PROVIDER=stripe`、
+`STRIPE_SECRET_KEY` 和 `STRIPE_WEBHOOK_SECRET`。
 
 ## 项目结构
 
@@ -122,7 +127,7 @@ View (ViewController) ←→ ViewModel ←→ Repository ←→ API/Database
 - ✅ 用户注册
 - ✅ JWT Token 管理
 - ✅ 自动 Token 刷新
-- ⏳ Google 第三方登录 (待实现)
+- ✅ Google 第三方登录（需要加入 `GoogleService-Info.plist` 并配置后端 Client ID）
 
 ### 2. 对赌计划
 - ✅ 创建对赌计划
@@ -295,7 +300,7 @@ private let baseURL = "https://your-api-domain.com/api"
 ## 待实现功能
 
 ### 高优先级
-- [ ] Google 第三方登录
+- [x] Google 第三方登录
 - [ ] 进度图表展示
 - [ ] 真实支付网关接入（当前为演示支付方式）
 - [ ] 推送通知服务端完整实现

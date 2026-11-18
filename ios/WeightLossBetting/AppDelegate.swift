@@ -2,6 +2,7 @@ import UIKit
 import UserNotifications
 import IQKeyboardManagerSwift
 import GoogleSignIn
+import StripePaymentSheet
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -15,6 +16,12 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         IQKeyboardManager.shared.enable = true
         IQKeyboardManager.shared.enableAutoToolbar = true
         IQKeyboardManager.shared.shouldResignOnTouchOutside = true
+
+        if let publishableKey = Bundle.main.object(forInfoDictionaryKey: "StripePublishableKey") as? String,
+           !publishableKey.isEmpty,
+           !publishableKey.contains("$(") {
+            STPAPIClient.shared.publishableKey = publishableKey
+        }
         
         print("✅ [AppDelegate] IQKeyboardManager configured")
         

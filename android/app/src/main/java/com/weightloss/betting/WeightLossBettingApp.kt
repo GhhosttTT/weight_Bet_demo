@@ -1,6 +1,7 @@
 package com.weightloss.betting
 
 import android.app.Application
+import com.stripe.android.PaymentConfiguration
 import com.xuexiang.xui.XUI
 import dagger.hilt.android.HiltAndroidApp
 
@@ -15,6 +16,9 @@ class WeightLossBettingApp : Application() {
         // 初始化 XUI
         XUI.init(this)
         XUI.debug(true)
-        // 初始化应用级别的配置
+        val publishableKey = getString(com.weightloss.betting.R.string.stripe_publishable_key)
+        if (publishableKey.isNotBlank() && !publishableKey.contains("replace_me")) {
+            PaymentConfiguration.init(this, publishableKey)
+        }
     }
 }

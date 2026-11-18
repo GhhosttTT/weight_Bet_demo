@@ -18,9 +18,14 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [usesCleartextTraffic: false]
     }
 
     buildTypes {
+        debug {
+            // 本地开发可访问 HTTP 后端；发布包默认强制 HTTPS。
+            manifestPlaceholders = [usesCleartextTraffic: true]
+        }
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'

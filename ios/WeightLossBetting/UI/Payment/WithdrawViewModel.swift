@@ -16,6 +16,7 @@ class WithdrawViewModel {
     var onBalanceStateChanged: ((BalanceState) -> Void)?
     var onWithdrawStateChanged: ((WithdrawState) -> Void)?
     var onAvailableBalanceUpdated: ((Double) -> Void)?
+    var onConnectOnboardingReady: ((URL) -> Void)?
     
     private var balanceState: BalanceState = .idle {
         didSet {
@@ -30,6 +31,24 @@ class WithdrawViewModel {
     }
     
     var availableBalance: Double = 0.0
+
+    func startConnectOnboarding() {
+        Task {
+            let result = await paymentRepository.createConnectOnboardingLink()
+            switch result {
+            case .success(let onboarding):
+                if let url = URL(string: onboarding.url) {
+                    onConnectOnboardingReady?(url)
+                } else {
+                    withdrawState = .error("提现账户认证链接无效")
+                }
+            case .failure(let error):
+                withdrawState = .error(parseError(error))
+            case .loading:
+                break
+            }
+        }
+    }
     
     // MARK: - Public Methods
     

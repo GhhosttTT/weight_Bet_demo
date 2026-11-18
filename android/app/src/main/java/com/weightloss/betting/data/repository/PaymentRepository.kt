@@ -31,4 +31,8 @@ class PaymentRepository @Inject constructor(
     suspend fun withdraw(request: WithdrawRequest): NetworkResult<WithdrawResult> {
         return safeApiCall { apiService.withdraw(request) }
     }
+
+    suspend fun createConnectOnboardingLink(): NetworkResult<ConnectOnboardingResult> {
+        return safeApiCall { apiService.createConnectOnboardingLink() }
+    }
 }

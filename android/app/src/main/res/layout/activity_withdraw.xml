@@ -53,6 +53,13 @@
             android:lineSpacingExtra="4dp"
             android:layout_marginBottom="32dp" />
 
+        <Button
+            android:id="@+id/btnConnectOnboarding"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="设置提现账户"
+            android:layout_marginBottom="12dp" />
+
         <!-- Withdraw button -->
         <Button
             android:id="@+id/btnWithdraw"

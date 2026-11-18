@@ -1,6 +1,8 @@
 package com.weightloss.betting.ui.payment
 
 import android.os.Bundle
+import android.content.Intent
+import android.net.Uri
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
@@ -40,6 +42,11 @@ class WithdrawActivity : BaseActivity() {
                     binding.progressBar.visibility = View.VISIBLE
                     binding.btnWithdraw.isEnabled = false
                 }
+                is WithdrawState.OnboardingReady -> {
+                    binding.progressBar.visibility = View.GONE
+                    binding.btnWithdraw.isEnabled = true
+                    startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(state.url)))
+                }
                 is WithdrawState.Success -> {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(this, "提现申请已提交，等待 Stripe 出款确认", Toast.LENGTH_LONG).show()
@@ -55,6 +62,9 @@ class WithdrawActivity : BaseActivity() {
     }
     
     private fun setupListeners() {
+        binding.btnConnectOnboarding.setOnClickListener {
+            viewModel.startConnectOnboarding()
+        }
         binding.btnWithdraw.setOnClickListener {
             val amount = binding.etAmount.text.toString()
             

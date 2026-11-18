@@ -68,4 +68,10 @@ class PaymentRepository: BaseRepository {
             
         return result
     }
+
+    func createConnectOnboardingLink() async -> NetworkResult<ConnectOnboardingResult> {
+        await safeApiCall { completion in
+            self.apiService.createConnectOnboardingLink(completion: completion)
+        }
+    }
 }

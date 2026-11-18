@@ -16,6 +16,7 @@ sealed class WithdrawState {
     object Idle : WithdrawState()
     object Loading : WithdrawState()
     object Success : WithdrawState()
+    data class OnboardingReady(val url: String) : WithdrawState()
     data class Error(val message: String) : WithdrawState()
 }
 
@@ -27,6 +28,19 @@ class WithdrawViewModel @Inject constructor(
     
     private val _withdrawState = MutableLiveData<WithdrawState>(WithdrawState.Idle)
     val withdrawState: LiveData<WithdrawState> = _withdrawState
+
+    fun startConnectOnboarding() {
+        viewModelScope.launch {
+            _withdrawState.value = WithdrawState.Loading
+            when (val result = paymentRepository.createConnectOnboardingLink()) {
+                is NetworkResult.Success -> _withdrawState.value = WithdrawState.OnboardingReady(result.data.url)
+                is NetworkResult.Error -> _withdrawState.value = WithdrawState.Error(
+                    result.exception.message ?: "无法创建提现账户认证链接"
+                )
+                is NetworkResult.Loading -> Unit
+            }
+        }
+    }
     
     fun createWithdraw(amount: String) {
         // Validate amount

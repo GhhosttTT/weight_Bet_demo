@@ -135,6 +135,9 @@ interface ApiService {
     
     @POST("api/payments/withdraw")
     suspend fun withdraw(@Body request: WithdrawRequest): Response<WithdrawResult>
+
+    @POST("api/payments/connect/onboarding")
+    suspend fun createConnectOnboardingLink(): Response<ConnectOnboardingResult>
     
     // ==================== 社交 API ====================
     

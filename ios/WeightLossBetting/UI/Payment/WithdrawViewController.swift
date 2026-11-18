@@ -175,6 +175,12 @@ class WithdrawViewController: UIViewController {
         
         // Add button actions
         withdrawButton.addTarget(self, action: #selector(withdrawButtonTapped), for: .touchUpInside)
+        navigationItem.rightBarButtonItem = UIBarButtonItem(
+            title: "设置账户",
+            style: .plain,
+            target: self,
+            action: #selector(connectOnboardingTapped)
+        )
     }
     
     private func createQuickAmountButton(amount: Double) -> UIButton {
@@ -201,6 +207,12 @@ class WithdrawViewController: UIViewController {
         viewModel.onAvailableBalanceUpdated = { [weak self] balance in
             DispatchQueue.main.async {
                 self?.availableBalanceLabel.text = "Available Balance: ¥\(String(format: "%.2f", balance))"
+            }
+        }
+
+        viewModel.onConnectOnboardingReady = { url in
+            DispatchQueue.main.async {
+                UIApplication.shared.open(url)
             }
         }
     }
@@ -245,6 +257,10 @@ class WithdrawViewController: UIViewController {
         }
         
         viewModel.withdraw(amount: amount)
+    }
+
+    @objc private func connectOnboardingTapped() {
+        viewModel.startConnectOnboarding()
     }
     
     @objc private func dismissKeyboard() {

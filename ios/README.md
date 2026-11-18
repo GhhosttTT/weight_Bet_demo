@@ -10,6 +10,7 @@ Google 登录使用 `GoogleSignIn` Pod。请从 Google Cloud Console 下载 `Goo
 充值使用 Stripe PaymentSheet。请执行 `pod install` 更新依赖，客户端请求 `/api/payments/charge/intent`
 获取 client secret，PaymentSheet 完成确认后由 Stripe Webhook 更新余额；提现使用 Stripe Connect Express，
 用户需要先完成提现账户认证。
+提现页面提供“设置账户”入口，会打开 Stripe Connect Express 认证页面。
 
 在 Xcode 的 Build Settings 增加 `STRIPE_PUBLISHABLE_KEY`，或在构建配置中注入同名变量；
 AppDelegate 会用它初始化 Stripe SDK。真实环境同时配置后端 `PAYMENT_PROVIDER=stripe`、
@@ -302,7 +303,7 @@ private let baseURL = "https://your-api-domain.com/api"
 ### 高优先级
 - [x] Google 第三方登录
 - [ ] 进度图表展示
-- [ ] 真实支付网关接入（当前为演示支付方式）
+- [x] Stripe PaymentSheet 充值与 Stripe Connect 提现链路（需要配置真实环境密钥并完成联调）
 - [ ] 推送通知服务端完整实现
 
 ### 中优先级

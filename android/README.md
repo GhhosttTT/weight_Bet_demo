@@ -16,6 +16,7 @@ PaymentSheet 完成确认后由 Stripe Webhook 更新余额。开发环境仍可
 Android 还需要配置 `stripe_publishable_key`（建议通过未提交的 `app/src/debug/res/values/strings.xml`
 或 release resource overlay 注入 `pk_test_...` / `pk_live_...`），Application 启动时会初始化 Stripe SDK。
 真实环境同时配置后端 `PAYMENT_PROVIDER=stripe`、`STRIPE_SECRET_KEY` 和 `STRIPE_WEBHOOK_SECRET`。
+发布构建默认禁止明文 HTTP；只有 debug 构建允许连接本地开发后端。
 
 ## 技术栈
 

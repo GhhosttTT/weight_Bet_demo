@@ -248,6 +248,12 @@ data class WithdrawResult(
     val message: String?
 )
 
+data class ConnectOnboardingResult(
+    @SerializedName("account_id") val accountId: String,
+    val url: String,
+    @SerializedName("expires_at") val expiresAt: Long?
+)
+
 // ==================== 社交相关 ====================
 
 data class LeaderboardEntry(

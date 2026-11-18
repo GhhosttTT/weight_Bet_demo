@@ -389,6 +389,18 @@ struct WithdrawResult: Codable {
     }
 }
 
+struct ConnectOnboardingResult: Codable {
+    let accountId: String
+    let url: String
+    let expiresAt: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case accountId = "account_id"
+        case url
+        case expiresAt = "expires_at"
+    }
+}
+
 struct LeaderboardEntry: Codable {
     let userId: String
     let nickname: String

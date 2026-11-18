@@ -578,6 +578,14 @@ class APIService {
                 self.handleDirectResponse(response, completion: completion)
             }
     }
+
+    func createConnectOnboardingLink(completion: @escaping (Result<ConnectOnboardingResult, Error>) -> Void) {
+        session.request("\(baseURL)/payments/connect/onboarding", method: .post)
+            .validate()
+            .responseDecodable(of: ConnectOnboardingResult.self, decoder: decoder) { response in
+                self.handleDirectResponse(response, completion: completion)
+            }
+    }
     
     // MARK: - Social Endpoints
     

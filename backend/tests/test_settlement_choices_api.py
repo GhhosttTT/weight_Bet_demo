@@ -168,6 +168,26 @@ def test_plan_with_participant(client, test_user):
 class TestSettlementChoiceAPI:
     """结算选择 API 测试类"""
 
+    def test_abandon_requires_explicit_confirmation(self, client, test_plan_with_participant):
+        plan = test_plan_with_participant
+        response = client.post(
+            f"/api/betting-plans/{plan['plan_id']}/abandon",
+            json={"confirmation": False},
+            headers={"Authorization": f"Bearer {plan['creator_token']}"},
+        )
+
+        assert response.status_code == 400
+        assert response.json()["message"] == "必须确认放弃计划后才能继续"
+
+        db = TestingSessionLocal()
+        try:
+            stored_plan = db.query(BettingPlan).filter(
+                BettingPlan.id == plan["plan_id"]
+            ).first()
+            assert stored_plan.status == PlanStatus.ACTIVE
+        finally:
+            db.close()
+
     def test_payment_endpoints_require_bound_payment_method(self, client, test_user):
         headers = {"Authorization": f"Bearer {test_user['token']}"}
 

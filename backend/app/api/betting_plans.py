@@ -166,6 +166,12 @@ def abandon_plan(
     - pending 状态：退还创建者赌金
     - active 状态：将双方赌金转给对方（获胜方）
     """
+    if not request.confirmation:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="必须确认放弃计划后才能继续"
+        )
+
     from app.services.plan_status_manager import PlanStatusManager
     from app.schemas.payment import AbandonResult
     

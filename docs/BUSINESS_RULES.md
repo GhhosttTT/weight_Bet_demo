@@ -37,6 +37,7 @@ COMPLETED / CANCELLED / REJECTED / EXPIRED
 - iOS 充值与提现必须读取当前用户已绑定的 `payment_method_id`；未绑定时展示明确提示，不使用测试卡号或虚拟银行卡。
 - 真实充值走 `/api/payments/charge/intent`，客户端通过 Stripe PaymentSheet 收集支付方式，后端只接收 PaymentIntent 结果并由 Webhook 入账；页面校验不能替代接口校验。
 - 提现需要先完成 Stripe Connect Express 账户认证；Stripe 模式会预留余额并等待 `payout.paid`，失败回调会释放预留余额。
+- 打卡照片不通过公开静态目录读取；本人可查看自己的照片，同一计划参与者只能查看已审核通过的对手照片。
 - 当前演示环境的绑定页面只提交脱敏支付方式标识（卡号后四位）；生产环境需要接入支付网关 tokenization，禁止提交卡号和 CVV。
 - 冻结、解冻、转账和结算释放均需要余额行锁。
 - 同一用户、同一计划只能产生一笔有效冻结。

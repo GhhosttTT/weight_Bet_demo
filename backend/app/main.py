@@ -119,10 +119,9 @@ Authorization: Bearer <access_token>
     },
 )
 
-# 打卡图片使用随机文件名保存，客户端拿到相对地址后通过同一服务访问。
+# 打卡图片使用随机文件名保存；读取必须经过带权限校验的打卡照片接口。
 UPLOADS_DIR = Path(__file__).resolve().parents[1] / "uploads"
 UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
-app.mount("/uploads", StaticFiles(directory=str(UPLOADS_DIR)), name="uploads")
 
 # 后台管理端是同一服务提供的轻量 Web 控制台，和移动端共用 API 与权限。
 ADMIN_DIR = Path(__file__).resolve().parents[1] / "admin"

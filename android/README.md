@@ -17,6 +17,8 @@ Android 还需要配置 `stripe_publishable_key`（建议通过未提交的 `app
 或 release resource overlay 注入 `pk_test_...` / `pk_live_...`），Application 启动时会初始化 Stripe SDK。
 真实环境同时配置后端 `PAYMENT_PROVIDER=stripe`、`STRIPE_SECRET_KEY` 和 `STRIPE_WEBHOOK_SECRET`。
 发布构建默认禁止明文 HTTP；只有 debug 构建允许连接本地开发后端。
+生产发布前请在 `app/src/main/res/values/strings.xml` 或构建资源覆盖中替换 `api_base_url`，
+并将 `api.example.com` 换成实际 HTTPS API 地址。
 
 ## 技术栈
 
@@ -118,8 +120,8 @@ cd android
 3. 同步 Gradle 依赖
 
 4. 配置后端 API 地址
-   - 编辑 `app/src/main/java/com/weightloss/betting/di/NetworkModule.kt`
-   - 修改 `BASE_URL` 为你的后端服务器地址
+   - 修改 `app/src/main/res/values/strings.xml` 中的 `api_base_url`
+   - 本地 debug 可在 `app/src/debug/res/values/strings.xml` 覆盖地址
 
 5. 运行项目
    - 连接 Android 设备或启动模拟器
@@ -127,7 +129,7 @@ cd android
 
 ## API 配置
 
-默认 API 地址为 `http://10.0.2.2:8000/`,这是 Android 模拟器访问本机的地址。
+发布构建默认使用 HTTPS 占位地址；本地 debug 示例使用局域网 HTTP 地址，真实部署必须替换为 HTTPS。
 
 如果使用真机测试,需要修改为实际的服务器 IP 地址。
 

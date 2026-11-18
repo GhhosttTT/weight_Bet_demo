@@ -20,6 +20,8 @@
 	<string>1</string>
 	<key>StripePublishableKey</key>
 	<string>$(STRIPE_PUBLISHABLE_KEY)</string>
+	<key>API_BASE_URL</key>
+	<string>$(API_BASE_URL)</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>

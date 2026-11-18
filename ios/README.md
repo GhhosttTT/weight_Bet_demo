@@ -15,6 +15,7 @@ Google 登录使用 `GoogleSignIn` Pod。请从 Google Cloud Console 下载 `Goo
 在 Xcode 的 Build Settings 增加 `STRIPE_PUBLISHABLE_KEY`，或在构建配置中注入同名变量；
 AppDelegate 会用它初始化 Stripe SDK。真实环境同时配置后端 `PAYMENT_PROVIDER=stripe`、
 `STRIPE_SECRET_KEY` 和 `STRIPE_WEBHOOK_SECRET`。
+同时在 Xcode 的 Build Settings 配置 `API_BASE_URL`，生产环境必须使用 HTTPS 地址。
 
 ## 项目结构
 

@@ -5,6 +5,7 @@
     <string name="default_web_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
     <!-- Configure via a release-specific resource or local overlay; never commit a real key. -->
     <string name="stripe_publishable_key">pk_test_replace_me</string>
+    <string name="api_base_url">https://api.example.com/</string>
     
     <!-- Gender options -->
     <string-array name="gender_options">

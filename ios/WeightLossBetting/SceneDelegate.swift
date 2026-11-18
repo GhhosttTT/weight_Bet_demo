@@ -1,5 +1,6 @@
 import UIKit
 import UserNotifications
+import GoogleSignIn
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
@@ -58,6 +59,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Handle notification if app was launched from notification
         if let notificationResponse = connectionOptions.notificationResponse {
             handleNotificationResponse(notificationResponse)
+        }
+
+        if let urlContext = connectionOptions.urlContexts.first {
+            _ = GIDSignIn.sharedInstance.handle(urlContext.url)
         }
         
         print("✅ Scene setup completed")
@@ -123,5 +128,10 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     func sceneDidEnterBackground(_ scene: UIScene) {
         CoreDataManager.shared.saveContext()
+    }
+
+    func scene(_ scene: UIScene, openURLContexts URLContexts: Set<UIOpenURLContext>) {
+        guard let url = URLContexts.first?.url else { return }
+        _ = GIDSignIn.sharedInstance.handle(url)
     }
 }

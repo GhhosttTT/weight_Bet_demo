@@ -10,12 +10,13 @@ class APIService {
     
     private init() {
         // Read base URL from Info.plist for environment configuration
-        if let info = Bundle.main.infoDictionary, let configured = info["API_BASE_URL"] as? String, !configured.isEmpty {
+        if let info = Bundle.main.infoDictionary,
+           let configured = info["API_BASE_URL"] as? String,
+           !configured.isEmpty,
+           !configured.contains("$(") {
             baseURL = configured
         } else {
-            // 本地后端服务 - 使用 Mac 的实际 IP 地址
-            // iOS 模拟器无法使用 localhost，必须使用 Mac 的局域网 IP
-            baseURL = "http://192.168.1.108:8000/api"
+            baseURL = "https://api.example.com/api"
         }
 
         let configuration = URLSessionConfiguration.default

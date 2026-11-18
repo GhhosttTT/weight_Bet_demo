@@ -26,6 +26,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         super().__init__(app)
         self.requests_per_minute = requests_per_minute
         self.window_size = 60  # 时间窗口: 60 秒
+        self.auth_requests_per_minute = 20
     
     async def dispatch(self, request: Request, call_next):
         """
@@ -38,8 +39,9 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         # 获取用户标识 (从 JWT 令牌或 IP 地址)
         user_id = self._get_user_identifier(request)
         
-        # 检查限流
-        is_allowed, remaining, reset_time = await self._check_rate_limit(user_id)
+        # 登录、注册和第三方登录使用更严格的 IP 限流，降低凭证爆破风险。
+        request_limit = self._limit_for_path(request.url.path)
+        is_allowed, remaining, reset_time = await self._check_rate_limit(user_id, request_limit)
         
         if not is_allowed:
             logger.warning("Rate limit exceeded for user: {}", user_id)
@@ -50,7 +52,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                     "retry_after": reset_time
                 },
                 headers={
-                    "X-RateLimit-Limit": str(self.requests_per_minute),
+                    "X-RateLimit-Limit": str(request_limit),
                     "X-RateLimit-Remaining": "0",
                     "X-RateLimit-Reset": str(reset_time),
                     "Retry-After": str(reset_time)
@@ -61,7 +63,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
         
         # 添加限流信息到响应头
-        response.headers["X-RateLimit-Limit"] = str(self.requests_per_minute)
+        response.headers["X-RateLimit-Limit"] = str(request_limit)
         response.headers["X-RateLimit-Remaining"] = str(remaining)
         response.headers["X-RateLimit-Reset"] = str(reset_time)
         
@@ -93,7 +95,12 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         client_ip = request.client.host if request.client else "unknown"
         return f"ip:{client_ip}"
     
-    async def _check_rate_limit(self, identifier: str) -> Tuple[bool, int, int]:
+    def _limit_for_path(self, path: str) -> int:
+        if path in ("/api/auth/login", "/api/auth/register", "/api/auth/google", "/api/auth/refresh"):
+            return self.auth_requests_per_minute
+        return self.requests_per_minute
+
+    async def _check_rate_limit(self, identifier: str, request_limit: Optional[int] = None) -> Tuple[bool, int, int]:
         """
         检查是否超过限流阈值
         
@@ -103,6 +110,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             (is_allowed, remaining_requests, reset_time)
         """
         redis = get_redis()
+        limit = request_limit or self.requests_per_minute
         current_time = int(time.time())
         window_start = current_time - self.window_size
         
@@ -135,15 +143,15 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             request_count = results[1]
             
             # 计算剩余请求数和重置时间
-            remaining = max(0, self.requests_per_minute - request_count - 1)
+            remaining = max(0, limit - request_count - 1)
             reset_time = current_time + self.window_size
             
             # 判断是否允许请求
-            is_allowed = request_count < self.requests_per_minute
+            is_allowed = request_count < limit
             
             return is_allowed, remaining, reset_time
             
         except Exception as e:
             logger.error("Rate limit check failed: {}", e)
             # 如果 Redis 出错,允许请求通过 (fail open)
-            return True, self.requests_per_minute, current_time + self.window_size
+            return True, limit, current_time + self.window_size

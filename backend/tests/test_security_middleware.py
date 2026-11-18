@@ -103,6 +103,13 @@ class TestRateLimitMiddleware:
         with patch("app.middleware.rate_limit.decode_token", return_value={"sub": "user-123"}):
             assert middleware._get_user_identifier(request) == "user:user-123"
 
+    def test_auth_paths_use_stricter_limit(self):
+        app = create_test_app()
+        middleware = RateLimitMiddleware(app, requests_per_minute=100)
+        assert middleware._limit_for_path("/api/auth/login") == 20
+        assert middleware._limit_for_path("/api/auth/google") == 20
+        assert middleware._limit_for_path("/api/payments/charge/intent") == 100
+
 
 class TestSecurityMiddleware:
     """测试安全中间件"""

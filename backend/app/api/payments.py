@@ -45,7 +45,6 @@ def get_balance(
     """
     # 权限验证
     if user_id != current_user_id:
-        from fastapi import HTTPException, status
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="无权限查看其他用户余额"
@@ -72,7 +71,6 @@ def get_transaction_history(
     """
     # 权限验证
     if user_id != current_user_id:
-        from fastapi import HTTPException, status
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="无权限查看其他用户交易历史"
@@ -144,10 +142,14 @@ def withdraw(
     
     注意: 实际生产环境需要集成 Stripe 等支付网关
     """
+    if settings.PAYMENT_PROVIDER.lower() == "stripe":
+        raise HTTPException(
+            status_code=status.HTTP_501_NOT_IMPLEMENTED,
+            detail="Stripe 模式暂未启用真实出款，请先完成 Connect/Payout 配置",
+        )
     _validate_payment_method(db, current_user_id, request.payment_method_id)
     result = PaymentService.withdraw_funds(db, current_user_id, request.amount)
     if not result.success:
-        from fastapi import HTTPException, status
         code = status.HTTP_404_NOT_FOUND if result.error == "账户不存在" else status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=code, detail=result.error)
     return {"success": True, "message": "提现成功", "amount": request.amount, "transaction_id": result.transaction_id}

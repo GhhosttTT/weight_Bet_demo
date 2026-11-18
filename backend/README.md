@@ -109,6 +109,7 @@ mypy app/
 
 开发环境默认 `PAYMENT_PROVIDER=demo`，旧的 `/api/payments/charge` 保留为本地演示接口。
 生产环境设置 `PAYMENT_PROVIDER=stripe`，并配置 Stripe 密钥与 Webhook 密钥；不要把演示接口暴露给生产用户。
+Stripe 模式下提现接口会明确拒绝请求，直到 Connect/Payout 出款流程完成，避免把本地余额扣减误当成真实出款。
 
 ### 用户
 - `GET /api/users/{userId}` - 获取用户信息

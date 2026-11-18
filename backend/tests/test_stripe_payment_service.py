@@ -14,6 +14,8 @@ from app.models.balance import Balance
 from app.models.transaction import Transaction, TransactionStatus, TransactionType
 from app.models.user import Gender, User
 from app.services.stripe_payment_service import StripePaymentService
+from app.api.payments import withdraw, charge
+from app.schemas.payment import ChargeRequest, WithdrawRequest
 
 
 @pytest.fixture()
@@ -100,3 +102,13 @@ def test_webhook_failure_does_not_credit(db_session, monkeypatch):
         result = StripePaymentService.handle_webhook(db_session, b"payload", "signature")
     assert result["status"] == "failed"
     assert db_session.query(Balance).one().available_balance == 0
+
+
+def test_stripe_mode_blocks_legacy_direct_money_endpoints(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
+    with pytest.raises(HTTPException) as withdraw_error:
+        withdraw(WithdrawRequest(amount=1, payment_method_id="pm_card_visa"), "stripe-user-001", db_session)
+    with pytest.raises(HTTPException) as charge_error:
+        charge(ChargeRequest(amount=1, paymentMethodId="pm_card_visa"), "stripe-user-001", db_session)
+    assert withdraw_error.value.status_code == 501
+    assert charge_error.value.status_code == 410

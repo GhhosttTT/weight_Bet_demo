@@ -28,6 +28,8 @@ python scripts/create_admin.py user@example.com
 | 资金结算 | 查看结算分配、交易流水、用户可用/冻结余额 | 只读，不能从后台直接改余额 |
 | 审计日志 | 查看后台审核和争议处理动作 | 日志只能由服务端写入 |
 
+后台还提供提现异常恢复入口：当 Stripe Transfer 已成功但 Payout 创建中断时，管理员可以重试该交易；操作会写入审计日志，重复重试具有幂等保护。
+
 ### 状态边界
 
 - 打卡审核只允许 `pending -> approved/rejected`，已处理记录不能从后台重复改写。

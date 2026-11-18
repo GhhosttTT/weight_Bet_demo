@@ -104,3 +104,20 @@ def test_failed_payout_releases_reserved_balance(db_session, stripe_config):
     )
     assert duplicate["idempotent"] is True
     assert db_session.query(Balance).one().available_balance == 100
+
+
+def test_retry_pending_payout_uses_same_idempotency_key(db_session, stripe_config):
+    user = db_session.query(User).one()
+    user.stripe_account_id = "acct_retry"
+    transaction = Transaction(
+        id="retry-tx-001", user_id=user.id, type=TransactionType.WITHDRAW,
+        amount=-15, status=TransactionStatus.PENDING, external_transfer_id="tr_retry",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    payout = SimpleNamespace(id="po_retry")
+    with patch("app.services.stripe_payout_service.stripe.Payout.create", return_value=payout) as create:
+        result = StripePayoutService.retry_pending_payout(db_session, transaction.id)
+    assert result["payout_id"] == "po_retry"
+    assert db_session.query(Transaction).one().external_payment_id == "po_retry"
+    assert create.call_args[1]["idempotency_key"] == "weight-bet-payout-retry-tx-001"

@@ -125,6 +125,39 @@ class StripePayoutService:
             "payout_id": transaction.external_payment_id,
         }
 
+    @classmethod
+    def retry_pending_payout(cls, db: Session, transaction_id: str) -> dict:
+        """为 Transfer 已成功但 Payout 尚未落库的交易安全重试。"""
+        cls._require_stripe()
+        transaction = db.query(Transaction).filter(
+            Transaction.id == transaction_id,
+            Transaction.type == TransactionType.WITHDRAW,
+            Transaction.status == TransactionStatus.PENDING,
+        ).with_for_update().first()
+        if not transaction:
+            raise HTTPException(status_code=404, detail="待重试提现交易不存在")
+        if transaction.external_payment_id:
+            return {"success": True, "status": "pending", "payout_id": transaction.external_payment_id, "idempotent": True}
+        if not transaction.external_transfer_id:
+            raise HTTPException(status_code=409, detail="提现尚未完成 Transfer，不能重试 Payout")
+        user = db.query(User).filter(User.id == transaction.user_id).first()
+        if not user or not user.stripe_account_id:
+            raise HTTPException(status_code=409, detail="提现账户不存在")
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            payout = stripe.Payout.create(
+                amount=int(abs(transaction.amount) * 100),
+                currency=settings.STRIPE_CURRENCY,
+                metadata={"transaction_id": transaction.id, "user_id": transaction.user_id},
+                idempotency_key=f"weight-bet-payout-{transaction.id}",
+                stripe_account=user.stripe_account_id,
+            )
+        except stripe.error.StripeError as error:
+            raise HTTPException(status_code=502, detail="Stripe Payout 重试失败") from error
+        transaction.external_payment_id = payout.id
+        db.commit()
+        return {"success": True, "status": "pending", "payout_id": payout.id, "idempotent": False}
+
     @staticmethod
     def handle_payout_webhook(db: Session, event_type: str, payout: dict) -> dict:
         transaction_id = (payout.get("metadata") or {}).get("transaction_id")

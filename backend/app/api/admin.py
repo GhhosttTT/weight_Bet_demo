@@ -17,6 +17,7 @@ from app.models.transaction import Transaction
 from app.models.balance import Balance
 from app.models.audit_log import AuditLog
 from app.schemas.admin import AdminCheckInReview, AdminDisputeUpdate, AdminUserRow
+from app.services.stripe_payout_service import StripePayoutService
 
 router = APIRouter()
 
@@ -288,3 +289,23 @@ def list_audit_logs(
         }
         for item in records
     ]
+
+
+@router.post("/payouts/{transaction_id}/retry")
+def retry_payout(
+    transaction_id: str,
+    admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """重试 Transfer 已成功但 Payout 尚未创建的提现。"""
+    result = StripePayoutService.retry_pending_payout(db, transaction_id)
+    db.add(AuditLog(
+        id=str(uuid.uuid4()),
+        user_id=admin.id,
+        action="retry_payout",
+        resource_type="transaction",
+        resource_id=transaction_id,
+        details=result,
+    ))
+    db.commit()
+    return result

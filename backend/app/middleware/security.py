@@ -122,7 +122,16 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         response.headers["X-Frame-Options"] = "DENY"
         response.headers["X-XSS-Protection"] = "1; mode=block"
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
-        response.headers["Content-Security-Policy"] = "default-src 'self'"
+        if request.url.path.startswith("/admin"):
+            # 当前同源后台是单文件控制台，脚本和样式内嵌在页面中；
+            # 仅对后台页面放行 inline，API 继续使用严格的默认策略。
+            response.headers["Content-Security-Policy"] = (
+                "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+                "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+                "font-src 'self' https://fonts.gstatic.com"
+            )
+        else:
+            response.headers["Content-Security-Policy"] = "default-src 'self'"
         
         return response
     

@@ -1,6 +1,7 @@
 """平台后台管理 API。所有路由都要求数据库中的 admin 角色。"""
 from datetime import datetime
 from typing import List, Optional
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy import func, or_
 from sqlalchemy.orm import Session
@@ -12,6 +13,9 @@ from app.models.betting_plan import BettingPlan, PlanStatus
 from app.models.check_in import CheckIn, ReviewStatus
 from app.models.dispute import Dispute, DisputeStatus
 from app.models.settlement import Settlement
+from app.models.transaction import Transaction
+from app.models.balance import Balance
+from app.models.audit_log import AuditLog
 from app.schemas.admin import AdminCheckInReview, AdminDisputeUpdate, AdminUserRow
 
 router = APIRouter()
@@ -113,9 +117,22 @@ def review_check_in(
     record = db.query(CheckIn).filter(CheckIn.id == check_in_id).first()
     if not record:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="打卡记录不存在")
+    if record.review_status != ReviewStatus.PENDING:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="只有待审核打卡可以处理"
+        )
     record.review_status = request.review_status
     record.reviewer_id = admin.id
     record.review_comment = request.review_comment
+    db.add(AuditLog(
+        id=str(uuid.uuid4()),
+        user_id=admin.id,
+        action="admin.review_check_in",
+        resource_type="check_in",
+        resource_id=check_in_id,
+        details={"review_status": request.review_status.value},
+    ))
     db.commit()
     db.refresh(record)
     return {"id": record.id, "review_status": record.review_status.value}
@@ -159,10 +176,115 @@ def update_dispute(
     dispute = db.query(Dispute).filter(Dispute.id == dispute_id).first()
     if not dispute:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="争议记录不存在")
+    allowed_transitions = {
+        DisputeStatus.PENDING: {DisputeStatus.UNDER_REVIEW, DisputeStatus.RESOLVED, DisputeStatus.REJECTED},
+        DisputeStatus.UNDER_REVIEW: {DisputeStatus.RESOLVED, DisputeStatus.REJECTED},
+        DisputeStatus.RESOLVED: set(),
+        DisputeStatus.REJECTED: set(),
+    }
+    if request.status not in allowed_transitions[dispute.status]:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail=f"争议状态不能从 {dispute.status.value} 变更为 {request.status.value}"
+        )
     dispute.status = request.status
     dispute.admin_notes = request.admin_notes
     dispute.resolved_by = admin.id if request.status in (DisputeStatus.RESOLVED, DisputeStatus.REJECTED) else None
     dispute.resolved_at = datetime.utcnow() if dispute.resolved_by else None
+    db.add(AuditLog(
+        id=str(uuid.uuid4()),
+        user_id=admin.id,
+        action="admin.update_dispute",
+        resource_type="dispute",
+        resource_id=dispute_id,
+        details={"status": request.status.value},
+    ))
     db.commit()
     db.refresh(dispute)
     return {"id": dispute.id, "status": dispute.status.value, "resolved_by": dispute.resolved_by}
+
+
+@router.get("/settlements")
+def list_settlements(
+    limit: int = Query(50, ge=1, le=100),
+    offset: int = Query(0, ge=0),
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    records = db.query(Settlement).order_by(Settlement.settlement_date.desc()).offset(offset).limit(limit).all()
+    return [
+        {
+            "id": item.id,
+            "plan_id": item.plan_id,
+            "creator_amount": item.creator_amount,
+            "participant_amount": item.participant_amount,
+            "platform_fee": item.platform_fee,
+            "in_arbitration": item.in_arbitration,
+            "settlement_date": item.settlement_date,
+        }
+        for item in records
+    ]
+
+
+@router.get("/transactions")
+def list_transactions(
+    limit: int = Query(100, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    records = db.query(Transaction).order_by(Transaction.created_at.desc()).offset(offset).limit(limit).all()
+    return [
+        {
+            "id": item.id,
+            "user_id": item.user_id,
+            "type": item.type.value,
+            "amount": item.amount,
+            "status": item.status.value,
+            "related_plan_id": item.related_plan_id,
+            "related_settlement_id": item.related_settlement_id,
+            "created_at": item.created_at,
+        }
+        for item in records
+    ]
+
+
+@router.get("/balances")
+def list_balances(
+    limit: int = Query(100, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    records = db.query(Balance).order_by(Balance.updated_at.desc()).offset(offset).limit(limit).all()
+    return [
+        {
+            "user_id": item.user_id,
+            "available_balance": item.available_balance,
+            "frozen_balance": item.frozen_balance,
+            "updated_at": item.updated_at,
+        }
+        for item in records
+    ]
+
+
+@router.get("/audit-logs")
+def list_audit_logs(
+    limit: int = Query(100, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    records = db.query(AuditLog).order_by(AuditLog.created_at.desc()).offset(offset).limit(limit).all()
+    return [
+        {
+            "id": item.id,
+            "user_id": item.user_id,
+            "action": item.action,
+            "resource_type": item.resource_type,
+            "resource_id": item.resource_id,
+            "details": item.details,
+            "created_at": item.created_at,
+        }
+        for item in records
+    ]

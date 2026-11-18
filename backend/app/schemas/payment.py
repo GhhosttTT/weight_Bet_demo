@@ -52,6 +52,11 @@ class ChargeIntentResponse(BaseModel):
     status: str
 
 
+class ChargeIntentRequest(BaseModel):
+    """创建 PaymentIntent 的请求；卡信息由 Stripe 客户端组件收集。"""
+    amount: float = Field(..., ge=0.01)
+
+
 class WithdrawRequest(BaseModel):
     """提现请求"""
     amount: float = Field(..., ge=0.01)

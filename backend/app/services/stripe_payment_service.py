@@ -7,6 +7,7 @@ try:
     import stripe
 except ImportError:  # Demo 模式不应因为可选支付 SDK 缺失而无法启动。
     stripe = None
+from typing import Optional
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
 
@@ -36,7 +37,7 @@ class StripePaymentService:
 
     @classmethod
     def create_charge_intent(
-        cls, db: Session, user_id: str, amount: float, payment_method_id: str
+        cls, db: Session, user_id: str, amount: float, payment_method_id: Optional[str] = None
     ) -> dict:
         cls._require_stripe_mode()
         normalized = PaymentService._normalize_amount(amount)
@@ -60,17 +61,18 @@ class StripePaymentService:
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
-            intent = stripe.PaymentIntent.create(
+            intent_params = dict(
                 amount=int(normalized * 100),
                 currency=settings.STRIPE_CURRENCY,
-                payment_method=payment_method_id,
-                confirm=True,
                 metadata={
                     "transaction_id": transaction.id,
                     "user_id": user_id,
                 },
                 idempotency_key=f"weight-bet-charge-{transaction.id}",
             )
+            if payment_method_id:
+                intent_params.update(payment_method=payment_method_id, confirm=True)
+            intent = stripe.PaymentIntent.create(**intent_params)
         except stripe.error.StripeError as error:
             transaction.status = TransactionStatus.FAILED
             db.commit()

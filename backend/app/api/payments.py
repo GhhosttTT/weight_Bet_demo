@@ -10,6 +10,7 @@ from app.schemas.payment import (
     TransactionResponse,
     ChargeRequest,
     ChargeIntentResponse,
+    ChargeIntentRequest,
     WithdrawRequest
 )
 from app.services.payment_service import PaymentService
@@ -111,14 +112,13 @@ def charge(
 
 @router.post("/charge/intent", response_model=ChargeIntentResponse)
 def create_charge_intent(
-    request: ChargeRequest,
+    request: ChargeIntentRequest,
     current_user_id: str = Depends(get_current_user_id),
     db: Session = Depends(get_db),
 ):
     """创建真实 Stripe PaymentIntent，余额只由 Webhook 入账。"""
-    _validate_payment_method(db, current_user_id, request.payment_method_id)
     return StripePaymentService.create_charge_intent(
-        db, current_user_id, request.amount, request.payment_method_id
+        db, current_user_id, request.amount
     )
 
 

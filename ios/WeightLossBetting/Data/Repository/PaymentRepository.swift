@@ -54,6 +54,12 @@ class PaymentRepository: BaseRepository {
             
         return result
     }
+
+    func createChargeIntent(amount: Double) async -> NetworkResult<ChargeIntentResult> {
+        await safeApiCall { completion in
+            self.apiService.createChargeIntent(amount: amount, completion: completion)
+        }
+    }
     
     func withdraw(amount: Double, paymentMethodId: String) async -> NetworkResult<WithdrawResult> {
         let result = await safeApiCall { completion in

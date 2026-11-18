@@ -35,7 +35,8 @@ COMPLETED / CANCELLED / REJECTED / EXPIRED
 - `bet_amount` 必须大于等于 `0.01`。
 - 充值和提现金额也必须大于等于 `0.01`；余额变更必须同步写入交易流水。
 - iOS 充值与提现必须读取当前用户已绑定的 `payment_method_id`；未绑定时展示明确提示，不使用测试卡号或虚拟银行卡。
-- 后端充值、提现接口同样强制校验 `payment_method_id`，且必须与当前用户绑定值一致；页面校验不能替代接口校验。
+- 真实充值走 `/api/payments/charge/intent`，客户端通过 Stripe PaymentSheet 收集支付方式，后端只接收 PaymentIntent 结果并由 Webhook 入账；页面校验不能替代接口校验。
+- 提现仍需绑定提现方式；当前提现服务尚未接入 Stripe Connect/Payout，不能视为真实出款闭环。
 - 当前演示环境的绑定页面只提交脱敏支付方式标识（卡号后四位）；生产环境需要接入支付网关 tokenization，禁止提交卡号和 CVV。
 - 冻结、解冻、转账和结算释放均需要余额行锁。
 - 同一用户、同一计划只能产生一笔有效冻结。

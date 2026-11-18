@@ -4,11 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.weightloss.betting.data.model.ChargeRequest
+import com.weightloss.betting.data.model.ChargeIntentRequest
 import com.weightloss.betting.data.remote.NetworkResult
 import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.data.repository.PaymentRepository
-import com.weightloss.betting.data.repository.UserRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -16,14 +15,14 @@ import javax.inject.Inject
 sealed class ChargeState {
     object Idle : ChargeState()
     object Loading : ChargeState()
-    data class Success(val clientSecret: String) : ChargeState()
+    data class AwaitingConfirmation(val clientSecret: String) : ChargeState()
+    object Success : ChargeState()
     data class Error(val message: String) : ChargeState()
 }
 
 @HiltViewModel
 class ChargeViewModel @Inject constructor(
     private val paymentRepository: PaymentRepository,
-    private val userRepository: UserRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
     
@@ -57,27 +56,14 @@ class ChargeViewModel @Inject constructor(
                 return@launch
             }
 
-            val profileResult = userRepository.getUserProfile(userId, forceRefresh = true)
-            if (profileResult is NetworkResult.Error) {
-                _chargeState.value = ChargeState.Error(profileResult.exception.message ?: "读取支付方式失败")
-                return@launch
-            }
-            val paymentMethodId = (profileResult as? NetworkResult.Success)?.data?.paymentMethodId
-            if (paymentMethodId.isNullOrBlank()) {
-                _chargeState.value = ChargeState.Error("请先绑定支付方式")
-                return@launch
-            }
-
-            val request = ChargeRequest(amount = amountDouble, paymentMethodId = paymentMethodId)
-            when (val result = paymentRepository.charge(request)) {
+            when (val result = paymentRepository.createChargeIntent(ChargeIntentRequest(amountDouble))) {
                 is NetworkResult.Success -> {
-                    // Clear user cache after successful charge
-                    userRepository.clearCache()
-                    
-                    // Optionally refresh balance to get the latest value
-                    userRepository.getBalance(userId)
-                    
-                    _chargeState.value = ChargeState.Success(result.data.transactionId ?: "")
+                    val secret = result.data.clientSecret
+                    if (secret.isNullOrBlank()) {
+                        _chargeState.value = ChargeState.Error("支付订单缺少确认凭证")
+                    } else {
+                        _chargeState.value = ChargeState.AwaitingConfirmation(secret)
+                    }
                 }
                 is NetworkResult.Error -> {
                     _chargeState.value = ChargeState.Error(
@@ -89,5 +75,17 @@ class ChargeViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun paymentCompleted() {
+        _chargeState.value = ChargeState.Success
+    }
+
+    fun paymentCanceled() {
+        _chargeState.value = ChargeState.Error("已取消支付")
+    }
+
+    fun paymentFailed(message: String) {
+        _chargeState.value = ChargeState.Error(message)
     }
 }

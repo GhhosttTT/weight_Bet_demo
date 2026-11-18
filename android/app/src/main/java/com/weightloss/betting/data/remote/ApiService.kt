@@ -129,6 +129,9 @@ interface ApiService {
     
     @POST("api/payments/charge")
     suspend fun charge(@Body request: ChargeRequest): Response<ChargeResult>
+
+    @POST("api/payments/charge/intent")
+    suspend fun createChargeIntent(@Body request: ChargeIntentRequest): Response<ChargeIntentResult>
     
     @POST("api/payments/withdraw")
     suspend fun withdraw(@Body request: WithdrawRequest): Response<WithdrawResult>

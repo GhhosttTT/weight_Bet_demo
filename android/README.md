@@ -10,6 +10,9 @@ Google 登录已接入 `play-services-auth`。请在 `app/src/main/res/values/st
 `default_web_client_id` 替换为 Google Cloud Console 的 Web OAuth Client ID，并放入未提交的
 `google-services.json`。登录成功后客户端会把 Google ID Token 交给后端 `/api/auth/google`，由后端完成身份校验。
 
+充值使用 Stripe PaymentSheet：客户端请求 `/api/payments/charge/intent` 获取 client secret，
+PaymentSheet 完成确认后由 Stripe Webhook 更新余额。开发环境仍可使用 Demo 模式，生产环境必须配置真实 Stripe 密钥。
+
 ## 技术栈
 
 - **语言**: Kotlin

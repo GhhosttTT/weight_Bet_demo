@@ -1,6 +1,8 @@
 import UIKit
+import StripePaymentSheet
 
 class ChargeViewController: UIViewController {
+    private var paymentSheet: PaymentSheet?
     
     // MARK: - UI Components
     
@@ -264,25 +266,7 @@ class ChargeViewController: UIViewController {
             return
         }
         
-        guard let userId = AuthRepository.shared.getCurrentUserId(), !userId.isEmpty else {
-            showAlert(title: "登录状态已失效", message: "请重新登录后再充值")
-            return
-        }
-
-        UserRepository.shared.getUserProfile(userId: userId, forceRefresh: true) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case .success(let user):
-                    guard let paymentMethodId = user.paymentMethod, !paymentMethodId.isEmpty else {
-                        self?.showAlert(title: "尚未绑定支付方式", message: "请先在个人资料中绑定支付方式")
-                        return
-                    }
-                    self?.viewModel.charge(amount: amount, paymentMethodId: paymentMethodId)
-                case .failure(let error):
-                    self?.showAlert(title: "读取支付方式失败", message: error.localizedDescription)
-                }
-            }
-        }
+        viewModel.charge(amount: amount)
     }
     
     @objc private func dismissKeyboard() {
@@ -318,8 +302,27 @@ class ChargeViewController: UIViewController {
             chargeButton.isEnabled = false
             chargeButton.setTitle("", for: .normal)
             
-        case .success(let result):
-            print("✅ [ChargeVC] 充值成功回调，金额=¥\(result.amount)")
+        case .awaitingConfirmation(let clientSecret):
+            loadingIndicator.stopAnimating()
+            var configuration = PaymentSheet.Configuration()
+            configuration.merchantDisplayName = "BetFit"
+            paymentSheet = PaymentSheet(
+                paymentIntentClientSecret: clientSecret,
+                configuration: configuration
+            )
+            paymentSheet?.present(from: self) { [weak self] result in
+                switch result {
+                case .completed:
+                    self?.viewModel.paymentCompleted()
+                case .canceled:
+                    self?.viewModel.paymentCanceled()
+                case .failed(let error):
+                    self?.viewModel.paymentFailed(error.localizedDescription)
+                }
+            }
+
+        case .success:
+            print("✅ [ChargeVC] Stripe 支付完成，等待 Webhook 入账")
             
             loadingIndicator.stopAnimating()
             chargeButton.isEnabled = true

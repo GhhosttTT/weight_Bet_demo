@@ -52,13 +52,14 @@ def test_create_intent_creates_pending_transaction(db_session, monkeypatch):
     })()
     with patch("app.services.stripe_payment_service.stripe.PaymentIntent.create", return_value=fake_intent) as create:
         result = StripePaymentService.create_charge_intent(
-            db_session, "stripe-user-001", 10.005, "pm_card_visa"
+            db_session, "stripe-user-001", 10.005
         )
     assert result["status"] == "requires_action"
     transaction = db_session.query(Transaction).one()
     assert transaction.status == TransactionStatus.PENDING
     assert transaction.amount == 10.01
     assert create.call_args[1]["amount"] == 1001
+    assert "payment_method" not in create.call_args[1]
 
 
 def test_webhook_success_credits_once(db_session, monkeypatch):

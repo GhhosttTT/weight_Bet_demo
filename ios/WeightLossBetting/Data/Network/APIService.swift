@@ -550,6 +550,18 @@ class APIService {
                 self.handleDirectResponse(response, completion: completion)
             }
     }
+
+    func createChargeIntent(amount: Double, completion: @escaping (Result<ChargeIntentResult, Error>) -> Void) {
+        let parameters = ["amount": amount]
+        session.request("\(baseURL)/payments/charge/intent",
+                       method: .post,
+                       parameters: parameters,
+                       encoding: JSONEncoding.default)
+            .validate()
+            .responseDecodable(of: ChargeIntentResult.self, decoder: decoder) { response in
+                self.handleDirectResponse(response, completion: completion)
+            }
+    }
     
     func withdraw(amount: Double, paymentMethodId: String, completion: @escaping (Result<WithdrawResult, Error>) -> Void) {
         let parameters: [String: Any] = [

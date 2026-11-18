@@ -104,7 +104,7 @@ mypy app/
 
 真实支付接口：
 
-- `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent，余额等待 Webhook 入账
+- `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent，客户端 PaymentSheet 确认后由 Webhook 入账
 - `POST /api/payments/stripe/webhook` - 验证 Stripe 签名并完成充值入账
 
 开发环境默认 `PAYMENT_PROVIDER=demo`，旧的 `/api/payments/charge` 保留为本地演示接口。

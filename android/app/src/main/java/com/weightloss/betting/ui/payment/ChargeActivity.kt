@@ -7,6 +7,8 @@ import androidx.activity.viewModels
 import com.weightloss.betting.R
 import com.weightloss.betting.databinding.ActivityChargeBinding
 import com.weightloss.betting.ui.base.BaseActivity
+import com.stripe.android.paymentsheet.PaymentSheet
+import com.stripe.android.paymentsheet.PaymentSheetResult
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -14,11 +16,13 @@ class ChargeActivity : BaseActivity() {
     
     private lateinit var binding: ActivityChargeBinding
     private val viewModel: ChargeViewModel by viewModels()
+    private lateinit var paymentSheet: PaymentSheet
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityChargeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        paymentSheet = PaymentSheet(this, ::onPaymentSheetResult)
         
         setupToolbar()
         setupObservers()
@@ -54,9 +58,16 @@ class ChargeActivity : BaseActivity() {
                     binding.progressBar.visibility = View.VISIBLE
                     binding.btnCharge.isEnabled = false
                 }
+                is ChargeState.AwaitingConfirmation -> {
+                    binding.progressBar.visibility = View.GONE
+                    paymentSheet.presentWithPaymentIntent(
+                        state.clientSecret,
+                        PaymentSheet.Configuration("BetFit")
+                    )
+                }
                 is ChargeState.Success -> {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(this, "充值成功", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "支付已完成，余额将在确认后更新", Toast.LENGTH_LONG).show()
                     setResult(RESULT_OK)
                     finish()
                 }
@@ -65,6 +76,20 @@ class ChargeActivity : BaseActivity() {
                     binding.btnCharge.isEnabled = true
                     Toast.makeText(this, state.message, Toast.LENGTH_LONG).show()
                 }
+            }
+        }
+    }
+
+    private fun onPaymentSheetResult(result: PaymentSheetResult) {
+        when (result) {
+            is PaymentSheetResult.Completed -> {
+                viewModel.paymentCompleted()
+            }
+            is PaymentSheetResult.Canceled -> {
+                viewModel.paymentCanceled()
+            }
+            is PaymentSheetResult.Failed -> {
+                viewModel.paymentFailed(result.error.localizedMessage ?: "支付失败")
             }
         }
     }

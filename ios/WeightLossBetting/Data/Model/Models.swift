@@ -363,6 +363,21 @@ struct ChargeResult: Codable {
     }
 }
 
+struct ChargeIntentResult: Codable {
+    let transactionId: String
+    let paymentIntentId: String
+    let clientSecret: String?
+    let amount: Double
+    let status: String
+
+    enum CodingKeys: String, CodingKey {
+        case transactionId = "transaction_id"
+        case paymentIntentId = "payment_intent_id"
+        case clientSecret = "client_secret"
+        case amount, status
+    }
+}
+
 struct WithdrawResult: Codable {
     let transactionId: String
     let amount: Double

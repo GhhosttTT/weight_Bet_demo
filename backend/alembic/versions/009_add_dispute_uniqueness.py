@@ -4,6 +4,7 @@ Revision ID: 009
 Revises: 008
 """
 from alembic import op
+from alembic import context
 import sqlalchemy as sa
 from sqlalchemy import inspect
 
@@ -16,7 +17,9 @@ depends_on = None
 
 def upgrade():
     bind = op.get_bind()
-    if not inspect(bind).has_table("disputes"):
+    # 离线模式没有可 inspect 的连接；升级 SQL 应按历史初始状态生成建表语句。
+    table_exists = False if context.is_offline_mode() else inspect(bind).has_table("disputes")
+    if not table_exists:
         dispute_status = sa.Enum(
             "pending", "under_review", "resolved", "rejected",
             name="disputestatus",

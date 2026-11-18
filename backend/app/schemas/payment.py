@@ -60,7 +60,8 @@ class ChargeIntentRequest(BaseModel):
 class WithdrawRequest(BaseModel):
     """提现请求"""
     amount: float = Field(..., ge=0.01)
-    payment_method_id: str
+    # Demo 模式兼容旧支付方式；Stripe 模式使用 Connect 账户，不需要该字段。
+    payment_method_id: str = ""
 
 
 class FreezeResult(BaseModel):

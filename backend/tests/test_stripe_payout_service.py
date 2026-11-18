@@ -99,3 +99,8 @@ def test_failed_payout_releases_reserved_balance(db_session, stripe_config):
     assert balance.available_balance == 100
     assert balance.frozen_balance == 0
     assert db_session.query(Transaction).one().status == TransactionStatus.FAILED
+    duplicate = StripePayoutService.handle_payout_webhook(
+        db_session, "payout.failed", {"id": "po_456", "metadata": {"transaction_id": transaction.id}}
+    )
+    assert duplicate["idempotent"] is True
+    assert db_session.query(Balance).one().available_balance == 100

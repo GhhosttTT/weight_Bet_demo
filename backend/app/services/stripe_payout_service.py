@@ -134,7 +134,7 @@ class StripePayoutService:
             transaction = query.filter(Transaction.id == transaction_id).with_for_update().first()
         if not transaction:
             raise HTTPException(status_code=404, detail="本地提现交易不存在")
-        if transaction.status == TransactionStatus.COMPLETED:
+        if transaction.status in (TransactionStatus.COMPLETED, TransactionStatus.FAILED):
             return {"received": True, "handled": True, "idempotent": True}
         amount = abs(transaction.amount)
         balance = db.query(Balance).filter(Balance.user_id == transaction.user_id).with_for_update().first()

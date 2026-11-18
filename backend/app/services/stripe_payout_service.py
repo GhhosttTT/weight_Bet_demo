@@ -1,6 +1,7 @@
 """Stripe Connect 开户、余额预留和真实出款流程。"""
 
 from datetime import datetime
+from decimal import Decimal
 import uuid
 from fastapi import HTTPException, status
 from sqlalchemy.orm import Session
@@ -55,6 +56,8 @@ class StripePayoutService:
         normalized = PaymentService._normalize_amount(amount)
         if normalized is None:
             raise HTTPException(status_code=400, detail="金额必须至少为 0.01")
+        if normalized > Decimal(str(PaymentService.MAX_WITHDRAW_AMOUNT)):
+            raise HTTPException(status_code=400, detail="单次提现金额不能超过 50000")
         user = db.query(User).filter(User.id == user_id).first()
         if not user or not user.stripe_account_id:
             raise HTTPException(status_code=409, detail="请先完成 Stripe Connect 提现账户认证")

@@ -18,7 +18,7 @@ class WithdrawViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Withdrawal Amount"
+        label.text = "提现金额"
         label.font = .systemFont(ofSize: 18, weight: .semibold)
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
@@ -26,7 +26,7 @@ class WithdrawViewController: UIViewController {
     
     private let amountTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Enter withdrawal amount"
+        textField.placeholder = "请输入提现金额（元）"
         textField.keyboardType = .decimalPad
         textField.borderStyle = .roundedRect
         textField.font = .systemFont(ofSize: 16)
@@ -36,7 +36,7 @@ class WithdrawViewController: UIViewController {
     
     private let availableBalanceLabel: UILabel = {
         let label = UILabel()
-        label.text = "Available Balance: ¥0.00"
+        label.text = "可用余额：¥0.00"
         label.font = .systemFont(ofSize: 14, weight: .medium)
         label.textColor = AppTheme.Colors.secondaryLabel
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -76,7 +76,7 @@ class WithdrawViewController: UIViewController {
     
     private let noteLabel: UILabel = {
         let label = UILabel()
-        label.text = "Note: Withdrawals may take 1-3 business days to process. A withdrawal fee of 2% applies."
+        label.text = "• 最低提现金额：¥0.01\n• 最高提现金额：¥50,000\n• 提现将在 1-3 个工作日内到账"
         label.font = .systemFont(ofSize: 14)
         label.textColor = AppTheme.Colors.secondaryLabel
         label.numberOfLines = 0
@@ -103,7 +103,7 @@ class WithdrawViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        title = "Withdraw"
+        title = "提现"
         view.backgroundColor = AppTheme.Colors.background
         
         // Add subviews
@@ -176,7 +176,7 @@ class WithdrawViewController: UIViewController {
         // Add button actions
         withdrawButton.addTarget(self, action: #selector(withdrawButtonTapped), for: .touchUpInside)
         navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "设置账户",
+            title: "设置提现账户",
             style: .plain,
             target: self,
             action: #selector(connectOnboardingTapped)
@@ -206,7 +206,7 @@ class WithdrawViewController: UIViewController {
         
         viewModel.onAvailableBalanceUpdated = { [weak self] balance in
             DispatchQueue.main.async {
-                self?.availableBalanceLabel.text = "Available Balance: ¥\(String(format: "%.2f", balance))"
+                self?.availableBalanceLabel.text = "可用余额：¥\(String(format: "%.2f", balance))"
             }
         }
 
@@ -251,6 +251,11 @@ class WithdrawViewController: UIViewController {
             return
         }
         
+        guard amount <= 50000 else {
+            showAlert(title: "错误", message: "单次提现金额不能超过 50000 元")
+            return
+        }
+
         guard amount <= viewModel.availableBalance else {
             showAlert(title: "错误", message: "提现金额超过可用余额")
             return

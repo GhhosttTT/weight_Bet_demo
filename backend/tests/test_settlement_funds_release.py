@@ -168,6 +168,10 @@ def test_charge_and_withdraw_use_locked_balance_and_minimum_amount():
         assert result.success is False
         assert result.error == "金额必须至少为 0.01"
 
+        result = PaymentService.withdraw_funds(db, user_id, 50000.01)
+        assert result.success is False
+        assert result.error == "单次提现金额不能超过 50000"
+
         balance = db.query(Balance).filter(Balance.user_id == user_id).one()
         assert balance.available_balance == 10
         assert db.query(Transaction).filter(

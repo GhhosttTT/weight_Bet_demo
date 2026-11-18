@@ -20,6 +20,7 @@ class PaymentService:
     """支付服务类"""
 
     MIN_AMOUNT = 0.01
+    MAX_WITHDRAW_AMOUNT = 50000.0
     _CENT = Decimal("0.01")
 
     @classmethod
@@ -81,6 +82,8 @@ class PaymentService:
         normalized_amount = PaymentService._normalize_amount(amount)
         if normalized_amount is None:
             return WithdrawResult(success=False, transaction_id=None, error="金额必须至少为 0.01")
+        if normalized_amount > Decimal(str(PaymentService.MAX_WITHDRAW_AMOUNT)):
+            return WithdrawResult(success=False, transaction_id=None, error="单次提现金额不能超过 50000")
         amount = float(normalized_amount)
 
         balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()

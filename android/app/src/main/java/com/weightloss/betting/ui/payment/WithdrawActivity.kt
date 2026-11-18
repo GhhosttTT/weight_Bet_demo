@@ -42,7 +42,7 @@ class WithdrawActivity : BaseActivity() {
                 }
                 is WithdrawState.Success -> {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(this, "提现申请已提交,请等待审核", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "提现申请已提交，等待 Stripe 出款确认", Toast.LENGTH_LONG).show()
                     finish()
                 }
                 is WithdrawState.Error -> {

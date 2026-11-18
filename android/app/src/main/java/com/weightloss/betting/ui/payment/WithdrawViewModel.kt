@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.weightloss.betting.data.model.WithdrawRequest
 import com.weightloss.betting.data.remote.NetworkResult
 import com.weightloss.betting.data.repository.PaymentRepository
-import com.weightloss.betting.data.repository.UserRepository
 import com.weightloss.betting.data.remote.TokenManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -23,7 +22,6 @@ sealed class WithdrawState {
 @HiltViewModel
 class WithdrawViewModel @Inject constructor(
     private val paymentRepository: PaymentRepository,
-    private val userRepository: UserRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
     
@@ -57,18 +55,8 @@ class WithdrawViewModel @Inject constructor(
                 return@launch
             }
 
-            val profileResult = userRepository.getUserProfile(userId, forceRefresh = true)
-            if (profileResult is NetworkResult.Error) {
-                _withdrawState.value = WithdrawState.Error(profileResult.exception.message ?: "读取提现方式失败")
-                return@launch
-            }
-            val paymentMethodId = (profileResult as? NetworkResult.Success)?.data?.paymentMethodId
-            if (paymentMethodId.isNullOrBlank()) {
-                _withdrawState.value = WithdrawState.Error("请先绑定提现方式")
-                return@launch
-            }
-
-            val request = WithdrawRequest(amount = amountDouble, paymentMethodId = paymentMethodId)
+            // Stripe 模式使用 Connect 账户，不再把银行卡后四位当作提现凭证。
+            val request = WithdrawRequest(amount = amountDouble, paymentMethodId = "")
             when (val result = paymentRepository.withdraw(request)) {
                 is NetworkResult.Success -> {
                     _withdrawState.value = WithdrawState.Success

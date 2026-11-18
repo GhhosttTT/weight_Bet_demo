@@ -36,6 +36,8 @@ class Transaction(Base):
     status = Column(SQLEnum(TransactionStatus), default=TransactionStatus.PENDING, nullable=False)
     related_plan_id = Column(String(36), ForeignKey("betting_plans.id"), nullable=True)
     related_settlement_id = Column(String(36), ForeignKey("settlements.id"), nullable=True)
+    external_payment_id = Column(String(255), unique=True, nullable=True, index=True)
+    external_transfer_id = Column(String(255), unique=True, nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     completed_at = Column(DateTime(timezone=True), nullable=True)
 

@@ -110,5 +110,5 @@ def test_stripe_mode_blocks_legacy_direct_money_endpoints(db_session, monkeypatc
         withdraw(WithdrawRequest(amount=1, payment_method_id="pm_card_visa"), "stripe-user-001", db_session)
     with pytest.raises(HTTPException) as charge_error:
         charge(ChargeRequest(amount=1, paymentMethodId="pm_card_visa"), "stripe-user-001", db_session)
-    assert withdraw_error.value.status_code == 501
+    assert withdraw_error.value.status_code == 503
     assert charge_error.value.status_code == 410

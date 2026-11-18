@@ -106,10 +106,11 @@ mypy app/
 
 - `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent，客户端 PaymentSheet 确认后由 Webhook 入账
 - `POST /api/payments/stripe/webhook` - 验证 Stripe 签名并完成充值入账
+- `POST /api/payments/connect/onboarding` - 创建 Stripe Connect Express 提现账户认证链接
 
 开发环境默认 `PAYMENT_PROVIDER=demo`，旧的 `/api/payments/charge` 保留为本地演示接口。
 生产环境设置 `PAYMENT_PROVIDER=stripe`，并配置 Stripe 密钥与 Webhook 密钥；不要把演示接口暴露给生产用户。
-Stripe 模式下提现接口会明确拒绝请求，直到 Connect/Payout 出款流程完成，避免把本地余额扣减误当成真实出款。
+Stripe 模式下提现会先预留余额，再创建 Connect Transfer/Payout；只有 `payout.paid` Webhook 到达后才完成扣账，失败会释放预留余额。若 Transfer 已成功但 Payout 创建失败，交易保持 pending，等待重试或对账，不会错误释放资金。
 
 ### 用户
 - `GET /api/users/{userId}` - 获取用户信息

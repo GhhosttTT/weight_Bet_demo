@@ -59,11 +59,12 @@ class WithdrawViewModel {
         }
     }
     
-    func withdraw(amount: Double, paymentMethodId: String) {
+    func withdraw(amount: Double) {
         withdrawState = .loading
         
         Task {
-            let result = await paymentRepository.withdraw(amount: amount, paymentMethodId: paymentMethodId)
+            // Stripe 模式使用 Connect 账户，不再把银行卡后四位当作提现凭证。
+            let result = await paymentRepository.withdraw(amount: amount, paymentMethodId: "")
             
             switch result {
             case .success(let withdrawResult):

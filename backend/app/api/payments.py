@@ -15,6 +15,7 @@ from app.schemas.payment import (
 )
 from app.services.payment_service import PaymentService
 from app.services.stripe_payment_service import StripePaymentService
+from app.services.stripe_payout_service import StripePayoutService
 from app.config import settings
 from app.middleware.auth import get_current_user_id
 from app.models.user import User
@@ -128,6 +129,15 @@ async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
     return StripePaymentService.handle_webhook(db, payload, signature)
 
 
+@router.post("/connect/onboarding")
+def create_connect_onboarding_link(
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """创建 Stripe Connect Express 提现账户认证链接。"""
+    return StripePayoutService.create_onboarding_link(db, current_user_id)
+
+
 @router.post("/withdraw")
 def withdraw(
     request: WithdrawRequest,
@@ -143,10 +153,7 @@ def withdraw(
     注意: 实际生产环境需要集成 Stripe 等支付网关
     """
     if settings.PAYMENT_PROVIDER.lower() == "stripe":
-        raise HTTPException(
-            status_code=status.HTTP_501_NOT_IMPLEMENTED,
-            detail="Stripe 模式暂未启用真实出款，请先完成 Connect/Payout 配置",
-        )
+        return StripePayoutService.create_withdrawal(db, current_user_id, request.amount)
     _validate_payment_method(db, current_user_id, request.payment_method_id)
     result = PaymentService.withdraw_funds(db, current_user_id, request.amount)
     if not result.success:

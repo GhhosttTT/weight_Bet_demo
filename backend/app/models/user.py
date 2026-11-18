@@ -40,6 +40,8 @@ class User(Base):
     
     # 支付信息
     payment_method_id = Column(String(255), nullable=True)
+    # Stripe Connect Express 账户；真实提现必须走该账户的出款能力。
+    stripe_account_id = Column(String(255), unique=True, nullable=True, index=True)
     
     # 时间戳
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

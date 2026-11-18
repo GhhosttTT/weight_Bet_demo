@@ -29,6 +29,9 @@ class Settings(BaseSettings):
     STRIPE_WEBHOOK_SECRET: str = "whsec_test_dummy"
     PAYMENT_PROVIDER: str = "demo"
     STRIPE_CURRENCY: str = "cny"
+    STRIPE_CONNECT_COUNTRY: str = "US"
+    STRIPE_CONNECT_RETURN_URL: str = "http://localhost:3000/payment/connect/complete"
+    STRIPE_CONNECT_REFRESH_URL: str = "http://localhost:3000/payment/connect/retry"
     
     # Firebase 配置
     FIREBASE_CREDENTIALS_PATH: str = "./firebase-credentials.json"

@@ -101,6 +101,9 @@ class StripePaymentService:
 
         event_type = event["type"]
         intent = event["data"]["object"]
+        if event_type in ("payout.paid", "payout.failed", "payout.canceled"):
+            from app.services.stripe_payout_service import StripePayoutService
+            return StripePayoutService.handle_payout_webhook(db, event_type, intent)
         if event_type not in (
             "payment_intent.succeeded",
             "payment_intent.payment_failed",

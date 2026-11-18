@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">减肥对赌</string>
+    <!-- 替换为 Google Cloud Console 中的 Web OAuth Client ID。 -->
+    <string name="default_web_client_id">YOUR_WEB_CLIENT_ID.apps.googleusercontent.com</string>
     
     <!-- Gender options -->
     <string-array name="gender_options">

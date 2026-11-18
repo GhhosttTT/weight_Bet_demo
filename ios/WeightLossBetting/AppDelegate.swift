@@ -1,6 +1,7 @@
 import UIKit
 import UserNotifications
 import IQKeyboardManagerSwift
+import GoogleSignIn
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -84,8 +85,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     // MARK: - URL Handling
 
     func application(_ app: UIApplication, open url: URL, options: [UIApplication.OpenURLOptionsKey : Any] = [:]) -> Bool {
-        // URL handling will be implemented as needed
-        return false
+        return GIDSignIn.sharedInstance.handle(url)
     }
 
     // MARK: - Remote Notifications

@@ -1,5 +1,6 @@
 import Foundation
 import UIKit
+import GoogleSignIn
 
 class LoginViewModel {
     private let authRepository = AuthRepository.shared
@@ -24,9 +25,30 @@ class LoginViewModel {
         recommendationRepository.preloadRecommendation()
     }
 
-    // Google Sign-In functionality is temporarily disabled due to dependency issues
     func googleSignIn(presentingViewController: UIViewController, completion: @escaping (Result<Void, Error>) -> Void) {
-        let error = NSError(domain: "LoginViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "Google Sign-In is temporarily unavailable"])
-        completion(.failure(error))
+        GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController) { [weak self] result, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            guard let idToken = result?.user.idToken?.tokenString else {
+                let tokenError = NSError(
+                    domain: "LoginViewModel",
+                    code: -2,
+                    userInfo: [NSLocalizedDescriptionKey: "Google 未返回有效身份凭证"]
+                )
+                completion(.failure(tokenError))
+                return
+            }
+            self?.authRepository.googleLogin(idToken: idToken) { authResult in
+                switch authResult {
+                case .success:
+                    self?.preloadRecommendation()
+                    completion(.success(()))
+                case .failure(let error):
+                    completion(.failure(error))
+                }
+            }
+        }
     }
 }

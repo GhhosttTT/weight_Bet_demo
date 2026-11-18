@@ -1,7 +1,7 @@
 """
 支付 API 路由
 """
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, HTTPException, Request, status
 from sqlalchemy.orm import Session
 from typing import List
 from app.database import get_db
@@ -9,9 +9,12 @@ from app.schemas.payment import (
     BalanceResponse,
     TransactionResponse,
     ChargeRequest,
+    ChargeIntentResponse,
     WithdrawRequest
 )
 from app.services.payment_service import PaymentService
+from app.services.stripe_payment_service import StripePaymentService
+from app.config import settings
 from app.middleware.auth import get_current_user_id
 from app.models.user import User
 
@@ -92,6 +95,11 @@ def charge(
     
     注意: 实际生产环境需要集成 Stripe 等支付网关
     """
+    if settings.PAYMENT_PROVIDER.lower() == "stripe":
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="真实支付已启用，请使用 /api/payments/charge/intent",
+        )
     _validate_payment_method(db, current_user_id, request.payment_method_id)
     return {
         "success": True,
@@ -99,6 +107,27 @@ def charge(
         "amount": request.amount,
         "newBalance": PaymentService.charge_funds(db, current_user_id, request.amount).available_balance
     }
+
+
+@router.post("/charge/intent", response_model=ChargeIntentResponse)
+def create_charge_intent(
+    request: ChargeRequest,
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """创建真实 Stripe PaymentIntent，余额只由 Webhook 入账。"""
+    _validate_payment_method(db, current_user_id, request.payment_method_id)
+    return StripePaymentService.create_charge_intent(
+        db, current_user_id, request.amount, request.payment_method_id
+    )
+
+
+@router.post("/stripe/webhook")
+async def stripe_webhook(request: Request, db: Session = Depends(get_db)):
+    """接收 Stripe 回调；此接口不使用用户 JWT，依赖 Stripe 签名验证。"""
+    payload = await request.body()
+    signature = request.headers.get("stripe-signature", "")
+    return StripePaymentService.handle_webhook(db, payload, signature)
 
 
 @router.post("/withdraw")

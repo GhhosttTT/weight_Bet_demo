@@ -102,6 +102,14 @@ mypy app/
 - `POST /api/auth/refresh` - 刷新令牌
 - `POST /api/auth/google` - Google 登录
 
+真实支付接口：
+
+- `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent，余额等待 Webhook 入账
+- `POST /api/payments/stripe/webhook` - 验证 Stripe 签名并完成充值入账
+
+开发环境默认 `PAYMENT_PROVIDER=demo`，旧的 `/api/payments/charge` 保留为本地演示接口。
+生产环境设置 `PAYMENT_PROVIDER=stripe`，并配置 Stripe 密钥与 Webhook 密钥；不要把演示接口暴露给生产用户。
+
 ### 用户
 - `GET /api/users/{userId}` - 获取用户信息
 - `PUT /api/users/{userId}` - 更新用户信息

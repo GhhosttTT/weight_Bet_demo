@@ -43,6 +43,15 @@ class ChargeRequest(BaseModel):
         populate_by_name = True
 
 
+class ChargeIntentResponse(BaseModel):
+    """真实支付的 PaymentIntent 响应。"""
+    transaction_id: str
+    payment_intent_id: str
+    client_secret: Optional[str]
+    amount: float
+    status: str
+
+
 class WithdrawRequest(BaseModel):
     """提现请求"""
     amount: float = Field(..., ge=0.01)

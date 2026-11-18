@@ -6,9 +6,12 @@ import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.activity.viewModels
+import androidx.activity.result.contract.ActivityResultContracts
 import com.weightloss.betting.databinding.ActivityLoginBinding
 import com.weightloss.betting.ui.MainActivity
 import com.weightloss.betting.ui.base.BaseActivity
+import com.google.android.gms.auth.api.signin.GoogleSignIn
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import dagger.hilt.android.AndroidEntryPoint
 
 /**
@@ -19,6 +22,29 @@ class LoginActivity : BaseActivity() {
     
     private lateinit var binding: ActivityLoginBinding
     private val viewModel: LoginViewModel by viewModels()
+
+    private val googleSignInLauncher = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()
+    ) { result ->
+        if (result.resultCode != RESULT_OK) {
+            showLoading(false)
+            return@registerForActivityResult
+        }
+        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
+        try {
+            val idToken = task.result?.idToken
+            if (idToken.isNullOrBlank()) {
+                showLoading(false)
+                Toast.makeText(this, "Google 未返回有效身份凭证", Toast.LENGTH_LONG).show()
+            } else {
+                viewModel.googleLogin(idToken)
+            }
+        } catch (error: Exception) {
+            showLoading(false)
+            Log.e("LoginActivity", "Google sign-in failed", error)
+            Toast.makeText(this, "Google 登录失败，请重试", Toast.LENGTH_LONG).show()
+        }
+    }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -51,9 +77,23 @@ class LoginActivity : BaseActivity() {
         // Google 登录按钮
         binding.btnGoogleLogin.setOnClickListener {
             Log.d("LoginActivity", "Google login button clicked")
-            // TODO: 集成 Google Sign-In SDK
-            Toast.makeText(this, "Google 登录功能开发中", Toast.LENGTH_SHORT).show()
+            startGoogleSignIn()
         }
+    }
+
+    private fun startGoogleSignIn() {
+        val webClientId = getString(com.weightloss.betting.R.string.default_web_client_id)
+        if (webClientId.startsWith("YOUR_")) {
+            Toast.makeText(this, "请先配置 Google Web Client ID", Toast.LENGTH_LONG).show()
+            return
+        }
+        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+            .requestIdToken(webClientId)
+            .requestEmail()
+            .build()
+        val client = GoogleSignIn.getClient(this, options)
+        showLoading(true)
+        googleSignInLauncher.launch(client.signInIntent)
     }
     
     private fun observeViewModel() {

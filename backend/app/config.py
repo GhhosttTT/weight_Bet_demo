@@ -27,6 +27,8 @@ class Settings(BaseSettings):
     STRIPE_SECRET_KEY: str = "sk_test_dummy"
     STRIPE_PUBLISHABLE_KEY: str = "pk_test_dummy"
     STRIPE_WEBHOOK_SECRET: str = "whsec_test_dummy"
+    PAYMENT_PROVIDER: str = "demo"
+    STRIPE_CURRENCY: str = "cny"
     
     # Firebase 配置
     FIREBASE_CREDENTIALS_PATH: str = "./firebase-credentials.json"

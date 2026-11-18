@@ -2,6 +2,11 @@
 
 iOS 客户端采用 Swift + MVVM + Alamofire + Core Data 架构开发。
 
+### Google 登录配置
+
+Google 登录使用 `GoogleSignIn` Pod。请从 Google Cloud Console 下载 `GoogleService-Info.plist`
+并加入 Xcode App Target；登录完成后客户端会把 ID Token 交给后端 `/api/auth/google`，由后端完成身份校验。
+
 ## 项目结构
 
 ```

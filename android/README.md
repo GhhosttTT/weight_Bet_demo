@@ -4,6 +4,12 @@
 
 这是减肥对赌 APP 的 Android 原生客户端,使用 Kotlin 开发,采用 MVVM 架构模式。
 
+### Google 登录配置
+
+Google 登录已接入 `play-services-auth`。请在 `app/src/main/res/values/strings.xml` 中将
+`default_web_client_id` 替换为 Google Cloud Console 的 Web OAuth Client ID，并放入未提交的
+`google-services.json`。登录成功后客户端会把 Google ID Token 交给后端 `/api/auth/google`，由后端完成身份校验。
+
 ## 技术栈
 
 - **语言**: Kotlin

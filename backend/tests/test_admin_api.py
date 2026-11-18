@@ -13,6 +13,7 @@ from app.main import app
 from app.models import (
     User, Gender, BettingPlan, PlanStatus, CheckIn, ReviewStatus,
     Settlement, Dispute, DisputeStatus,
+    Transaction, TransactionType, TransactionStatus,
 )
 from app.utils.security import create_access_token, create_refresh_token, hash_password
 
@@ -88,6 +89,7 @@ def test_all_admin_reads_require_admin_role(admin_context):
         "/api/admin/disputes",
         "/api/admin/settlements",
         "/api/admin/transactions",
+        "/api/admin/payouts/pending",
         "/api/admin/balances",
         "/api/admin/audit-logs",
     ):
@@ -129,8 +131,34 @@ def test_admin_can_read_all_business_queues(admin_context):
     assert client.get("/api/admin/disputes?status=pending", headers=headers).status_code == 200
     assert client.get("/api/admin/settlements?limit=1", headers=headers).status_code == 200
     assert client.get("/api/admin/transactions?limit=1", headers=headers).status_code == 200
+    assert client.get("/api/admin/payouts/pending?limit=1", headers=headers).status_code == 200
     assert client.get("/api/admin/balances?limit=1", headers=headers).status_code == 200
     assert client.get("/api/admin/audit-logs?limit=1", headers=headers).status_code == 200
+
+
+def test_admin_sees_retryable_payout_queue(admin_context):
+    db = Session()
+    db.add(Transaction(
+        id="pending-payout-admin-test",
+        user_id="member-user",
+        type=TransactionType.WITHDRAW,
+        amount=-25,
+        status=TransactionStatus.PENDING,
+        external_transfer_id="tr_admin_test",
+    ))
+    db.commit()
+    db.close()
+
+    client = admin_context["client"]
+    headers = admin_context["admin"]
+    dashboard = client.get("/api/admin/dashboard", headers=headers).json()
+    assert dashboard["pending_payouts"] == 1
+    pending = client.get("/api/admin/payouts/pending", headers=headers)
+    assert pending.status_code == 200
+    assert pending.json()[0]["external_transfer_id"] == "tr_admin_test"
+    transactions = client.get("/api/admin/transactions", headers=headers).json()
+    row = next(item for item in transactions if item["id"] == "pending-payout-admin-test")
+    assert row["retryable_payout"] is True
 
 
 def test_admin_query_validation_and_missing_resources(admin_context):

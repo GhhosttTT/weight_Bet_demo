@@ -13,7 +13,7 @@ from app.models.betting_plan import BettingPlan, PlanStatus
 from app.models.check_in import CheckIn, ReviewStatus
 from app.models.dispute import Dispute, DisputeStatus
 from app.models.settlement import Settlement
-from app.models.transaction import Transaction
+from app.models.transaction import Transaction, TransactionStatus, TransactionType
 from app.models.balance import Balance
 from app.models.audit_log import AuditLog
 from app.schemas.admin import AdminCheckInReview, AdminDisputeUpdate, AdminUserRow
@@ -37,6 +37,12 @@ def dashboard(_: User = Depends(get_current_admin), db: Session = Depends(get_db
             Dispute.status.in_([DisputeStatus.PENDING, DisputeStatus.UNDER_REVIEW])
         ).scalar() or 0,
         "settlements": db.query(func.count(Settlement.id)).scalar() or 0,
+        "pending_payouts": db.query(func.count(Transaction.id)).filter(
+            Transaction.type == TransactionType.WITHDRAW,
+            Transaction.status == TransactionStatus.PENDING,
+            Transaction.external_transfer_id.is_not(None),
+            Transaction.external_payment_id.is_(None),
+        ).scalar() or 0,
         "updated_at": datetime.utcnow(),
     }
 
@@ -244,6 +250,40 @@ def list_transactions(
             "status": item.status.value,
             "related_plan_id": item.related_plan_id,
             "related_settlement_id": item.related_settlement_id,
+            "external_payment_id": item.external_payment_id,
+            "external_transfer_id": item.external_transfer_id,
+            "retryable_payout": (
+                item.type == TransactionType.WITHDRAW
+                and item.status == TransactionStatus.PENDING
+                and item.external_transfer_id is not None
+                and item.external_payment_id is None
+            ),
+            "created_at": item.created_at,
+        }
+        for item in records
+    ]
+
+
+@router.get("/payouts/pending")
+def list_pending_payouts(
+    limit: int = Query(100, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """列出 Transfer 已成功但 Payout 尚未落库的提现。"""
+    records = db.query(Transaction).filter(
+        Transaction.type == TransactionType.WITHDRAW,
+        Transaction.status == TransactionStatus.PENDING,
+        Transaction.external_transfer_id.is_not(None),
+        Transaction.external_payment_id.is_(None),
+    ).order_by(Transaction.created_at.asc()).offset(offset).limit(limit).all()
+    return [
+        {
+            "id": item.id,
+            "user_id": item.user_id,
+            "amount": abs(item.amount),
+            "external_transfer_id": item.external_transfer_id,
             "created_at": item.created_at,
         }
         for item in records

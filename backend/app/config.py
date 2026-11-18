@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     
     # Firebase 配置
     FIREBASE_CREDENTIALS_PATH: str = "./firebase-credentials.json"
+
+    # Google Identity Services。多个客户端 ID 用逗号分隔，生产环境必须配置。
+    GOOGLE_CLIENT_IDS: str = ""
     
     # 推荐模型配置
     RECOMMENDATION_MODEL_URL: str = "http://localhost:8001"
@@ -56,6 +59,11 @@ class Settings(BaseSettings):
     def allowed_origins_list(self) -> List[str]:
         """获取允许的跨域来源列表"""
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
+
+    @property
+    def google_client_ids_list(self) -> List[str]:
+        """返回启用的 Google OAuth Client ID 列表。"""
+        return [item.strip() for item in self.GOOGLE_CLIENT_IDS.split(",") if item.strip()]
 
 
 # 创建全局配置实例

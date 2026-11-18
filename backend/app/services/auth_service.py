@@ -205,26 +205,50 @@ class AuthService:
             HTTPException: Token 验证失败
         """
         try:
-            # 验证 Google ID Token
-            # 注意: 生产环境需要配置正确的 CLIENT_ID
+            client_ids = settings.google_client_ids_list
+            if not client_ids:
+                logger.error("Google login is not configured: GOOGLE_CLIENT_IDS is empty")
+                raise HTTPException(
+                    status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+                    detail="Google 登录尚未配置"
+                )
+
+            # 必须限制 audience，避免把发给其他 Google 应用的 ID Token
+            # 当成本应用的登录凭证。
             idinfo = id_token.verify_oauth2_token(
-                id_token_str, 
+                id_token_str,
                 requests.Request(),
-                None  # 在生产环境应该传入 Google Client ID
+                client_ids[0] if len(client_ids) == 1 else client_ids
             )
+
+            if idinfo.get("iss") not in ("accounts.google.com", "https://accounts.google.com"):
+                raise ValueError("invalid issuer")
+            if idinfo.get("email_verified") is not True:
+                raise ValueError("email is not verified")
             
             # 获取用户信息
-            email = idinfo.get('email')
-            name = idinfo.get('name', email.split('@')[0])
+            email = (idinfo.get("email") or "").strip().lower()
+            subject = (idinfo.get("sub") or "").strip()
             
-            if not email:
+            if not email or not subject:
                 raise HTTPException(
                     status_code=status.HTTP_400_BAD_REQUEST,
-                    detail="无法从 Google 获取邮箱信息"
+                    detail="Google 身份信息不完整"
                 )
+
+            name = idinfo.get("name") or email.split("@")[0]
             
             # 查找或创建用户
-            user = db.query(User).filter(User.email == email).first()
+            user = db.query(User).filter(User.google_subject == subject).first()
+            email_user = db.query(User).filter(User.email == email).first()
+
+            if user and email_user and user.id != email_user.id:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail="Google 身份与邮箱账号绑定冲突"
+                )
+            if user is None:
+                user = email_user
             
             if not user:
                 # 创建新用户
@@ -238,7 +262,8 @@ class AuthService:
                     age=25,  # 默认年龄
                     height=170.0,  # 默认身高
                     current_weight=70.0,  # 默认体重
-                    target_weight=None
+                    target_weight=None,
+                    google_subject=subject,
                 )
                 db.add(user)
                 
@@ -255,6 +280,15 @@ class AuthService:
                 
                 logger.info("New user created via Google login: {}", user_id)
             else:
+                if user.google_subject and user.google_subject != subject:
+                    raise HTTPException(
+                        status_code=status.HTTP_409_CONFLICT,
+                        detail="该账号已绑定其他 Google 身份"
+                    )
+                if user.google_subject is None:
+                    user.google_subject = subject
+                    db.commit()
+                    db.refresh(user)
                 logger.info("Existing user logged in via Google: {}", user.id)
             
             # 生成令牌

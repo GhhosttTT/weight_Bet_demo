@@ -6,6 +6,7 @@ from fastapi import Request, HTTPException, status
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.logger import get_logger
+from app.config import settings
 import re
 import html
 from typing import Any, Dict
@@ -73,12 +74,10 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         if self.enable_csrf and request.method in ["POST", "PUT", "DELETE", "PATCH"]:
             if not self._check_csrf_token(request):
                 logger.warning("CSRF token validation failed for {}", request.url.path)
-                # 注意: 在生产环境中应该严格验证 CSRF token
-                # 这里为了兼容性暂时只记录警告
-                # return JSONResponse(
-                #     status_code=status.HTTP_403_FORBIDDEN,
-                #     content={"detail": "CSRF token 验证失败"}
-                # )
+                return JSONResponse(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    content={"detail": "请求来源未被允许"}
+                )
         
         # 2. 验证请求参数
         try:
@@ -141,19 +140,13 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         
         从请求头或表单中获取 token 并验证
         """
-        # 从请求头获取 token
-        csrf_token = request.headers.get("X-CSRF-Token") or request.headers.get("X-CSRFToken")
-        
-        # 如果没有 token,检查是否是受信任的来源
-        if not csrf_token:
-            origin = request.headers.get("origin") or request.headers.get("referer", "")
-            # 简化的 CSRF 检查: 允许同源请求
-            # 在生产环境中应该使用更严格的 token 验证
+        # 移动端 Bearer 请求通常没有 Origin；浏览器请求有 Origin/Referer 时
+        # 必须匹配服务端允许的来源，避免跨站页面直接调用写接口。
+        origin = request.headers.get("origin") or request.headers.get("referer", "")
+        if not origin:
             return True
-        
-        # 验证 token (这里需要实现 token 验证逻辑)
-        # 实际应用中应该验证 token 是否与会话中的 token 匹配
-        return True
+        return any(origin == allowed or origin.startswith(f"{allowed}/")
+                   for allowed in settings.allowed_origins_list)
     
     async def _get_request_body(self, request: Request) -> Any:
         """

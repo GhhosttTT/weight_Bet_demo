@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from app.middleware.security import SecurityMiddleware
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.redis_client import get_redis
+from app.config import settings
 from unittest.mock import Mock, patch
 import time
 
@@ -235,6 +236,33 @@ class TestSecurityMiddleware:
         }
         
         response = client.post("/test", json=safe_data)
+        assert response.status_code == 200
+
+    def test_cross_site_write_is_rejected(self):
+        app = create_test_app()
+        app.add_middleware(SecurityMiddleware)
+        client = TestClient(app)
+
+        response = client.post(
+            "/test",
+            json={"username": "john_doe"},
+            headers={"Origin": "https://evil.example.com"},
+        )
+
+        assert response.status_code == 403
+
+    def test_allowed_origin_write_is_accepted(self, monkeypatch):
+        monkeypatch.setattr(settings, "ALLOWED_ORIGINS", "https://app.example.com")
+        app = create_test_app()
+        app.add_middleware(SecurityMiddleware)
+        client = TestClient(app)
+
+        response = client.post(
+            "/test",
+            json={"username": "john_doe"},
+            headers={"Origin": "https://app.example.com"},
+        )
+
         assert response.status_code == 200
     
     def test_health_check_bypasses_security(self):

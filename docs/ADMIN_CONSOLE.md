@@ -37,3 +37,10 @@ python scripts/create_admin.py user@example.com
 ## 权限原则
 
 管理员权限由 `users.role` 字段控制，迁移 `010_add_user_role` 为历史用户设置 `user` 默认值。后台接口每次从数据库读取当前用户角色，令牌本身不携带可伪造的管理员标记。
+
+## 登录与安全配置
+
+- Google 登录必须配置 `GOOGLE_CLIENT_IDS`。服务端会校验 Google ID Token 的签名、`aud`、`iss`、有效期、已验证邮箱和稳定 `sub`，并把 `sub` 写入用户账号，避免仅凭邮箱建立身份。
+- Web、Android、iOS 使用的 OAuth Client ID 统一写入逗号分隔的 `GOOGLE_CLIENT_IDS`。生产环境不要使用示例值。
+- 浏览器写请求会校验 `Origin`/`Referer` 是否属于 `ALLOWED_ORIGINS`；移动端无来源头的 Bearer 请求仍可正常调用。
+- `SECRET_KEY`、Stripe 密钥、Firebase 凭据和数据库连接串必须通过生产环境变量配置，不能沿用 `.env.example` 中的占位值。

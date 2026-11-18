@@ -8,7 +8,7 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi.exceptions import RequestValidationError
 from sqlalchemy.exc import SQLAlchemyError
-from app.config import settings
+from app.config import settings, validate_runtime_configuration
 from app.logger import get_logger
 from app.middleware.rate_limit import RateLimitMiddleware
 from app.middleware.security import SecurityMiddleware
@@ -163,6 +163,7 @@ if not settings.DEBUG:
 @app.on_event("startup")
 async def startup_event():
     """应用启动事件"""
+    validate_runtime_configuration()
     logger.info("Starting {} v{}", settings.APP_NAME, settings.APP_VERSION)
     logger.info("Debug mode: {}", settings.DEBUG)
 

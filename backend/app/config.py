@@ -71,5 +71,29 @@ class Settings(BaseSettings):
         return [item.strip() for item in self.GOOGLE_CLIENT_IDS.split(",") if item.strip()]
 
 
+def validate_runtime_configuration(current: Settings = None) -> None:
+    """拒绝生产数据库连接下的开发占位配置。"""
+    runtime = current or settings
+    if runtime.DATABASE_URL.lower().startswith("sqlite"):
+        return
+
+    errors = []
+    if not runtime.SECRET_KEY or runtime.SECRET_KEY == "test-secret-key-for-development" or len(runtime.SECRET_KEY) < 32:
+        errors.append("SECRET_KEY 必须是至少 32 位的生产密钥")
+    if "localhost" in runtime.ALLOWED_ORIGINS or "127.0.0.1" in runtime.ALLOWED_ORIGINS:
+        errors.append("ALLOWED_ORIGINS 不能使用本地开发地址")
+    if runtime.PAYMENT_PROVIDER.lower() == "stripe":
+        if not runtime.STRIPE_SECRET_KEY or runtime.STRIPE_SECRET_KEY.endswith("dummy"):
+            errors.append("STRIPE_SECRET_KEY 尚未配置")
+        if not runtime.STRIPE_WEBHOOK_SECRET or runtime.STRIPE_WEBHOOK_SECRET.endswith("dummy"):
+            errors.append("STRIPE_WEBHOOK_SECRET 尚未配置")
+        if not runtime.STRIPE_CONNECT_RETURN_URL.lower().startswith("https://"):
+            errors.append("STRIPE_CONNECT_RETURN_URL 必须使用 HTTPS")
+        if not runtime.STRIPE_CONNECT_REFRESH_URL.lower().startswith("https://"):
+            errors.append("STRIPE_CONNECT_REFRESH_URL 必须使用 HTTPS")
+    if errors:
+        raise RuntimeError("生产配置校验失败: " + "；".join(errors))
+
+
 # 创建全局配置实例
 settings = Settings()

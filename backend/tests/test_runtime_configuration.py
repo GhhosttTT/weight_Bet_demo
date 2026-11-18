@@ -1,0 +1,31 @@
+import pytest
+
+from app.config import Settings, validate_runtime_configuration
+
+
+def test_sqlite_development_configuration_is_allowed():
+    validate_runtime_configuration(Settings(DATABASE_URL="sqlite:///./test.db"))
+
+
+def test_postgres_rejects_development_placeholders():
+    runtime = Settings(
+        DATABASE_URL="postgresql://user:password@db/weight_bet",
+        ALLOWED_ORIGINS="https://app.example.com",
+        PAYMENT_PROVIDER="stripe",
+    )
+    with pytest.raises(RuntimeError, match="SECRET_KEY"):
+        validate_runtime_configuration(runtime)
+
+
+def test_postgres_accepts_complete_secure_configuration():
+    runtime = Settings(
+        DATABASE_URL="postgresql://user:password@db/weight_bet",
+        SECRET_KEY="x" * 48,
+        ALLOWED_ORIGINS="https://app.example.com",
+        PAYMENT_PROVIDER="stripe",
+        STRIPE_SECRET_KEY="sk_live_realistic",
+        STRIPE_WEBHOOK_SECRET="whsec_live_realistic",
+        STRIPE_CONNECT_RETURN_URL="https://app.example.com/payment/connect/complete",
+        STRIPE_CONNECT_REFRESH_URL="https://app.example.com/payment/connect/retry",
+    )
+    validate_runtime_configuration(runtime)

@@ -549,6 +549,7 @@ ALLOWED_HOSTS=api.yourdomain.com
 
 - ✅ 密码使用 bcrypt 哈希
 - ✅ JWT 令牌安全配置（HS256 算法）
+- ✅ Refresh Token 服务端登记、轮换与吊销
 - ✅ HTTPS/TLS 加密通信
 - ✅ SQL 注入防护（参数化查询）
 - ✅ XSS 和 CSRF 防护

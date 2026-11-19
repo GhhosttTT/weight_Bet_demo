@@ -100,6 +100,7 @@ mypy app/
 - `POST /api/auth/register` - 用户注册
 - `POST /api/auth/login` - 用户登录
 - `POST /api/auth/refresh` - 刷新令牌
+- `POST /api/auth/logout` - 吊销 Refresh Token（提交令牌时生效）
 - `POST /api/auth/google` - Google 登录
 
 真实支付接口：

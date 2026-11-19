@@ -1,15 +1,19 @@
 """
 认证服务
 """
+import hashlib
+import secrets
 import uuid
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from google.oauth2 import id_token
 from google.auth.transport import requests
 from app.models.user import User, Gender
 from app.models.balance import Balance
+from app.models.refresh_token import RefreshToken
 from app.schemas.auth import RegisterRequest, LoginRequest, AuthResult
-from app.utils.security import hash_password, verify_password, create_access_token, create_refresh_token
+from app.utils.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from app.logger import get_logger
 from app.config import settings
 
@@ -18,6 +22,21 @@ logger = get_logger()
 
 class AuthService:
     """认证服务类"""
+
+    @staticmethod
+    def _issue_token_pair(db: Session, user: User):
+        """创建访问令牌和可撤销的 Refresh Token 会话。"""
+        token_id = str(uuid.uuid4())
+        refresh_token = create_refresh_token({"sub": user.id, "jti": token_id})
+        record = RefreshToken(
+            id=token_id,
+            user_id=user.id,
+            token_hash=hashlib.sha256(refresh_token.encode("utf-8")).hexdigest(),
+            expires_at=datetime.utcnow() + timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
+        )
+        db.add(record)
+        access_token = create_access_token({"sub": user.id, "jti": token_id})
+        return access_token, refresh_token, record
     
     @staticmethod
     def register(db: Session, request: RegisterRequest) -> AuthResult:
@@ -75,8 +94,8 @@ class AuthService:
         logger.info("User registered successfully: {}", user_id)
         
         # 生成令牌
-        access_token = create_access_token({"sub": user_id})
-        refresh_token = create_refresh_token({"sub": user_id})
+        access_token, refresh_token, _ = AuthService._issue_token_pair(db, new_user)
+        db.commit()
         
         return AuthResult(
             user_id=user_id,
@@ -121,8 +140,8 @@ class AuthService:
         logger.info("User logged in successfully: {}", user.id)
         
         # 生成令牌
-        access_token = create_access_token({"sub": user.id})
-        refresh_token = create_refresh_token({"sub": user.id})
+        access_token, refresh_token, _ = AuthService._issue_token_pair(db, user)
+        db.commit()
         
         return AuthResult(
             user_id=user.id,
@@ -147,8 +166,6 @@ class AuthService:
         Raises:
             HTTPException: 令牌无效或过期
         """
-        from app.utils.security import decode_token
-        
         # 解码令牌
         payload = decode_token(refresh_token)
         if not payload or payload.get("type") != "refresh":
@@ -165,6 +182,23 @@ class AuthService:
                 detail="无效的刷新令牌"
             )
         
+        token_id = payload.get("jti")
+        if not token_id:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="请重新登录")
+
+        token_hash = hashlib.sha256(refresh_token.encode("utf-8")).hexdigest()
+        stored_token = db.query(RefreshToken).filter(
+            RefreshToken.id == token_id,
+            RefreshToken.user_id == user_id,
+        ).with_for_update().first()
+        if (
+            not stored_token
+            or not secrets.compare_digest(stored_token.token_hash, token_hash)
+            or not stored_token.is_active()
+        ):
+            logger.warning("Token refresh failed: revoked or unknown token for user {}", user_id)
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="刷新令牌已失效")
+
         # 查找用户
         user = db.query(User).filter(User.id == user_id).first()
         if not user:
@@ -176,9 +210,11 @@ class AuthService:
         
         logger.info("Token refreshed successfully for user: {}", user_id)
         
-        # 生成新令牌
-        new_access_token = create_access_token({"sub": user_id})
-        new_refresh_token = create_refresh_token({"sub": user_id})
+        # 轮换令牌：旧令牌立即吊销，重放旧令牌会失败。
+        new_access_token, new_refresh_token, replacement = AuthService._issue_token_pair(db, user)
+        stored_token.revoked_at = datetime.utcnow()
+        stored_token.replaced_by_id = replacement.id
+        db.commit()
         
         return AuthResult(
             user_id=user.id,
@@ -292,8 +328,8 @@ class AuthService:
                 logger.info("Existing user logged in via Google: {}", user.id)
             
             # 生成令牌
-            access_token = create_access_token({"sub": user.id})
-            refresh_token = create_refresh_token({"sub": user.id})
+            access_token, refresh_token, _ = AuthService._issue_token_pair(db, user)
+            db.commit()
             
             return AuthResult(
                 user_id=user.id,
@@ -309,3 +345,15 @@ class AuthService:
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="无效的 Google ID Token"
             )
+
+    @staticmethod
+    def revoke_refresh_token(db: Session, refresh_token: str) -> None:
+        """吊销一个 Refresh Token；对无效令牌保持幂等，不泄露令牌状态。"""
+        payload = decode_token(refresh_token)
+        token_id = payload.get("jti") if payload else None
+        if not token_id:
+            return
+        record = db.query(RefreshToken).filter(RefreshToken.id == token_id).first()
+        if record and record.revoked_at is None:
+            record.revoked_at = datetime.utcnow()
+            db.commit()

@@ -2,6 +2,7 @@
 认证 API 路由
 """
 from fastapi import APIRouter, Depends, HTTPException, status
+from typing import Optional
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.schemas.auth import RegisterRequest, LoginRequest, AuthResult, RefreshTokenRequest, GoogleLoginRequest
@@ -60,12 +61,17 @@ def refresh_token(
 
 
 @router.post("/logout")
-def logout():
+def logout(
+    request: Optional[RefreshTokenRequest] = None,
+    db: Session = Depends(get_db),
+):
     """
     用户登出
     
-    注意: 由于使用 JWT,登出操作在客户端完成 (删除令牌)
+    客户端删除本地令牌；如果提交 Refresh Token，服务端同步吊销该会话。
     """
+    if request and request.refresh_token:
+        AuthService.revoke_refresh_token(db, request.refresh_token)
     return {"message": "登出成功"}
 
 

@@ -110,7 +110,7 @@ mypy app/
 - `POST /api/payments/connect/onboarding` - 创建 Stripe Connect Express 提现账户认证链接
 
 开发环境默认 `PAYMENT_PROVIDER=demo`，旧的 `/api/payments/charge` 保留为本地演示接口。
-生产环境设置 `PAYMENT_PROVIDER=stripe`，并配置 Stripe 密钥与 Webhook 密钥；不要把演示接口暴露给生产用户。使用 PostgreSQL 等生产数据库启动时，应用会拒绝开发 JWT 密钥、本地 CORS 地址、Stripe 占位密钥和非 HTTPS Connect 回调地址。
+生产环境设置 `PAYMENT_PROVIDER=stripe`，并配置 Stripe 密钥、Webhook 密钥、Connect 国家代码和币种；不要把演示接口暴露给生产用户。使用 PostgreSQL 等生产数据库启动时，应用会拒绝开发 JWT 密钥、本地 CORS 地址、Stripe 占位密钥、非 HTTPS Connect 回调地址、非法国家/币种代码以及当前金额换算不支持的零小数/特殊出款币种。Stripe 平台国家、Connected Account 国家、银行账户和结算币种仍需在 Stripe 测试环境中确认匹配。
 登录、注册、刷新令牌和 Google 登录接口使用独立的每 IP 限流窗口，默认每分钟最多 20 次。
 Stripe 模式下提现会先预留余额，再创建 Connect Transfer/Payout；只有 `payout.paid` Webhook 到达后才完成扣账，失败会释放预留余额。若 Transfer 已成功但 Payout 创建失败，交易保持 pending，等待重试或对账，不会错误释放资金。
 

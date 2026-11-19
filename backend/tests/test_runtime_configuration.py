@@ -71,3 +71,36 @@ def test_runtime_configuration_rejects_unknown_payment_provider():
     )
     with pytest.raises(RuntimeError, match="只能配置为 demo 或 stripe"):
         validate_runtime_configuration(runtime)
+
+
+def _secure_stripe_runtime(**overrides):
+    values = dict(
+        DATABASE_URL="postgresql://user:password@db/weight_bet",
+        SECRET_KEY="x" * 48,
+        ALLOWED_ORIGINS="https://app.example.com",
+        ALLOWED_HOSTS="api.example.com",
+        GOOGLE_CLIENT_IDS="web-client.apps.googleusercontent.com",
+        PAYMENT_PROVIDER="stripe",
+        STRIPE_SECRET_KEY="sk_live_realistic",
+        STRIPE_WEBHOOK_SECRET="whsec_live_realistic",
+        STRIPE_CONNECT_RETURN_URL="https://app.example.com/payment/connect/complete",
+        STRIPE_CONNECT_REFRESH_URL="https://app.example.com/payment/connect/retry",
+    )
+    values.update(overrides)
+    return Settings(**values)
+
+
+def test_stripe_configuration_rejects_zero_decimal_currency():
+    runtime = _secure_stripe_runtime(STRIPE_CURRENCY="jpy")
+    with pytest.raises(RuntimeError, match="零小数"):
+        validate_runtime_configuration(runtime)
+
+
+def test_stripe_configuration_rejects_invalid_country_code():
+    runtime = _secure_stripe_runtime(STRIPE_CONNECT_COUNTRY="cn")
+    with pytest.raises(RuntimeError, match="国家代码"):
+        validate_runtime_configuration(runtime)
+
+
+def test_stripe_configuration_accepts_two_decimal_currency_and_country():
+    validate_runtime_configuration(_secure_stripe_runtime(STRIPE_CURRENCY="cny", STRIPE_CONNECT_COUNTRY="US"))

@@ -595,10 +595,13 @@ MIT License
 - [x] Android 客户端基础架构
 - [x] iOS 客户端基础架构
 
-### 进行中功能 🚧
+### 当前验收状态 🚧
 
-- [x] Google OAuth 第三方登录（需配置 Google Client ID 与移动端 OAuth 文件）
-- [ ] 完整的 UI 界面实现
+- [x] Google OAuth 第三方登录代码链路（需配置 Google Client ID 与移动端 OAuth 文件，并完成真实设备验证）
+- [x] Android/iOS 核心页面与业务接口对齐
+- [x] Stripe 充值、Connect 提现、Webhook 和后台资金状态处理
+- [ ] Stripe、Google、FCM/APNs 真实凭据联调
+- [ ] 真机逐页面视觉验收
 
 ### 待开发功能 📋
 
@@ -675,7 +678,10 @@ xcodebuild test -scheme WeightLossBetting
 
 ---
 
-**项目状态**: ✅ Demo 已完成  
-**技术验证**: ✅ 通过  
-**可演示**: ✅ 是  
-**最后更新**: 2026-04-04
+**项目状态**: 核心业务代码与 CI 已完成，第三方生产联调待完成
+
+**技术验证**: 后端完整 CI、Android 编译 CI、iOS 编译 CI 已通过
+
+**可演示**: 配置 Demo 支付可演示；生产支付必须配置 Stripe 与 Webhook
+
+**最后更新**: 2026-11-19

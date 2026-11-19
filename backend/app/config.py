@@ -5,6 +5,18 @@ from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
 from typing import List, Optional
 import os
+import re
+
+
+# Payment and payout services currently convert user-facing decimal amounts to
+# minor units by multiplying by 100.  Keep currencies with Stripe's zero-
+# decimal/special payout rules out of this path until the amount conversion is
+# made currency-aware.
+STRIPE_ZERO_DECIMAL_CURRENCIES = {
+    "bif", "clp", "djf", "gnf", "jpy", "kmf", "krw", "mga", "pyg",
+    "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf",
+}
+STRIPE_SPECIAL_PAYOUT_CURRENCIES = {"huf", "twd"}
 
 
 class Settings(BaseSettings):
@@ -110,6 +122,16 @@ def validate_runtime_configuration(current: Settings = None) -> None:
     if is_production and payment_provider != "stripe":
         errors.append("生产环境必须配置 PAYMENT_PROVIDER=stripe，禁止使用演示支付")
     if payment_provider == "stripe":
+        if not re.fullmatch(r"[a-z]{3}", runtime.STRIPE_CURRENCY or ""):
+            errors.append("STRIPE_CURRENCY 必须是小写三位 ISO 4217 币种代码")
+        elif runtime.STRIPE_CURRENCY.lower() in (
+            STRIPE_ZERO_DECIMAL_CURRENCIES | STRIPE_SPECIAL_PAYOUT_CURRENCIES
+        ):
+            errors.append(
+                "当前支付金额换算按两位小数实现，暂不支持 Stripe 零小数或特殊出款币种"
+            )
+        if not re.fullmatch(r"[A-Z]{2}", runtime.STRIPE_CONNECT_COUNTRY or ""):
+            errors.append("STRIPE_CONNECT_COUNTRY 必须是大写两位 ISO 3166-1 国家代码")
         if not runtime.STRIPE_SECRET_KEY or runtime.STRIPE_SECRET_KEY.endswith("dummy"):
             errors.append("STRIPE_SECRET_KEY 尚未配置")
         if not runtime.STRIPE_WEBHOOK_SECRET or runtime.STRIPE_WEBHOOK_SECRET.endswith("dummy"):

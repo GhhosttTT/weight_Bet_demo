@@ -3,7 +3,9 @@ import UIKit
 
 final class PendingActionsService: NSObject, UIAdaptivePresentationControllerDelegate {
     static let shared = PendingActionsService()
-    private init() {}
+    private override init() {
+        super.init()
+    }
 
     private lazy var repository = PendingActionsRepository()
     private let maxRetryCount = 3

@@ -106,6 +106,33 @@ def test_failed_payout_releases_reserved_balance(db_session, stripe_config):
     assert db_session.query(Balance).one().available_balance == 100
 
 
+def test_payout_webhook_rejects_id_mismatch(db_session, stripe_config):
+    user = db_session.query(User).one()
+    user.stripe_account_id = "acct_123"
+    transaction = Transaction(
+        id="withdraw-tx-mismatch", user_id=user.id, type=TransactionType.WITHDRAW,
+        amount=-30, status=TransactionStatus.PENDING, external_payment_id="po_expected",
+    )
+    balance = db_session.query(Balance).one()
+    balance.available_balance = 70
+    balance.frozen_balance = 30
+    db_session.add(transaction)
+    db_session.commit()
+
+    with pytest.raises(HTTPException) as error:
+        StripePayoutService.handle_payout_webhook(
+            db_session,
+            "payout.paid",
+            {"id": "po_other", "amount": 3000, "currency": "cny", "metadata": {"transaction_id": transaction.id}},
+        )
+    assert error.value.detail == "Stripe 出款 ID 与本地提现不匹配"
+    db_session.refresh(transaction)
+    db_session.refresh(balance)
+    assert transaction.status == TransactionStatus.PENDING
+    assert balance.available_balance == 70
+    assert balance.frozen_balance == 30
+
+
 def test_retry_pending_payout_uses_same_idempotency_key(db_session, stripe_config):
     user = db_session.query(User).one()
     user.stripe_account_id = "acct_retry"

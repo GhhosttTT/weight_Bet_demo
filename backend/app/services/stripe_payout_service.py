@@ -185,6 +185,14 @@ class StripePayoutService:
             raise HTTPException(status_code=404, detail="本地提现交易不存在")
         if transaction.status in (TransactionStatus.COMPLETED, TransactionStatus.FAILED):
             return {"received": True, "handled": True, "idempotent": True}
+        payout_id = payout.get("id")
+        if not payout_id:
+            raise HTTPException(status_code=400, detail="Stripe 出款回调缺少 payout ID")
+        # 通过 metadata 恢复本地交易时允许绑定尚未落库的 payout；
+        # 已有本地 payout 则必须严格匹配，避免另一笔合法 Stripe 出款
+        # 借 metadata 找到交易后改变本地资金状态。
+        if transaction.external_payment_id and transaction.external_payment_id != payout_id:
+            raise HTTPException(status_code=400, detail="Stripe 出款 ID 与本地提现不匹配")
         amount = abs(transaction.amount)
         user = db.query(User).filter(User.id == transaction.user_id).first()
         if not user:
@@ -211,5 +219,7 @@ class StripePayoutService:
             transaction.status = TransactionStatus.FAILED
         else:
             return {"received": True, "handled": False}
+        if not transaction.external_payment_id:
+            transaction.external_payment_id = payout_id
         db.commit()
         return {"received": True, "handled": True, "status": transaction.status.value}

@@ -125,6 +125,15 @@ class BettingPlanRepository {
             completion(result)
         }
     }
+
+    func revokeBettingPlan(planId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        apiService.revokeBettingPlan(planId: planId) { [weak self] result in
+            if case .success = result {
+                self?.cacheManager.invalidateCache(for: "plan_\(planId)")
+            }
+            completion(result)
+        }
+    }
     
     func giveUpBettingPlan(planId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         apiService.giveUpBettingPlan(planId: planId) { [weak self] result in

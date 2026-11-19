@@ -173,6 +173,23 @@ class PlanDetailViewModel {
             }
         }
     }
+
+    func revokePlan() {
+        onLoadingChanged?(true)
+
+        repository.revokeBettingPlan(planId: planId) { [weak self] result in
+            DispatchQueue.main.async {
+                self?.onLoadingChanged?(false)
+                switch result {
+                case .success:
+                    self?.onActionSuccess?("计划已撤销，赌金已返还")
+                    self?.loadPlanDetail(forceRefresh: true)
+                case .failure(let error):
+                    self?.onError?(error.localizedDescription)
+                }
+            }
+        }
+    }
     
     func giveUpPlan() {
         onLoadingChanged?(true)

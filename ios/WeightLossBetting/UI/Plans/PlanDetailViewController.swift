@@ -35,6 +35,7 @@ class PlanDetailViewController: UIViewController {
     private var confirmButton: UIButton!     // 二次确认接受（待二次确认阶段）
     private var checkInButton: UIButton!     // 打卡（进行中阶段）
     private var giveUpButton: UIButton!      // 放弃计划（进行中阶段）
+    private var usesRevokeAction = false
     
     // Accept plan form (for pending plans)
     private var acceptPlanFormView: UIView!
@@ -625,6 +626,7 @@ class PlanDetailViewController: UIViewController {
     // MARK: - Button Display Methods
     
     private func showCancelOnly() {
+        usesRevokeAction = true
         actionButtonsView.isHidden = false
         acceptPlanFormView.isHidden = true
         
@@ -650,6 +652,7 @@ class PlanDetailViewController: UIViewController {
     }
     
     private func showCancelConfirmButtons() {
+        usesRevokeAction = false
         actionButtonsView.isHidden = false
         acceptPlanFormView.isHidden = true
         
@@ -689,7 +692,11 @@ class PlanDetailViewController: UIViewController {
         let alert = UIAlertController(title: "确认", message: "确定要取消这个计划吗？取消后赌金将全额返还。", preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "取消", style: .cancel))
         alert.addAction(UIAlertAction(title: "确定", style: .destructive) { [weak self] _ in
-            self?.viewModel.cancelPlan()
+            if self?.usesRevokeAction == true {
+                self?.viewModel.revokePlan()
+            } else {
+                self?.viewModel.cancelPlan()
+            }
         })
         present(alert, animated: true)
     }

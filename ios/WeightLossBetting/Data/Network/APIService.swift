@@ -366,6 +366,19 @@ class APIService {
                 }
             }
     }
+
+    func revokeBettingPlan(planId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        session.request("\(baseURL)/betting-plans/\(planId)/revoke",
+                       method: .post)
+            .validate()
+            .response { response in
+                if let error = response.error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+    }
     
     func giveUpBettingPlan(planId: String, completion: @escaping (Result<Void, Error>) -> Void) {
         let parameters = ["confirmation": true]

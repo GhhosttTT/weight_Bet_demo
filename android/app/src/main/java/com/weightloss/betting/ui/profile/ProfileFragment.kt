@@ -77,6 +77,23 @@ class ProfileFragment : Fragment() {
                 }
             }
         }
+        viewModel.accountDeletionState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is AccountDeletionState.Loading -> binding.btnDeleteAccount.isEnabled = false
+                is AccountDeletionState.Success -> {
+                    lifecycleScope.launch {
+                        viewModel.logout()
+                        Toast.makeText(requireContext(), "账户已删除", Toast.LENGTH_SHORT).show()
+                        goToLogin()
+                    }
+                }
+                is AccountDeletionState.Error -> {
+                    binding.btnDeleteAccount.isEnabled = true
+                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                }
+                is AccountDeletionState.Idle -> Unit
+            }
+        }
     }
     
     private fun setupListeners() {
@@ -91,7 +108,7 @@ class ProfileFragment : Fragment() {
         
         binding.btnLogout.setOnClickListener {
             lifecycleScope.launch {
-                tokenManager.clearTokens()
+                viewModel.logout()
                 Toast.makeText(requireContext(), "已退出登录", Toast.LENGTH_SHORT).show()
                 val intent = Intent(requireContext(), com.weightloss.betting.ui.auth.LoginActivity::class.java)
                 intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
@@ -99,6 +116,25 @@ class ProfileFragment : Fragment() {
                 requireActivity().finish()
             }
         }
+        binding.btnDeleteAccount.setOnClickListener { confirmDeleteAccount() }
+    }
+
+    private fun confirmDeleteAccount() {
+        androidx.appcompat.app.AlertDialog.Builder(requireContext())
+            .setTitle("删除账户")
+            .setMessage("账户删除后将清理个人资料和本地照片，且无法恢复。进行中的计划或冻结资金需要先处理。确定继续吗？")
+            .setNegativeButton("取消", null)
+            .setPositiveButton("删除") { _, _ ->
+                userId?.let { viewModel.deleteAccount(it) }
+            }
+            .show()
+    }
+
+    private fun goToLogin() {
+        val intent = Intent(requireContext(), com.weightloss.betting.ui.auth.LoginActivity::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
+        requireActivity().finish()
     }
     
     private fun displayUserInfo(user: com.weightloss.betting.data.model.User) {

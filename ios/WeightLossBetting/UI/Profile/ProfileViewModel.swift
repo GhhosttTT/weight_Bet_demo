@@ -20,4 +20,17 @@ class ProfileViewModel {
     func logout() {
         authRepository.logout()
     }
+
+    func deleteAccount(completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let userId = authRepository.getCurrentUserId() else {
+            completion(.failure(NSError(domain: "ProfileViewModel", code: -1, userInfo: [NSLocalizedDescriptionKey: "用户未登录"])))
+            return
+        }
+        userRepository.deleteUserAccount(userId: userId) { [weak self] result in
+            if case .success = result {
+                self?.authRepository.logout()
+            }
+            completion(result)
+        }
+    }
 }

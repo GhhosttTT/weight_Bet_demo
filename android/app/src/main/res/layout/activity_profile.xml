@@ -281,6 +281,16 @@
                 android:textColor="@color/xui_config_color_error"
                 app:strokeColor="@color/xui_config_color_error" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDeleteAccount"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="删除账户"
+                android:textSize="14sp"
+                android:layout_marginTop="8dp"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:textColor="@color/xui_config_color_error" />
+
             <!-- 加载进度条 -->
             <ProgressBar
                 android:id="@+id/progressBar"

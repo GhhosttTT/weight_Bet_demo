@@ -86,6 +86,15 @@ class ProfileViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+
+    private let deleteAccountButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("删除账户", for: .normal)
+        button.setTitleColor(AppTheme.Colors.error, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 14)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     private let activityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .large)
@@ -128,6 +137,7 @@ class ProfileViewController: UIViewController {
         contentView.addSubview(editButton)
         // contentView.addSubview(paymentButton)  // 隐藏：管理支付方式
         contentView.addSubview(notificationButton)
+        contentView.addSubview(deleteAccountButton)
         contentView.addSubview(logoutButton)
         view.addSubview(activityIndicator)
         
@@ -167,7 +177,10 @@ class ProfileViewController: UIViewController {
             notificationButton.trailingAnchor.constraint(equalTo: editButton.trailingAnchor),
             notificationButton.heightAnchor.constraint(equalToConstant: 50),
             
-            logoutButton.topAnchor.constraint(equalTo: notificationButton.bottomAnchor, constant: 16),
+            deleteAccountButton.topAnchor.constraint(equalTo: notificationButton.bottomAnchor, constant: 12),
+            deleteAccountButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+
+            logoutButton.topAnchor.constraint(equalTo: deleteAccountButton.bottomAnchor, constant: 8),
             logoutButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             logoutButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             
@@ -180,6 +193,7 @@ class ProfileViewController: UIViewController {
         editButton.addTarget(self, action: #selector(editButtonTapped), for: .touchUpInside)
         paymentButton.addTarget(self, action: #selector(paymentButtonTapped), for: .touchUpInside)
         notificationButton.addTarget(self, action: #selector(notificationButtonTapped), for: .touchUpInside)
+        deleteAccountButton.addTarget(self, action: #selector(deleteAccountButtonTapped), for: .touchUpInside)
         logoutButton.addTarget(self, action: #selector(logoutButtonTapped), for: .touchUpInside)
     }
     
@@ -352,11 +366,45 @@ class ProfileViewController: UIViewController {
         
         present(alert, animated: true)
     }
+
+    @objc private func deleteAccountButtonTapped() {
+        let alert = UIAlertController(
+            title: "删除账户",
+            message: "账户删除后将清理个人资料和本地照片，且无法恢复。进行中的计划或冻结资金需要先处理。确定继续吗？",
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.addAction(UIAlertAction(title: "删除", style: .destructive) { [weak self] _ in
+            self?.performAccountDeletion()
+        })
+        present(alert, animated: true)
+    }
+
+    private func performAccountDeletion() {
+        activityIndicator.startAnimating()
+        deleteAccountButton.isEnabled = false
+        viewModel.deleteAccount { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                self.activityIndicator.stopAnimating()
+                self.deleteAccountButton.isEnabled = true
+                switch result {
+                case .success:
+                    self.navigateToLogin()
+                case .failure(let error):
+                    self.showAlert(title: "删除失败", message: error.localizedDescription)
+                }
+            }
+        }
+    }
     
     private func performLogout() {
         viewModel.logout()
         
-        // Navigate to login screen
+        navigateToLogin()
+    }
+
+    private func navigateToLogin() {
         let loginVC = LoginViewController()
         let navController = UINavigationController(rootViewController: loginVC)
         

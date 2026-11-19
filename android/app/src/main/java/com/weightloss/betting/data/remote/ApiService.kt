@@ -41,6 +41,9 @@ interface ApiService {
         @Body request: UpdateUserRequest
     ): Response<User>
 
+    @DELETE("api/users/{userId}")
+    suspend fun deleteUserAccount(@Path("userId") userId: String): Response<Map<String, String>>
+
     @POST("api/users/{userId}/payment-methods")
     suspend fun bindPaymentMethod(
         @Path("userId") userId: String,

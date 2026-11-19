@@ -227,6 +227,19 @@ class APIService {
                 }
             }
     }
+
+    func deleteUserAccount(userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        session.request("\(baseURL)/users/\(userId)",
+                       method: .delete)
+            .validate()
+            .response { response in
+                if let error = response.error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+    }
     
     func searchUserByEmail(email: String, completion: @escaping (Result<UserPreview, Error>) -> Void) {
         let url = "\(baseURL)/users/search?email=\(email.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"

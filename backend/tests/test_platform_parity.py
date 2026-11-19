@@ -13,6 +13,10 @@ IOS_NETWORK_FILES = (
     ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift",
     ROOT / "ios/WeightLossBetting/Data/Network/ErrorInterceptor.swift",
 )
+ANDROID_API = ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt"
+ANDROID_PROFILE_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/profile/ProfileViewModel.kt"
+IOS_API = ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift"
+IOS_PROFILE_VM = ROOT / "ios/WeightLossBetting/UI/Profile/ProfileViewModel.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -61,3 +65,15 @@ def test_pending_plan_creator_uses_cancel_action_on_ios():
     assert 'cancelButton.setTitle("撤销计划"' in pending_branch
     assert 'giveUpButton.isHidden = true' in pending_branch
     assert 'self?.viewModel.revokePlan()' in ios
+
+
+def test_account_deletion_and_backend_logout_are_exposed_on_both_mobile_platforms():
+    android_api = ANDROID_API.read_text(encoding="utf-8")
+    android_vm = ANDROID_PROFILE_VM.read_text(encoding="utf-8")
+    ios_api = IOS_API.read_text(encoding="utf-8")
+    ios_vm = IOS_PROFILE_VM.read_text(encoding="utf-8")
+
+    assert '@DELETE("api/users/{userId}")' in android_api
+    assert 'suspend fun logout()' in android_vm
+    assert 'func deleteUserAccount(userId: String' in ios_api
+    assert 'func deleteAccount(completion:' in ios_vm

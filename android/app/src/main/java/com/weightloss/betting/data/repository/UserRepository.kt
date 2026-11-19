@@ -66,6 +66,10 @@ class UserRepository @Inject constructor(
         }
     }
 
+    suspend fun deleteUserAccount(userId: String): NetworkResult<Map<String, String>> {
+        return safeApiCall { apiService.deleteUserAccount(userId) }
+    }
+
     suspend fun bindPaymentMethod(userId: String, paymentMethodId: String): NetworkResult<User> {
         return when (val result = safeApiCall {
             apiService.bindPaymentMethod(userId, BindPaymentMethodRequest(paymentMethodId))

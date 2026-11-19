@@ -44,6 +44,10 @@ class UserRepository {
     func bindPaymentMethod(userId: String, parameters: [String: Any], completion: @escaping (Result<Void, Error>) -> Void) {
         apiService.bindPaymentMethod(userId: userId, parameters: parameters, completion: completion)
     }
+
+    func deleteUserAccount(userId: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        apiService.deleteUserAccount(userId: userId, completion: completion)
+    }
     
     func searchUserByEmail(email: String, completion: @escaping (Result<UserPreview, Error>) -> Void) {
         apiService.searchUserByEmail(email: email) { result in

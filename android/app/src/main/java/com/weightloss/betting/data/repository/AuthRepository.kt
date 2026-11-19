@@ -106,6 +106,9 @@ class AuthRepository @Inject constructor(
      * 登出
      */
     suspend fun logout() {
+        tokenManager.getRefreshToken()?.let { refreshToken ->
+            safeApiCall { apiService.logout(RefreshTokenRequest(refreshToken)) }
+        }
         tokenManager.clearTokens()
     }
 }

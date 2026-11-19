@@ -121,6 +121,9 @@ class AuthRepository {
     }
     
     func logout() {
+        if let refreshToken = keychainManager.getRefreshToken() {
+            apiService.logout(refreshToken: refreshToken) { _ in }
+        }
         // Clear tokens from Keychain
         keychainManager.deleteAccessToken()
         keychainManager.deleteRefreshToken()

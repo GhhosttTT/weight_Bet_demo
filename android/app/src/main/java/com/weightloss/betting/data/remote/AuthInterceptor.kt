@@ -2,6 +2,8 @@ package com.weightloss.betting.data.remote
 
 import android.util.Log
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import okhttp3.Interceptor
 import okhttp3.Request
 import okhttp3.Response
@@ -19,6 +21,8 @@ class AuthInterceptor @Inject constructor(
     companion object {
         private const val TAG = "AuthInterceptor"
     }
+
+    private val refreshMutex = Mutex()
     
     override fun intercept(chain: Interceptor.Chain): Response {
         val originalRequest = chain.request()
@@ -101,22 +105,24 @@ class AuthInterceptor @Inject constructor(
     }
     
     private suspend fun refreshToken(): Boolean {
-        val refreshToken = tokenManager.getRefreshToken() ?: return false
-        
-        // 使用 Provider 延迟获取 AuthRepository，避免循环依赖
-        val authRepository = authRepositoryProvider.get()
-        
-        return when (val result = authRepository.refreshToken()) {
-            is NetworkResult.Success -> {
-                Log.d(TAG, "Token refresh successful")
-                true
+        return refreshMutex.withLock {
+            if (tokenManager.getRefreshToken().isNullOrEmpty()) return@withLock false
+
+            // 使用 Provider 延迟获取 AuthRepository，避免循环依赖。
+            // 串行化刷新，避免多个 401 同时轮换同一个 Refresh Token。
+            val authRepository = authRepositoryProvider.get()
+            when (val result = authRepository.refreshToken()) {
+                is NetworkResult.Success -> {
+                    Log.d(TAG, "Token refresh successful")
+                    true
+                }
+                is NetworkResult.Error -> {
+                    Log.e(TAG, "Token refresh failed: ${result.exception.message}")
+                    tokenManager.clearTokens()
+                    false
+                }
+                is NetworkResult.Loading -> false
             }
-            is NetworkResult.Error -> {
-                Log.e(TAG, "Token refresh failed: ${result.exception.message}")
-                tokenManager.clearTokens()
-                false
-            }
-            is NetworkResult.Loading -> false
         }
     }
     

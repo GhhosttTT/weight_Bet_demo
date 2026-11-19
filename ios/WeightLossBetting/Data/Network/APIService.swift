@@ -138,6 +138,21 @@ class APIService {
                 self.handleDirectResponse(response, completion: completion)
             }
     }
+
+    func logout(refreshToken: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        session.request("\(baseURL)/auth/logout",
+                       method: .post,
+                       parameters: ["refresh_token": refreshToken],
+                       encoding: JSONEncoding.default)
+            .validate()
+            .response { response in
+                if let error = response.error {
+                    completion(.failure(error))
+                } else {
+                    completion(.success(()))
+                }
+            }
+    }
     
     func googleLogin(idToken: String, completion: @escaping (Result<AuthResponse, Error>) -> Void) {
         let parameters = ["id_token": idToken]

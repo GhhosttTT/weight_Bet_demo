@@ -23,6 +23,9 @@ interface ApiService {
     
     @POST("api/auth/refresh")
     suspend fun refreshToken(@Body request: RefreshTokenRequest): Response<AuthResult>
+
+    @POST("api/auth/logout")
+    suspend fun logout(@Body request: RefreshTokenRequest): Response<Map<String, String>>
     
     @POST("api/auth/google")
     suspend fun googleLogin(@Body request: GoogleLoginRequest): Response<AuthResult>

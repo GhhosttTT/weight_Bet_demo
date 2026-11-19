@@ -6,7 +6,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 ANDROID_WITHDRAW = ROOT / "android/app/src/main/res/layout/activity_withdraw.xml"
 ANDROID_CHARGE_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt"
+ANDROID_CHARGE_ACTIVITY = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeActivity.kt"
 IOS_CHARGE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewController.swift"
+IOS_CHARGE_VM = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift"
 IOS_WITHDRAW = ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewController.swift"
 IOS_PLAN_DETAIL = ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewController.swift"
 IOS_NETWORK_FILES = (
@@ -49,6 +51,27 @@ def test_charge_limits_match_between_mobile_platforms():
     assert 'amount >= 0.01' in ios
     assert 'amountDouble > 10000' in android
     assert 'amount <= 10000' in ios
+
+
+def test_charge_flow_uses_stripe_payment_sheet_and_webhook_entrypoint_on_both_platforms():
+    android_vm = ANDROID_CHARGE_VM.read_text(encoding="utf-8")
+    android_activity = ANDROID_CHARGE_ACTIVITY.read_text(encoding="utf-8")
+    ios_vm = IOS_CHARGE_VM.read_text(encoding="utf-8")
+    ios_controller = IOS_CHARGE_VC.read_text(encoding="utf-8")
+
+    # 两端都必须先创建 PaymentIntent，再由 Stripe SDK 收集/确认卡信息。
+    assert "createChargeIntent" in android_vm
+    assert "createChargeIntent" in ios_vm
+    assert "presentWithPaymentIntent" in android_activity
+    assert "PaymentSheet(" in ios_controller
+    assert "paymentIntentClientSecret" in ios_controller
+
+    # 客户端完成支付后只能等待服务端 webhook 入账，不能调用旧的 demo 充值接口。
+    assert "paymentCompleted()" in android_activity
+    assert "paymentCompleted()" in ios_controller
+    assert "api/payments/charge" not in android_vm
+    assert "api/payments/charge" not in ios_vm
+    assert "charge_funds" not in android_vm + ios_vm
 
 
 def test_ios_network_logging_does_not_emit_urls_or_response_bodies():

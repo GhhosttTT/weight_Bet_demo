@@ -394,13 +394,15 @@ class BettingPlanService:
             plan.status = PlanStatus.REJECTED
             
             try:
+                # 状态、邀请和资金解冻必须在同一事务中完成；否则解冻失败
+                # 会留下 REJECTED 计划和长期冻结的创建者资金。
+                if not PaymentService.unfreeze_funds(
+                    db, plan.creator_id, plan_id, commit=False
+                ):
+                    raise RuntimeError("创建者资金解冻失败")
                 db.commit()
-                # 解冻创建者资金
-                try:
-                    PaymentService.unfreeze_funds(db, plan.creator_id, plan_id)
-                except Exception:
-                    logger.error("Failed to unfreeze creator funds for plan %s, user %s", plan_id, plan.creator_id)
             except Exception as e:
+                db.rollback()
                 logger.error("DB error when invitee rejecting plan %s: %s", plan_id, str(e))
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="拒绝邀请失败，请稍后重试")
             
@@ -420,17 +422,12 @@ class BettingPlanService:
                 raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="当前状态不能拒绝")
             
             # Update invitation status if exists
-            try:
-                from app.models.invitation import Invitation, InvitationStatus
-                invitation = db.query(Invitation).filter(
-                    Invitation.plan_id == plan_id
-                ).first()
-                
-                if invitation:
-                    invitation.status = InvitationStatus.REJECTED
-                    invitation.responded_at = datetime.utcnow()
-            except Exception as e:
-                logger.error("Failed to update invitation status: %s", str(e))
+            invitation = db.query(Invitation).filter(
+                Invitation.plan_id == plan_id
+            ).first()
+            if invitation:
+                invitation.status = InvitationStatus.REJECTED
+                invitation.responded_at = datetime.utcnow()
             
             # Change plan status to REJECTED
             plan.status = PlanStatus.REJECTED
@@ -440,21 +437,15 @@ class BettingPlanService:
             plan.participant_target_weight_loss = None
 
             try:
-                db.commit()
-                # 双方都已冻结时，拒绝必须同时退回双方资金。
+                # 双方资金和计划状态必须原子提交；任一方没有可解冻流水都回滚。
                 for refund_user_id in (plan.creator_id, user_id):
-                    try:
-                        if not PaymentService.unfreeze_funds(db, refund_user_id, plan_id):
-                            logger.error(
-                                "Failed to unfreeze funds for plan %s, user %s",
-                                plan_id, refund_user_id
-                            )
-                    except Exception:
-                        logger.error(
-                            "Failed to unfreeze funds for plan %s, user %s",
-                            plan_id, refund_user_id
-                        )
+                    if not PaymentService.unfreeze_funds(
+                        db, refund_user_id, plan_id, commit=False
+                    ):
+                        raise RuntimeError(f"用户 {refund_user_id} 资金解冻失败")
+                db.commit()
             except Exception as e:
+                db.rollback()
                 logger.error("DB error when participant rejecting plan %s: %s", plan_id, str(e))
                 raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="拒绝计划失败，请稍后重试")
 

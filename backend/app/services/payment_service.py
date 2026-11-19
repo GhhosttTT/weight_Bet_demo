@@ -188,6 +188,13 @@ class PaymentService:
 
         def _freeze():
             try:
+                # 先锁余额行，再检查冻结流水。这样同一用户并发冻结会在
+                # PostgreSQL 中串行化，第二个请求能看到第一个请求的结果。
+                balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
+                if not balance:
+                    logger.warning("Balance not found for user: {}", user_id)
+                    return FreezeResult(success=False, transaction_id=None, error="账户余额不存在")
+
                 # 重试可能发生在数据库提交成功、客户端未收到结果之后。
                 # 同一用户和计划已有冻结流水时直接返回，避免重复扣款。
                 existing_freeze = db.query(Transaction).filter(
@@ -203,12 +210,6 @@ class PaymentService:
                         return FreezeResult(success=False, transaction_id=None, error="同一计划冻结金额不一致")
                     return FreezeResult(success=True, transaction_id=existing_freeze.id, error=None)
 
-                # 获取用户余额
-                balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
-                if not balance:
-                    logger.warning("Balance not found for user: {}", user_id)
-                    return FreezeResult(success=False, transaction_id=None, error="账户余额不存在")
-                
                 # 检查余额是否充足
                 if balance.available_balance < amount:
                     logger.warning("Insufficient balance for user {}: {} < {}", user_id, balance.available_balance, amount)
@@ -231,6 +232,7 @@ class PaymentService:
                     amount=amount,
                     status=TransactionStatus.COMPLETED,
                     related_plan_id=plan_id,
+                    idempotency_key=f"freeze-{user_id}-{plan_id}",
                     completed_at=datetime.utcnow()
                 )
                 db.add(transaction)

@@ -265,6 +265,11 @@ class ChargeViewController: UIViewController {
             showAlert(title: "错误", message: "请输入有效的充值金额")
             return
         }
+
+        guard amount <= 10000 else {
+            showAlert(title: "错误", message: "单次充值金额不能超过 10000 元")
+            return
+        }
         
         viewModel.charge(amount: amount)
     }

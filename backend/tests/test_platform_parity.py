@@ -5,6 +5,8 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 ANDROID_WITHDRAW = ROOT / "android/app/src/main/res/layout/activity_withdraw.xml"
+ANDROID_CHARGE_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt"
+IOS_CHARGE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewController.swift"
 IOS_WITHDRAW = ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewController.swift"
 IOS_PLAN_DETAIL = ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewController.swift"
 
@@ -27,6 +29,16 @@ def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
     assert "请输入提现金额（元）" in ios
     assert "可用余额：¥" in ios
     assert 'amount <= 50000' in ios
+
+
+def test_charge_limits_match_between_mobile_platforms():
+    android = ANDROID_CHARGE_VM.read_text(encoding="utf-8")
+    ios = IOS_CHARGE_VC.read_text(encoding="utf-8")
+
+    assert 'amountDouble < 0.01' in android
+    assert 'amount >= 0.01' in ios
+    assert 'amountDouble > 10000' in android
+    assert 'amount <= 10000' in ios
 
 
 def test_pending_plan_creator_uses_cancel_action_on_ios():

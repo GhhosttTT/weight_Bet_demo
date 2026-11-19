@@ -139,14 +139,10 @@ class APIServiceErrorTests: XCTestCase {
     // MARK: - 网络错误测试
     
     func testNetworkTimeout() {
-        // This test verifies network timeout handling
-        // Would need to mock the network layer for proper testing
-        print("⚠️ Network timeout test requires mocking infrastructure")
+        throw XCTSkip("需要可注入的网络客户端或本地 stub 后才能验证超时行为")
     }
     
     func testServerUnavailable() {
-        // Test when server is completely unavailable
-        // Would need to point to a non-existent server
-        print("⚠️ Server unavailable test requires test environment")
+        throw XCTSkip("需要可注入的网络客户端或专用不可用服务地址才能验证")
     }
 }

@@ -152,7 +152,9 @@ data class CreatePlanRequest(
     val initialWeight: Double,
     @SerializedName("target_weight")
     val targetWeight: Double,
-    val description: String?
+    val description: String?,
+    @SerializedName("invitee_id")
+    val inviteeId: String? = null
 )
 
 data class AcceptPlanRequest(

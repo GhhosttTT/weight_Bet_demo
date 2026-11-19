@@ -8,6 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
+import androidx.core.os.bundleOf
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -27,9 +28,14 @@ class InviteFriendDialog : DialogFragment() {
     
     private lateinit var viewModel: InviteFriendViewModel
     private var planId: String? = null
+    private var preCreateMode = false
+    private var searchedUserId: String? = null
     
     companion object {
         const val ARG_PLAN_ID = "plan_id"
+        const val ARG_PRE_CREATE = "pre_create"
+        const val RESULT_PRE_CREATE_INVITE = "pre_create_invite"
+        const val RESULT_INVITEE_ID = "invitee_id"
         
         fun newInstance(planId: String): InviteFriendDialog {
             return InviteFriendDialog().apply {
@@ -38,13 +44,20 @@ class InviteFriendDialog : DialogFragment() {
                 }
             }
         }
+
+        fun newInstanceForPreCreate(): InviteFriendDialog {
+            return InviteFriendDialog().apply {
+                arguments = Bundle().apply { putBoolean(ARG_PRE_CREATE, true) }
+            }
+        }
     }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         planId = arguments?.getString(ARG_PLAN_ID)
+        preCreateMode = arguments?.getBoolean(ARG_PRE_CREATE, false) == true
         
-        if (planId == null) {
+        if (planId == null && !preCreateMode) {
             Toast.makeText(requireContext(), "计划 ID 无效", Toast.LENGTH_SHORT).show()
             dismiss()
         }
@@ -132,6 +145,7 @@ class InviteFriendDialog : DialogFragment() {
     }
     
     private fun displaySearchResult(user: UserSearchResult) {
+        searchedUserId = user.userId
         binding.tvFriendName.text = "姓名：${user.nickname}"
         binding.tvFriendAge.text = "年龄：${user.age}岁"
         binding.tvFriendGender.text = "性别：${GenderMapper.toDisplay(user.gender)}"
@@ -168,6 +182,7 @@ class InviteFriendDialog : DialogFragment() {
             }
             
             android.util.Log.d("InviteFriendDialog", "Calling viewModel.searchFriend")
+            searchedUserId = null
             viewModel.searchFriend(email)
         }
         
@@ -184,8 +199,19 @@ class InviteFriendDialog : DialogFragment() {
                 return@setOnClickListener
             }
             
-            planId?.let { id ->
-                viewModel.inviteFriend(id, email)
+            if (preCreateMode) {
+                val inviteeId = searchedUserId
+                if (inviteeId.isNullOrBlank()) {
+                    Toast.makeText(requireContext(), "请先搜索并确认好友", Toast.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
+                parentFragmentManager.setFragmentResult(
+                    RESULT_PRE_CREATE_INVITE,
+                    bundleOf(RESULT_INVITEE_ID to inviteeId)
+                )
+                dismiss()
+            } else {
+                planId?.let { id -> viewModel.inviteFriend(id, email) }
             }
         }
     }

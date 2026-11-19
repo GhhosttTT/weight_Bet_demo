@@ -7,6 +7,10 @@ ROOT = Path(__file__).resolve().parents[2]
 ANDROID_WITHDRAW = ROOT / "android/app/src/main/res/layout/activity_withdraw.xml"
 ANDROID_CHARGE_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt"
 ANDROID_CHARGE_ACTIVITY = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeActivity.kt"
+ANDROID_CREATE_PLAN = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/CreatePlanActivity.kt"
+ANDROID_CREATE_PLAN_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/CreatePlanViewModel.kt"
+ANDROID_CREATE_PLAN_MODEL = ROOT / "android/app/src/main/java/com/weightloss/betting/data/model/Models.kt"
+ANDROID_INVITE_DIALOG = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/InviteFriendDialog.kt"
 IOS_CHARGE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewController.swift"
 IOS_CHARGE_VM = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift"
 IOS_WITHDRAW = ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewController.swift"
@@ -72,6 +76,24 @@ def test_charge_flow_uses_stripe_payment_sheet_and_webhook_entrypoint_on_both_pl
     assert "api/payments/charge" not in android_vm
     assert "api/payments/charge" not in ios_vm
     assert "charge_funds" not in android_vm + ios_vm
+
+
+def test_create_plan_invitation_flow_matches_ios_pre_create_sequence():
+    android_activity = ANDROID_CREATE_PLAN.read_text(encoding="utf-8")
+    android_vm = ANDROID_CREATE_PLAN_VM.read_text(encoding="utf-8")
+    android_model = ANDROID_CREATE_PLAN_MODEL.read_text(encoding="utf-8")
+    invite_dialog = ANDROID_INVITE_DIALOG.read_text(encoding="utf-8")
+    ios_create = (ROOT / "ios/WeightLossBetting/UI/Plans/CreatePlanViewController.swift").read_text(encoding="utf-8")
+
+    # Android must select the invitee before sending create-plan, like iOS.
+    assert "newInstanceForPreCreate" in android_activity
+    assert "setFragmentResultListener" in android_activity
+    assert "inviteeId = pendingInviteeId" in android_activity
+    assert 'SerializedName("invitee_id")' in android_model
+    assert "inviteeId: String? = null" in android_vm
+    assert "ARG_PRE_CREATE" in invite_dialog
+    assert "RESULT_PRE_CREATE_INVITE" in invite_dialog
+    assert "showInvitePage" in ios_create
 
 
 def test_ios_network_logging_does_not_emit_urls_or_response_bodies():

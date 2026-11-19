@@ -25,6 +25,7 @@ class CreatePlanActivity : BaseActivity() {
     private val displayDateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
     private var startDate: Date? = null
     private var endDate: Date? = null
+    private var pendingInviteeId: String? = null
     
     companion object {
         private const val REQUEST_CODE_CHARGE = 1001
@@ -38,6 +39,13 @@ class CreatePlanActivity : BaseActivity() {
         setupToolbar()
         setupObservers()
         setupListeners()
+        supportFragmentManager.setFragmentResultListener(
+            InviteFriendDialog.RESULT_PRE_CREATE_INVITE,
+            this
+        ) { _, result ->
+            pendingInviteeId = result.getString(InviteFriendDialog.RESULT_INVITEE_ID)
+            createPlan()
+        }
     }
     
     private fun setupToolbar() {
@@ -62,7 +70,7 @@ class CreatePlanActivity : BaseActivity() {
                     Toast.makeText(this, "计划创建成功", Toast.LENGTH_SHORT).show()
                     val intent = Intent(this, PlanDetailActivity::class.java)
                     intent.putExtra("PLAN_ID", state.plan.id)
-                    intent.putExtra("SHOW_INVITE", true)
+                    intent.putExtra("SHOW_INVITE", false)
                     startActivity(intent)
                     finish()
                 }
@@ -151,13 +159,22 @@ class CreatePlanActivity : BaseActivity() {
             return
         }
         
+        if (pendingInviteeId.isNullOrBlank()) {
+            InviteFriendDialog.newInstanceForPreCreate().show(
+                supportFragmentManager,
+                "PreCreateInviteDialog"
+            )
+            return
+        }
+
         viewModel.createPlan(
             betAmount = betAmount,
             startDate = startDate!!,
             endDate = endDate!!,
             initialWeight = initialWeight,
             targetWeight = targetWeight,
-            description = description
+            description = description,
+            inviteeId = pendingInviteeId
         )
     }
     

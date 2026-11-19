@@ -43,7 +43,8 @@ class CreatePlanViewModel @Inject constructor(
         endDate: Date,
         initialWeight: String,
         targetWeight: String,
-        description: String?
+        description: String?,
+        inviteeId: String? = null
     ) {
         // Validate inputs
         val betAmountDouble = betAmount.toDoubleOrNull()
@@ -89,7 +90,8 @@ class CreatePlanViewModel @Inject constructor(
             endDate = formatToString(endDate),
             initialWeight = initialWeightDouble,
             targetWeight = targetWeightDouble,
-            description = description
+            description = description,
+            inviteeId = inviteeId
         )
         
         viewModelScope.launch {

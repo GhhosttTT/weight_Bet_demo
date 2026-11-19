@@ -12,6 +12,7 @@ from google.auth.transport import requests
 from app.models.user import User, Gender
 from app.models.balance import Balance
 from app.models.refresh_token import RefreshToken
+from app.models.device_token import DeviceToken
 from app.schemas.auth import RegisterRequest, LoginRequest, AuthResult
 from app.utils.security import hash_password, verify_password, create_access_token, create_refresh_token, decode_token
 from app.logger import get_logger
@@ -348,12 +349,23 @@ class AuthService:
 
     @staticmethod
     def revoke_refresh_token(db: Session, refresh_token: str) -> None:
-        """吊销一个 Refresh Token；对无效令牌保持幂等，不泄露令牌状态。"""
+        """吊销一个 Refresh Token；最后一个会话退出时清理该用户推送 Token。"""
         payload = decode_token(refresh_token)
         token_id = payload.get("jti") if payload else None
         if not token_id:
             return
         record = db.query(RefreshToken).filter(RefreshToken.id == token_id).first()
         if record and record.revoked_at is None:
+            user_id = record.user_id
             record.revoked_at = datetime.utcnow()
             db.commit()
+            active_sessions = db.query(RefreshToken).filter(
+                RefreshToken.user_id == user_id,
+                RefreshToken.revoked_at.is_(None),
+                RefreshToken.expires_at > datetime.utcnow(),
+            ).count()
+            if active_sessions == 0:
+                db.query(DeviceToken).filter(DeviceToken.user_id == user_id).delete(
+                    synchronize_session=False
+                )
+                db.commit()

@@ -8,6 +8,7 @@ from sqlalchemy.pool import StaticPool
 
 from app.database import Base
 from app.models.user import Gender, User
+from app.models.device_token import DeviceToken, Platform
 from app.schemas.auth import LoginRequest
 from app.services.auth_service import AuthService
 from app.utils.security import hash_password
@@ -44,8 +45,11 @@ def test_refresh_token_is_rotated_and_old_token_cannot_be_replayed(auth_db):
 
 def test_logout_revokes_refresh_token(auth_db):
     result = AuthService.login(auth_db, LoginRequest(email="refresh@example.com", password="secret123"))
+    auth_db.add(DeviceToken(id="device-refresh-001", user_id="refresh-user-001", token="device-token", platform=Platform.ANDROID))
+    auth_db.commit()
     AuthService.revoke_refresh_token(auth_db, result.refresh_token)
 
     with pytest.raises(HTTPException) as error:
         AuthService.refresh_token(auth_db, result.refresh_token)
     assert error.value.status_code == 401
+    assert auth_db.query(DeviceToken).count() == 0

@@ -12,6 +12,7 @@ from app.main import app
 from app.database import Base, get_db
 from app.models.settlement import Settlement
 from app.models.user import User
+from app.redis_client import get_redis
 
 
 # 测试数据库配置
@@ -36,6 +37,11 @@ app.dependency_overrides[get_db] = override_get_db
 def client():
     """创建测试客户端"""
     app.dependency_overrides[get_db] = override_get_db
+    # 集成场景共享进程内 Redis；每个场景独立清理限流窗口，避免前序场景
+    # 的 testclient 请求把后续业务请求误判为超限。
+    redis = get_redis()
+    for key in redis.scan_iter(match="rate_limit:*"):
+        redis.delete(key)
     Base.metadata.create_all(bind=engine)
     with TestClient(app) as test_client:
         yield test_client

@@ -44,3 +44,30 @@ def test_runtime_configuration_rejects_sqlite_in_production():
     )
     with pytest.raises(RuntimeError, match="SQLite"):
         validate_runtime_configuration(runtime)
+
+
+def test_production_rejects_demo_payment_provider():
+    runtime = Settings(
+        DATABASE_URL="postgresql://user:password@db/weight_bet",
+        ENVIRONMENT="production",
+        SECRET_KEY="x" * 40,
+        ALLOWED_ORIGINS="https://app.example.com",
+        ALLOWED_HOSTS="api.example.com",
+        GOOGLE_CLIENT_IDS="web-client.apps.googleusercontent.com",
+        PAYMENT_PROVIDER="demo",
+    )
+    with pytest.raises(RuntimeError, match="禁止使用演示支付"):
+        validate_runtime_configuration(runtime)
+
+
+def test_runtime_configuration_rejects_unknown_payment_provider():
+    runtime = Settings(
+        DATABASE_URL="postgresql://user:password@db/weight_bet",
+        SECRET_KEY="x" * 40,
+        ALLOWED_ORIGINS="https://app.example.com",
+        ALLOWED_HOSTS="api.example.com",
+        GOOGLE_CLIENT_IDS="web-client.apps.googleusercontent.com",
+        PAYMENT_PROVIDER="unknown",
+    )
+    with pytest.raises(RuntimeError, match="只能配置为 demo 或 stripe"):
+        validate_runtime_configuration(runtime)

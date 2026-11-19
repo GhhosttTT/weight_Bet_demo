@@ -90,6 +90,7 @@ def validate_runtime_configuration(current: Settings = None) -> None:
     runtime = current or settings
     environment = runtime.ENVIRONMENT.strip().lower()
     is_production = environment in {"production", "prod", "staging"}
+    payment_provider = runtime.PAYMENT_PROVIDER.strip().lower()
     if runtime.DATABASE_URL.lower().startswith("sqlite") and not is_production:
         return
 
@@ -104,7 +105,11 @@ def validate_runtime_configuration(current: Settings = None) -> None:
         errors.append("ALLOWED_HOSTS 必须配置正式域名")
     if not runtime.google_client_ids_list:
         errors.append("GOOGLE_CLIENT_IDS 必须配置，避免生产环境出现不可用的 Google 登录按钮")
-    if runtime.PAYMENT_PROVIDER.lower() == "stripe":
+    if payment_provider not in {"demo", "stripe"}:
+        errors.append("PAYMENT_PROVIDER 只能配置为 demo 或 stripe")
+    if is_production and payment_provider != "stripe":
+        errors.append("生产环境必须配置 PAYMENT_PROVIDER=stripe，禁止使用演示支付")
+    if payment_provider == "stripe":
         if not runtime.STRIPE_SECRET_KEY or runtime.STRIPE_SECRET_KEY.endswith("dummy"):
             errors.append("STRIPE_SECRET_KEY 尚未配置")
         if not runtime.STRIPE_WEBHOOK_SECRET or runtime.STRIPE_WEBHOOK_SECRET.endswith("dummy"):

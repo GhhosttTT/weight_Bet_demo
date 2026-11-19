@@ -141,13 +141,21 @@ class StripePayoutService:
             raise HTTPException(status_code=404, detail="待重试提现交易不存在")
         if transaction.external_payment_id:
             return {"success": True, "status": "pending", "payout_id": transaction.external_payment_id, "idempotent": True}
-        if not transaction.external_transfer_id:
-            raise HTTPException(status_code=409, detail="提现尚未完成 Transfer，不能重试 Payout")
         user = db.query(User).filter(User.id == transaction.user_id).first()
         if not user or not user.stripe_account_id:
             raise HTTPException(status_code=409, detail="提现账户不存在")
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
+            if not transaction.external_transfer_id:
+                transfer = stripe.Transfer.create(
+                    amount=int(abs(transaction.amount) * 100),
+                    currency=settings.STRIPE_CURRENCY,
+                    destination=user.stripe_account_id,
+                    metadata={"transaction_id": transaction.id, "user_id": transaction.user_id},
+                    idempotency_key=f"weight-bet-transfer-{transaction.id}",
+                )
+                transaction.external_transfer_id = transfer.id
+                db.commit()
             payout = stripe.Payout.create(
                 amount=int(abs(transaction.amount) * 100),
                 currency=settings.STRIPE_CURRENCY,

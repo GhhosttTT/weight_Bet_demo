@@ -121,3 +121,25 @@ def test_retry_pending_payout_uses_same_idempotency_key(db_session, stripe_confi
     assert result["payout_id"] == "po_retry"
     assert db_session.query(Transaction).one().external_payment_id == "po_retry"
     assert create.call_args[1]["idempotency_key"] == "weight-bet-payout-retry-tx-001"
+
+
+def test_retry_pending_payout_recovers_missing_transfer(db_session, stripe_config):
+    user = db_session.query(User).one()
+    user.stripe_account_id = "acct_recover"
+    transaction = Transaction(
+        id="recover-tx-001", user_id=user.id, type=TransactionType.WITHDRAW,
+        amount=-15, status=TransactionStatus.PENDING,
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    transfer = SimpleNamespace(id="tr_recovered")
+    payout = SimpleNamespace(id="po_recovered")
+    with patch("app.services.stripe_payout_service.stripe.Transfer.create", return_value=transfer) as create_transfer, \
+         patch("app.services.stripe_payout_service.stripe.Payout.create", return_value=payout) as create_payout:
+        result = StripePayoutService.retry_pending_payout(db_session, transaction.id)
+    stored = db_session.query(Transaction).one()
+    assert result["payout_id"] == "po_recovered"
+    assert stored.external_transfer_id == "tr_recovered"
+    assert stored.external_payment_id == "po_recovered"
+    assert create_transfer.call_args[1]["idempotency_key"] == "weight-bet-transfer-recover-tx-001"
+    assert create_payout.call_args[1]["idempotency_key"] == "weight-bet-payout-recover-tx-001"

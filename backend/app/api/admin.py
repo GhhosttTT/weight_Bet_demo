@@ -40,7 +40,6 @@ def dashboard(_: User = Depends(get_current_admin), db: Session = Depends(get_db
         "pending_payouts": db.query(func.count(Transaction.id)).filter(
             Transaction.type == TransactionType.WITHDRAW,
             Transaction.status == TransactionStatus.PENDING,
-            Transaction.external_transfer_id.is_not(None),
             Transaction.external_payment_id.is_(None),
         ).scalar() or 0,
         "updated_at": datetime.utcnow(),
@@ -255,7 +254,12 @@ def list_transactions(
             "retryable_payout": (
                 item.type == TransactionType.WITHDRAW
                 and item.status == TransactionStatus.PENDING
-                and item.external_transfer_id is not None
+                and item.external_payment_id is None
+            ),
+            "needs_transfer_recovery": (
+                item.type == TransactionType.WITHDRAW
+                and item.status == TransactionStatus.PENDING
+                and item.external_transfer_id is None
                 and item.external_payment_id is None
             ),
             "created_at": item.created_at,
@@ -271,11 +275,10 @@ def list_pending_payouts(
     _: User = Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    """列出 Transfer 已成功但 Payout 尚未落库的提现。"""
+    """列出需要 Stripe Transfer/Payout 恢复的待处理提现。"""
     records = db.query(Transaction).filter(
         Transaction.type == TransactionType.WITHDRAW,
         Transaction.status == TransactionStatus.PENDING,
-        Transaction.external_transfer_id.is_not(None),
         Transaction.external_payment_id.is_(None),
     ).order_by(Transaction.created_at.asc()).offset(offset).limit(limit).all()
     return [
@@ -284,6 +287,7 @@ def list_pending_payouts(
             "user_id": item.user_id,
             "amount": abs(item.amount),
             "external_transfer_id": item.external_transfer_id,
+            "needs_transfer_recovery": item.external_transfer_id is None,
             "created_at": item.created_at,
         }
         for item in records

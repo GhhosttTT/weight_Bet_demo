@@ -7,7 +7,7 @@ from typing import Optional
 import secrets
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.middleware.auth import get_current_user
+from app.middleware.auth import get_current_admin, get_current_user
 from app.models.user import User
 from app.services.notification_service import NotificationService
 from app.schemas.notification import (
@@ -84,7 +84,7 @@ async def delete_device_token(
 async def send_notification(
     request: SendNotificationRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user)
+    _: User = Depends(get_current_admin)
 ):
     """
     Send a push notification (admin/testing only)
@@ -97,14 +97,8 @@ async def send_notification(
     Returns:
         NotificationResponse: Notification response
     """
-    # 当前 User 模型没有管理员/角色字段，不能把普通登录身份当作管理员。
-    # 系统内部通知由 NotificationService 直接调用；公开 API 仅允许用户
-    # 操作自己的通知目标，避免借接口向任意用户发送消息。
-    if request.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="当前账号无权向其他用户发送通知"
-        )
+    # 系统内部通知由 NotificationService 直接调用；此手工发送入口仅供
+    # 管理员/运维测试使用，避免普通用户构造任意通知请求。
     return NotificationService.send_notification(db, request)
 
 

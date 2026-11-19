@@ -97,6 +97,20 @@ def test_all_admin_reads_require_admin_role(admin_context):
         assert response.status_code == 403, path
 
 
+def test_manual_notification_send_requires_admin_role(admin_context):
+    response = admin_context["client"].post(
+        "/api/notifications/send",
+        headers=admin_context["member"],
+        json={
+            "user_id": "member-user",
+            "notification_type": "plan_invitation",
+            "title": "测试",
+            "body": "测试消息",
+        },
+    )
+    assert response.status_code == 403
+
+
 def test_admin_rejects_refresh_and_invalid_tokens(admin_context):
     client = admin_context["client"]
     refresh_headers = {

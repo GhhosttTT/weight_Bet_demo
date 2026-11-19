@@ -16,6 +16,8 @@ Google 登录使用 `GoogleSignIn` Pod。请从 Google Cloud Console 下载 `Goo
 AppDelegate 会用它初始化 Stripe SDK。真实环境同时配置后端 `PAYMENT_PROVIDER=stripe`、
 `STRIPE_SECRET_KEY` 和 `STRIPE_WEBHOOK_SECRET`。
 同时在 Xcode 的 Build Settings 配置 `API_BASE_URL`，生产环境必须使用 HTTPS 地址。
+Google 登录还需在 Build Settings 配置 `GOOGLE_REVERSED_CLIENT_ID`，值取自
+`GoogleService-Info.plist` 的 `REVERSED_CLIENT_ID`，用于登录完成后的回调 URL Scheme。
 
 ## 项目结构
 
@@ -145,17 +147,17 @@ View (ViewController) ←→ ViewModel ←→ Repository ←→ API/Database
 - ✅ 查看进度统计
 - ✅ 离线打卡支持
 - ✅ 照片上传
-- ⏳ 进度图表展示 (待实现)
+- ✅ 进度统计展示（图表视觉仍需真机验收）
 
 ### 4. 支付功能
 - ✅ 查看账户余额
 - ✅ 查看交易历史
-- ✅ 充值功能（演示支付方式）
-- ✅ 提现功能（演示支付方式）
+- ✅ Stripe PaymentSheet 充值（Webhook 入账）
+- ✅ Stripe Connect Express 提现（Webhook 更新状态）
 
 ### 5. 通知功能
 - ✅ Firebase Cloud Messaging 集成
-- ⏳ 推送通知处理 (待实现)
+- ✅ 推送通知接收、点击跳转和服务端发送逻辑（需要配置 APNs/FCM 凭证）
 - ✅ 通知权限请求
 
 ## 安装和运行
@@ -303,9 +305,9 @@ private let baseURL = "https://your-api-domain.com/api"
 
 ### 高优先级
 - [x] Google 第三方登录
-- [ ] 进度图表展示
+- [x] 进度统计展示（生产视觉验收待完成）
 - [x] Stripe PaymentSheet 充值与 Stripe Connect 提现链路（需要配置真实环境密钥并完成联调）
-- [ ] 推送通知服务端完整实现
+- [x] 推送通知服务端完整实现（部署前需配置 APNs/FCM 凭证）
 
 ### 中优先级
 - [x] 计划邀请功能

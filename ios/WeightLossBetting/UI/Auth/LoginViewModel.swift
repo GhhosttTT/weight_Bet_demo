@@ -26,6 +26,16 @@ class LoginViewModel {
     }
 
     func googleSignIn(presentingViewController: UIViewController, completion: @escaping (Result<Void, Error>) -> Void) {
+        guard let configuration = GIDSignIn.sharedInstance.configuration,
+              !configuration.clientID.isEmpty else {
+            let configurationError = NSError(
+                domain: "LoginViewModel",
+                code: -3,
+                userInfo: [NSLocalizedDescriptionKey: "Google 登录未配置，请加入 GoogleService-Info.plist"]
+            )
+            completion(.failure(configurationError))
+            return
+        }
         GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController) { [weak self] result, error in
             if let error = error {
                 completion(.failure(error))

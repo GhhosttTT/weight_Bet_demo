@@ -1,0 +1,33 @@
+name: iOS build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: macos-14
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install CocoaPods
+        run: sudo gem install cocoapods --no-document
+
+      - name: Install pods
+        working-directory: ios
+        run: pod install --repo-update
+
+      - name: Build iOS simulator target
+        working-directory: ios
+        run: |
+          xcodebuild \
+            -workspace WeightLossBetting.xcworkspace \
+            -scheme WeightLossBetting \
+            -sdk iphonesimulator \
+            -destination 'platform=iOS Simulator,name=iPhone 15' \
+            -configuration Debug \
+            CODE_SIGNING_ALLOWED=NO \
+            build

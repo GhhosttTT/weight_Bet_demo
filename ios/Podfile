@@ -1,8 +1,8 @@
 # Uncomment the next line to define a global platform for your project
 platform :ios, '14.0'
 
-# 使用清华大学源（稳定）
-source 'https://mirrors.tuna.tsinghua.edu.cn/git/CocoaPods/Specs.git'
+# 使用 CocoaPods 官方 CDN，保证 macOS CI 与开发机使用同一依赖源。
+source 'https://cdn.cocoapods.org/'
 
 use_frameworks!
 

@@ -117,7 +117,7 @@ def create_charge_intent(
 ):
     """创建真实 Stripe PaymentIntent，余额只由 Webhook 入账。"""
     return StripePaymentService.create_charge_intent(
-        db, current_user_id, request.amount
+        db, current_user_id, request.amount, idempotency_key=request.idempotency_key
     )
 
 

@@ -10,6 +10,7 @@ import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.data.repository.PaymentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 sealed class ChargeState {
@@ -25,6 +26,7 @@ class ChargeViewModel @Inject constructor(
     private val paymentRepository: PaymentRepository,
     private val tokenManager: TokenManager
 ) : ViewModel() {
+    private var chargeIdempotencyKey: String? = null
     
     private val _chargeState = MutableLiveData<ChargeState>(ChargeState.Idle)
     val chargeState: LiveData<ChargeState> = _chargeState
@@ -56,7 +58,12 @@ class ChargeViewModel @Inject constructor(
                 return@launch
             }
 
-            when (val result = paymentRepository.createChargeIntent(ChargeIntentRequest(amountDouble))) {
+            val idempotencyKey = chargeIdempotencyKey ?: UUID.randomUUID().toString().also {
+                chargeIdempotencyKey = it
+            }
+            when (val result = paymentRepository.createChargeIntent(
+                ChargeIntentRequest(amountDouble, idempotencyKey)
+            )) {
                 is NetworkResult.Success -> {
                     val secret = result.data.clientSecret
                     if (secret.isNullOrBlank()) {
@@ -78,10 +85,12 @@ class ChargeViewModel @Inject constructor(
     }
 
     fun paymentCompleted() {
+        chargeIdempotencyKey = null
         _chargeState.value = ChargeState.Success
     }
 
     fun paymentCanceled() {
+        chargeIdempotencyKey = null
         _chargeState.value = ChargeState.Error("已取消支付")
     }
 

@@ -11,6 +11,7 @@ enum ChargeState {
 final class ChargeViewModel {
     private let paymentRepository = PaymentRepository()
     var onChargeStateChanged: ((ChargeState) -> Void)?
+    private var chargeIdempotencyKey: String?
     private var chargeState: ChargeState = .idle {
         didSet { onChargeStateChanged?(chargeState) }
     }
@@ -18,7 +19,12 @@ final class ChargeViewModel {
     func charge(amount: Double) {
         chargeState = .loading
         Task {
-            let result = await paymentRepository.createChargeIntent(amount: amount)
+            let idempotencyKey = chargeIdempotencyKey ?? UUID().uuidString
+            chargeIdempotencyKey = idempotencyKey
+            let result = await paymentRepository.createChargeIntent(
+                amount: amount,
+                idempotencyKey: idempotencyKey
+            )
             switch result {
             case .success(let intent):
                 guard let clientSecret = intent.clientSecret, !clientSecret.isEmpty else {
@@ -34,8 +40,8 @@ final class ChargeViewModel {
         }
     }
 
-    func paymentCompleted() { chargeState = .success }
-    func paymentCanceled() { chargeState = .error("已取消支付") }
+    func paymentCompleted() { chargeIdempotencyKey = nil; chargeState = .success }
+    func paymentCanceled() { chargeIdempotencyKey = nil; chargeState = .error("已取消支付") }
     func paymentFailed(_ message: String) { chargeState = .error(message) }
 
     private func parseError(_ error: Error) -> String {

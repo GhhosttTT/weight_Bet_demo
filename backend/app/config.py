@@ -35,6 +35,14 @@ class Settings(BaseSettings):
     
     # Firebase 配置
     FIREBASE_CREDENTIALS_PATH: str = "./firebase-credentials.json"
+    FCM_PROJECT_ID: str = ""
+
+    # APNs Token Authentication 配置。私钥只从部署环境读取，不提交到仓库。
+    APNS_KEY_ID: str = ""
+    APNS_TEAM_ID: str = ""
+    APNS_PRIVATE_KEY_PATH: str = ""
+    APNS_BUNDLE_ID: str = ""
+    APNS_USE_SANDBOX: bool = False
 
     # Google Identity Services。多个客户端 ID 用逗号分隔，生产环境必须配置。
     GOOGLE_CLIENT_IDS: str = ""
@@ -47,6 +55,7 @@ class Settings(BaseSettings):
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
     ALLOWED_ORIGINS: str = "http://localhost:3000"
+    ALLOWED_HOSTS: str = "*"
     
     # 日志配置
     LOG_LEVEL: str = "INFO"
@@ -66,6 +75,10 @@ class Settings(BaseSettings):
         return [origin.strip() for origin in self.ALLOWED_ORIGINS.split(",")]
 
     @property
+    def allowed_hosts_list(self) -> List[str]:
+        return [host.strip() for host in self.ALLOWED_HOSTS.split(",") if host.strip()]
+
+    @property
     def google_client_ids_list(self) -> List[str]:
         """返回启用的 Google OAuth Client ID 列表。"""
         return [item.strip() for item in self.GOOGLE_CLIENT_IDS.split(",") if item.strip()]
@@ -82,6 +95,10 @@ def validate_runtime_configuration(current: Settings = None) -> None:
         errors.append("SECRET_KEY 必须是至少 32 位的生产密钥")
     if "localhost" in runtime.ALLOWED_ORIGINS or "127.0.0.1" in runtime.ALLOWED_ORIGINS:
         errors.append("ALLOWED_ORIGINS 不能使用本地开发地址")
+    if not runtime.ALLOWED_HOSTS or "*" in runtime.allowed_hosts_list:
+        errors.append("ALLOWED_HOSTS 必须配置正式域名")
+    if not runtime.google_client_ids_list:
+        errors.append("GOOGLE_CLIENT_IDS 必须配置，避免生产环境出现不可用的 Google 登录按钮")
     if runtime.PAYMENT_PROVIDER.lower() == "stripe":
         if not runtime.STRIPE_SECRET_KEY or runtime.STRIPE_SECRET_KEY.endswith("dummy"):
             errors.append("STRIPE_SECRET_KEY 尚未配置")

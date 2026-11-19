@@ -552,8 +552,8 @@ class APIService {
             }
     }
 
-    func createChargeIntent(amount: Double, completion: @escaping (Result<ChargeIntentResult, Error>) -> Void) {
-        let parameters = ["amount": amount]
+    func createChargeIntent(amount: Double, idempotencyKey: String, completion: @escaping (Result<ChargeIntentResult, Error>) -> Void) {
+        let parameters: [String: Any] = ["amount": amount, "idempotencyKey": idempotencyKey]
         session.request("\(baseURL)/payments/charge/intent",
                        method: .post,
                        parameters: parameters,
@@ -634,7 +634,7 @@ class APIService {
     // MARK: - Notification Endpoints
     
     func registerDeviceToken(token: String, completion: @escaping (Result<Void, Error>) -> Void) {
-        let parameters = ["device_token": token, "platform": "ios"]
+        let parameters = ["token": token, "platform": "ios"]
         
         session.request("\(baseURL)/notifications/register",
                        method: .post,

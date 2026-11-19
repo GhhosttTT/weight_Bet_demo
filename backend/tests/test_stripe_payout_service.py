@@ -70,7 +70,7 @@ def test_withdraw_reserves_balance_until_payout_paid(db_session, stripe_config):
     assert transaction.status == TransactionStatus.PENDING
     assert transaction.external_payment_id == "po_123"
 
-    paid = {"id": "po_123", "metadata": {"transaction_id": transaction.id}}
+    paid = {"id": "po_123", "amount": 2000, "currency": "cny", "metadata": {"transaction_id": transaction.id}}
     result = StripePayoutService.handle_payout_webhook(db_session, "payout.paid", paid)
     balance = db_session.query(Balance).one()
     assert result["status"] == "completed"
@@ -92,7 +92,7 @@ def test_failed_payout_releases_reserved_balance(db_session, stripe_config):
     db_session.add(transaction)
     db_session.commit()
     result = StripePayoutService.handle_payout_webhook(
-        db_session, "payout.failed", {"id": "po_456", "metadata": {"transaction_id": transaction.id}}
+        db_session, "payout.failed", {"id": "po_456", "amount": 3000, "currency": "cny", "metadata": {"transaction_id": transaction.id}}
     )
     balance = db_session.query(Balance).one()
     assert result["status"] == "failed"
@@ -100,7 +100,7 @@ def test_failed_payout_releases_reserved_balance(db_session, stripe_config):
     assert balance.frozen_balance == 0
     assert db_session.query(Transaction).one().status == TransactionStatus.FAILED
     duplicate = StripePayoutService.handle_payout_webhook(
-        db_session, "payout.failed", {"id": "po_456", "metadata": {"transaction_id": transaction.id}}
+        db_session, "payout.failed", {"id": "po_456", "amount": 3000, "currency": "cny", "metadata": {"transaction_id": transaction.id}}
     )
     assert duplicate["idempotent"] is True
     assert db_session.query(Balance).one().available_balance == 100

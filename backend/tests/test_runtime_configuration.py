@@ -22,6 +22,8 @@ def test_postgres_accepts_complete_secure_configuration():
         DATABASE_URL="postgresql://user:password@db/weight_bet",
         SECRET_KEY="x" * 48,
         ALLOWED_ORIGINS="https://app.example.com",
+        ALLOWED_HOSTS="api.example.com",
+        GOOGLE_CLIENT_IDS="web-client.apps.googleusercontent.com",
         PAYMENT_PROVIDER="stripe",
         STRIPE_SECRET_KEY="sk_live_realistic",
         STRIPE_WEBHOOK_SECRET="whsec_live_realistic",

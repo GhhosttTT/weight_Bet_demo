@@ -55,9 +55,9 @@ class PaymentRepository: BaseRepository {
         return result
     }
 
-    func createChargeIntent(amount: Double) async -> NetworkResult<ChargeIntentResult> {
+    func createChargeIntent(amount: Double, idempotencyKey: String) async -> NetworkResult<ChargeIntentResult> {
         await safeApiCall { completion in
-            self.apiService.createChargeIntent(amount: amount, completion: completion)
+            self.apiService.createChargeIntent(amount: amount, idempotencyKey: idempotencyKey, completion: completion)
         }
     }
     

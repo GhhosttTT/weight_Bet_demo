@@ -6,7 +6,14 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 from typing import Optional, List
 import uuid
+import time
 from datetime import datetime
+from pathlib import Path
+import httpx
+from jose import jwt
+from google.auth.transport.requests import Request as GoogleAuthRequest
+from google.oauth2 import service_account
+from app.config import settings
 from app.models.device_token import DeviceToken, Platform
 from app.models.user import User
 from app.schemas.notification import (
@@ -155,22 +162,131 @@ class NotificationService:
                 message="No device tokens registered for user"
             )
         
-        # TODO: Implement actual FCM/APNs integration
-        # For now, just log the notification
-        logger.info(
-            "Sending notification to user {}: type={}, title={}",
-            request.user_id, request.notification_type, request.title
-        )
-        
-        # In production, you would:
-        # 1. For Android tokens: Use Firebase Cloud Messaging
-        # 2. For iOS tokens: Use Apple Push Notification Service
-        # 3. Handle failed tokens and remove them from database
-        
+        failed_tokens = []
+        normalized_data = NotificationService._normalized_data(request)
+        request = request.model_copy(update={"data": normalized_data})
+        sent_count = 0
+        for device in device_tokens:
+            try:
+                if device.platform == Platform.ANDROID:
+                    sent = NotificationService._send_fcm(device.token, request)
+                else:
+                    sent = NotificationService._send_apns(device.token, request)
+                if sent:
+                    sent_count += 1
+            except NotificationService.InvalidDeviceToken:
+                failed_tokens.append(device.token)
+                db.delete(device)
+            except NotificationService.ProviderNotConfigured:
+                failed_tokens.append(device.token)
+            except Exception as error:
+                failed_tokens.append(device.token)
+                logger.error("Push notification failed for platform {}: {}", device.platform, error)
+
+        if failed_tokens:
+            db.commit()
+        success = sent_count > 0 and not failed_tokens
         return NotificationResponse(
-            success=True,
-            message=f"Notification sent to {len(device_tokens)} device(s)"
+            success=success,
+            message=f"已发送 {sent_count}/{len(device_tokens)} 台设备" if sent_count else "推送未发送，请检查推送服务配置",
+            failed_tokens=failed_tokens,
         )
+
+    class ProviderNotConfigured(Exception):
+        """对应平台的推送凭据未配置。"""
+
+    class InvalidDeviceToken(Exception):
+        """推送服务确认令牌失效。"""
+
+    @staticmethod
+    def _normalized_data(request: SendNotificationRequest) -> dict:
+        """统一移动端点击跳转所需的 type/relatedId 字段。"""
+        data = dict(request.data or {})
+        client_types = {
+            NotificationType.PLAN_INVITATION: "invite",
+            NotificationType.PLAN_ACTIVATED: "plan_active",
+            NotificationType.SETTLEMENT_COMPLETED: "settlement",
+            NotificationType.CHECK_IN_REMINDER: "check_in_reminder",
+            NotificationType.PLAN_EXPIRED: "plan_expired",
+        }
+        data.setdefault("type", client_types.get(request.notification_type, request.notification_type.value))
+        related_id = data.get("relatedId") or data.get("plan_id") or data.get("settlement_id")
+        if related_id is not None:
+            data.setdefault("relatedId", str(related_id))
+        return data
+
+    @staticmethod
+    def _send_fcm(token: str, request: SendNotificationRequest) -> bool:
+        """通过 FCM HTTP v1 发送，使用服务账号 OAuth2，不记录令牌或访问令牌。"""
+        credentials_path = Path(settings.FIREBASE_CREDENTIALS_PATH)
+        if not settings.FCM_PROJECT_ID or not credentials_path.is_file():
+            raise NotificationService.ProviderNotConfigured()
+        credentials = service_account.Credentials.from_service_account_file(
+            str(credentials_path),
+            scopes=["https://www.googleapis.com/auth/firebase.messaging"],
+        )
+        credentials.refresh(GoogleAuthRequest())
+        data = {str(key): str(value) for key, value in (request.data or {}).items()}
+        data["notification_type"] = request.notification_type.value
+        payload = {
+            "message": {
+                "token": token,
+                "notification": {"title": request.title, "body": request.body},
+                "data": data,
+            }
+        }
+        response = httpx.post(
+            f"https://fcm.googleapis.com/v1/projects/{settings.FCM_PROJECT_ID}/messages:send",
+            headers={"Authorization": f"Bearer {credentials.token}"},
+            json=payload,
+            timeout=10.0,
+        )
+        if response.status_code in (400, 404):
+            error_text = response.text.upper()
+            if "UNREGISTERED" in error_text or "INVALID_ARGUMENT" in error_text:
+                raise NotificationService.InvalidDeviceToken()
+        response.raise_for_status()
+        return True
+
+    @staticmethod
+    def _send_apns(token: str, request: SendNotificationRequest) -> bool:
+        """通过 APNs Provider API 发送，使用 ES256 token 认证。"""
+        key_path = Path(settings.APNS_PRIVATE_KEY_PATH)
+        if not all((settings.APNS_KEY_ID, settings.APNS_TEAM_ID, settings.APNS_BUNDLE_ID)) or not key_path.is_file():
+            raise NotificationService.ProviderNotConfigured()
+        private_key = key_path.read_text(encoding="utf-8")
+        provider_token = jwt.encode(
+            {"iss": settings.APNS_TEAM_ID, "iat": int(time.time())},
+            private_key,
+            algorithm="ES256",
+            headers={"kid": settings.APNS_KEY_ID},
+        )
+        data = request.data or {}
+        payload = {
+            "aps": {"alert": {"title": request.title, "body": request.body}, "sound": "default"},
+            **data,
+        }
+        host = "https://api.sandbox.push.apple.com" if settings.APNS_USE_SANDBOX else "https://api.push.apple.com"
+        response = httpx.post(
+            f"{host}/3/device/{token}",
+            headers={
+                "authorization": f"bearer {provider_token}",
+                "apns-topic": settings.APNS_BUNDLE_ID,
+                "apns-push-type": "alert",
+                "apns-priority": "10",
+            },
+            json=payload,
+            timeout=10.0,
+        )
+        if response.status_code in (400, 410):
+            try:
+                reason = response.json().get("reason", "")
+            except ValueError:
+                reason = ""
+            if reason in ("BadDeviceToken", "Unregistered", "DeviceTokenNotForTopic"):
+                raise NotificationService.InvalidDeviceToken()
+        response.raise_for_status()
+        return True
     
     @staticmethod
     def send_plan_invitation_notification(
@@ -219,6 +335,39 @@ class NotificationService:
             data={"plan_id": plan_id}
         )
         return NotificationService.send_notification(db, request)
+
+    @staticmethod
+    def send_plan_invitation_accepted_notification(db: Session, user_id: str, plan_id: str):
+        request = SendNotificationRequest(
+            user_id=user_id,
+            notification_type=NotificationType.PLAN_ACTIVATED,
+            title="对赌计划已接受",
+            body="对方已接受你的减重挑战，请确认计划后开始。",
+            data={"plan_id": plan_id},
+        )
+        return NotificationService.send_notification(db, request)
+
+    @staticmethod
+    def send_plan_confirmed_notification(db: Session, user_id: str, plan_id: str):
+        request = SendNotificationRequest(
+            user_id=user_id,
+            notification_type=NotificationType.PLAN_ACTIVATED,
+            title="对赌计划已生效",
+            body="你的减重挑战已经开始，记得按时打卡。",
+            data={"plan_id": plan_id},
+        )
+        return NotificationService.send_notification(db, request)
+
+    @staticmethod
+    def send_plan_rejected_notification(db: Session, user_id: str, plan_id: str):
+        request = SendNotificationRequest(
+            user_id=user_id,
+            notification_type=NotificationType.PLAN_EXPIRED,
+            title="对赌计划未通过",
+            body="该计划已被拒绝，相关资金将按规则处理。",
+            data={"plan_id": plan_id},
+        )
+        return NotificationService.send_notification(db, request)
     
     @staticmethod
     def send_settlement_notification(
@@ -226,7 +375,8 @@ class NotificationService:
         user_id: str,
         plan_id: str,
         amount: float,
-        achieved: bool
+        achieved: bool,
+        settlement_id: Optional[str] = None,
     ):
         """
         Send settlement notification
@@ -250,7 +400,7 @@ class NotificationService:
             notification_type=NotificationType.SETTLEMENT_COMPLETED,
             title=title,
             body=body,
-            data={"plan_id": plan_id, "amount": amount}
+            data={"plan_id": plan_id, "settlement_id": settlement_id or plan_id, "amount": amount}
         )
         return NotificationService.send_notification(db, request)
     

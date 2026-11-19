@@ -5,6 +5,7 @@ import redis
 from app.config import settings
 from typing import Optional
 import time
+import fnmatch
 
 
 class FakeRedis:
@@ -38,6 +39,13 @@ class FakeRedis:
             self._sorted_sets.pop(key, None)
             self._expires.pop(key, None)
         return len(keys)
+
+    def scan_iter(self, match=None):
+        """提供测试环境所需的 Redis scan_iter 兼容接口。"""
+        keys = set(self._data) | set(self._sorted_sets)
+        for key in keys:
+            if match is None or fnmatch.fnmatch(key, match):
+                yield key
     
     def exists(self, key):
         return 1 if key in self._data else 0

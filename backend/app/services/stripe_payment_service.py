@@ -37,7 +37,8 @@ class StripePaymentService:
 
     @classmethod
     def create_charge_intent(
-        cls, db: Session, user_id: str, amount: float, payment_method_id: Optional[str] = None
+        cls, db: Session, user_id: str, amount: float, payment_method_id: Optional[str] = None,
+        idempotency_key: Optional[str] = None
     ) -> dict:
         cls._require_stripe_mode()
         normalized = PaymentService._normalize_amount(amount)
@@ -48,16 +49,27 @@ class StripePaymentService:
             raise HTTPException(status_code=404, detail="账户不存在")
 
         amount_float = float(normalized)
-        transaction = Transaction(
-            id=str(uuid.uuid4()),
-            user_id=user_id,
-            type=TransactionType.CHARGE,
-            amount=amount_float,
-            status=TransactionStatus.PENDING,
-        )
-        db.add(transaction)
-        db.commit()
-        db.refresh(transaction)
+        transaction = None
+        if idempotency_key:
+            transaction = db.query(Transaction).filter(
+                Transaction.user_id == user_id,
+                Transaction.type == TransactionType.CHARGE,
+                Transaction.idempotency_key == idempotency_key,
+            ).with_for_update().first()
+            if transaction and abs(transaction.amount - amount_float) > 0.000001:
+                raise HTTPException(status_code=409, detail="幂等键已用于其他充值金额")
+        if transaction is None:
+            transaction = Transaction(
+                id=str(uuid.uuid4()),
+                user_id=user_id,
+                type=TransactionType.CHARGE,
+                amount=amount_float,
+                status=TransactionStatus.PENDING,
+                idempotency_key=idempotency_key,
+            )
+            db.add(transaction)
+            db.commit()
+            db.refresh(transaction)
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
@@ -68,7 +80,7 @@ class StripePaymentService:
                     "transaction_id": transaction.id,
                     "user_id": user_id,
                 },
-                idempotency_key=f"weight-bet-charge-{transaction.id}",
+                idempotency_key=f"weight-bet-charge-{idempotency_key or transaction.id}",
             )
             if payment_method_id:
                 intent_params.update(payment_method=payment_method_id, confirm=True)
@@ -77,6 +89,9 @@ class StripePaymentService:
             transaction.status = TransactionStatus.FAILED
             db.commit()
             raise HTTPException(status_code=402, detail="Stripe 支付创建失败") from error
+
+        transaction.external_payment_id = intent.id
+        db.commit()
 
         return {
             "transaction_id": transaction.id,
@@ -103,19 +118,40 @@ class StripePaymentService:
         intent = event["data"]["object"]
         if event_type in ("payout.paid", "payout.failed", "payout.canceled"):
             from app.services.stripe_payout_service import StripePayoutService
-            return StripePayoutService.handle_payout_webhook(db, event_type, intent)
+            return StripePayoutService.handle_payout_webhook(
+                db, event_type, intent, connected_account=event.get("account")
+            )
         if event_type not in (
             "payment_intent.succeeded",
             "payment_intent.payment_failed",
         ):
             return {"received": True, "handled": False}
 
+        payment_intent_id = intent.get("id")
         transaction_id = (intent.get("metadata") or {}).get("transaction_id")
         if not transaction_id:
             raise HTTPException(status_code=400, detail="Stripe PaymentIntent 缺少本地交易号")
-        transaction = db.query(Transaction).filter(Transaction.id == transaction_id).with_for_update().first()
+        transaction = db.query(Transaction).filter(
+            Transaction.external_payment_id == payment_intent_id
+        ).with_for_update().first() if payment_intent_id else None
+        if transaction is None:
+            transaction = db.query(Transaction).filter(Transaction.id == transaction_id).with_for_update().first()
         if not transaction:
             raise HTTPException(status_code=404, detail="本地交易不存在")
+
+        metadata = intent.get("metadata") or {}
+        if metadata.get("user_id") and metadata.get("user_id") != transaction.user_id:
+            raise HTTPException(status_code=400, detail="Stripe 用户与本地交易不匹配")
+        if transaction.external_payment_id and payment_intent_id != transaction.external_payment_id:
+            raise HTTPException(status_code=400, detail="Stripe PaymentIntent 与本地交易不匹配")
+        if event_type == "payment_intent.succeeded":
+            actual_amount = intent.get("amount_received", intent.get("amount"))
+            actual_currency = (intent.get("currency") or "").lower()
+            expected_amount = int(round(transaction.amount * 100))
+            if actual_amount is None or int(actual_amount) != expected_amount:
+                raise HTTPException(status_code=400, detail="Stripe 支付金额与本地交易不匹配")
+            if not actual_currency or actual_currency != settings.STRIPE_CURRENCY.lower():
+                raise HTTPException(status_code=400, detail="Stripe 支付币种与本地配置不匹配")
 
         if transaction.status == TransactionStatus.COMPLETED:
             return {"received": True, "handled": True, "idempotent": True}

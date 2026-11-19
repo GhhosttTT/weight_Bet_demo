@@ -64,17 +64,64 @@ def test_create_intent_creates_pending_transaction(db_session, monkeypatch):
     assert "payment_method" not in create.call_args[1]
 
 
-def test_webhook_success_credits_once(db_session, monkeypatch):
+def test_create_intent_reuses_client_idempotency_key(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
+    monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test_realistic")
+    fake_intent = type("Intent", (), {
+        "id": "pi_idempotent", "client_secret": "secret_idempotent", "status": "requires_action"
+    })()
+    with patch("app.services.stripe_payment_service.stripe.PaymentIntent.create", return_value=fake_intent) as create:
+        first = StripePaymentService.create_charge_intent(
+            db_session, "stripe-user-001", 20, idempotency_key="request-key-123456"
+        )
+        second = StripePaymentService.create_charge_intent(
+            db_session, "stripe-user-001", 20, idempotency_key="request-key-123456"
+        )
+    assert first["transaction_id"] == second["transaction_id"]
+    assert first["payment_intent_id"] == second["payment_intent_id"]
+    assert db_session.query(Transaction).count() == 1
+    assert create.call_args[1]["idempotency_key"] == "weight-bet-charge-request-key-123456"
+
+
+def test_webhook_rejects_amount_mismatch(db_session, monkeypatch):
     monkeypatch.setattr(settings, "STRIPE_WEBHOOK_SECRET", "whsec_realistic")
     transaction = Transaction(
-        id="charge-tx-001", user_id="stripe-user-001", type=TransactionType.CHARGE,
-        amount=20.0, status=TransactionStatus.PENDING,
+        id="charge-tx-mismatch", user_id="stripe-user-001", type=TransactionType.CHARGE,
+        amount=20.0, status=TransactionStatus.PENDING, external_payment_id="pi_mismatch",
     )
     db_session.add(transaction)
     db_session.commit()
     event = {
         "type": "payment_intent.succeeded",
-        "data": {"object": {"metadata": {"transaction_id": transaction.id}}},
+        "data": {"object": {
+            "id": "pi_mismatch",
+            "metadata": {"transaction_id": transaction.id, "user_id": transaction.user_id},
+            "amount_received": 1900,
+            "currency": "cny",
+        }},
+    }
+    with patch("app.services.stripe_payment_service.stripe.Webhook.construct_event", return_value=event):
+        with pytest.raises(HTTPException) as error:
+            StripePaymentService.handle_webhook(db_session, b"payload", "signature")
+    assert error.value.status_code == 400
+
+
+def test_webhook_success_credits_once(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "STRIPE_WEBHOOK_SECRET", "whsec_realistic")
+    transaction = Transaction(
+        id="charge-tx-001", user_id="stripe-user-001", type=TransactionType.CHARGE,
+        amount=20.0, status=TransactionStatus.PENDING, external_payment_id="pi_charge_001",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    event = {
+        "type": "payment_intent.succeeded",
+        "data": {"object": {
+            "id": "pi_charge_001",
+            "metadata": {"transaction_id": transaction.id, "user_id": transaction.user_id},
+            "amount_received": 2000,
+            "currency": "cny",
+        }},
     }
     with patch("app.services.stripe_payment_service.stripe.Webhook.construct_event", return_value=event):
         first = StripePaymentService.handle_webhook(db_session, b"payload", "signature")
@@ -90,13 +137,16 @@ def test_webhook_failure_does_not_credit(db_session, monkeypatch):
     monkeypatch.setattr(settings, "STRIPE_WEBHOOK_SECRET", "whsec_realistic")
     transaction = Transaction(
         id="charge-tx-002", user_id="stripe-user-001", type=TransactionType.CHARGE,
-        amount=20.0, status=TransactionStatus.PENDING,
+        amount=20.0, status=TransactionStatus.PENDING, external_payment_id="pi_charge_002",
     )
     db_session.add(transaction)
     db_session.commit()
     event = {
         "type": "payment_intent.payment_failed",
-        "data": {"object": {"metadata": {"transaction_id": transaction.id}}},
+        "data": {"object": {
+            "id": "pi_charge_002",
+            "metadata": {"transaction_id": transaction.id, "user_id": transaction.user_id},
+        }},
     }
     with patch("app.services.stripe_payment_service.stripe.Webhook.construct_event", return_value=event):
         result = StripePaymentService.handle_webhook(db_session, b"payload", "signature")

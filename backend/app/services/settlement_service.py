@@ -327,7 +327,7 @@ class SettlementService:
             ):
                 try:
                     NotificationService.send_settlement_notification(
-                        db, user_id, plan_id, amount, achieved
+                        db, user_id, plan_id, amount, achieved, settlement_id=settlement_id
                     )
                 except Exception:
                     logger.exception(

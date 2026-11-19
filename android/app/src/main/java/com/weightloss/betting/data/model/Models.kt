@@ -225,7 +225,8 @@ data class ChargeResult(
 )
 
 data class ChargeIntentRequest(
-    val amount: Double
+    val amount: Double,
+    val idempotencyKey: String
 )
 
 data class ChargeIntentResult(

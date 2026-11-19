@@ -38,6 +38,7 @@ class Transaction(Base):
     related_settlement_id = Column(String(36), ForeignKey("settlements.id"), nullable=True)
     external_payment_id = Column(String(255), unique=True, nullable=True, index=True)
     external_transfer_id = Column(String(255), unique=True, nullable=True, index=True)
+    idempotency_key = Column(String(255), unique=True, nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     completed_at = Column(DateTime(timezone=True), nullable=True)
 

@@ -4,6 +4,7 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Toast
+import com.google.firebase.messaging.FirebaseMessaging
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -14,6 +15,7 @@ import com.weightloss.betting.data.model.InvitationItem
 import com.weightloss.betting.data.model.SettlementItem
 import com.weightloss.betting.data.repository.AuthRepository
 import com.weightloss.betting.data.repository.BettingPlanRepository
+import com.weightloss.betting.data.repository.NotificationRepository
 import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.databinding.ActivityMainBinding
 import com.weightloss.betting.ui.checkin.CheckInActivity
@@ -46,6 +48,9 @@ class MainActivity : AppCompatActivity() {
     
     @Inject
     lateinit var tokenManager: TokenManager
+
+    @Inject
+    lateinit var notificationRepository: NotificationRepository
     
     private lateinit var binding: ActivityMainBinding
     private lateinit var prefs: SharedPreferences
@@ -59,6 +64,7 @@ class MainActivity : AppCompatActivity() {
         prefs = getSharedPreferences("main_activity_prefs", MODE_PRIVATE)
         
         setupBottomNavigation()
+        registerCurrentPushToken()
         
         // 默认显示首页
         if (savedInstanceState == null) {
@@ -73,6 +79,15 @@ class MainActivity : AppCompatActivity() {
         
         // 启用边缘滑动返回
         EdgeSwipeBackHelper.enableForFragmentActivity(this)
+    }
+
+    private fun registerCurrentPushToken() {
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful || task.result.isNullOrBlank()) return@addOnCompleteListener
+            CoroutineScope(Dispatchers.IO).launch {
+                notificationRepository.registerDeviceToken(task.result)
+            }
+        }
     }
     
     private fun setupBottomNavigation() {

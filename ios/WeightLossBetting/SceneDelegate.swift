@@ -21,7 +21,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // Check if user is already logged in
         let authRepository = AuthRepository.shared
         print("🎯 AuthRepository isLoggedIn(): \(authRepository.isLoggedIn())")
-        print("🎯 Access Token: \(authRepository.getAccessToken() ?? "nil")")
+        print("🎯 Access Token present: \(authRepository.getAccessToken() != nil)")
         
         let rootViewController: UIViewController
         

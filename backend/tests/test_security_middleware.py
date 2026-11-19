@@ -3,6 +3,7 @@
 测试限流、输入验证和安全防护功能
 """
 import pytest
+import asyncio
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from app.middleware.security import SecurityMiddleware
@@ -109,6 +110,14 @@ class TestRateLimitMiddleware:
         assert middleware._limit_for_path("/api/auth/login") == 20
         assert middleware._limit_for_path("/api/auth/google") == 20
         assert middleware._limit_for_path("/api/payments/charge/intent") == 100
+
+    def test_rate_limit_fails_closed_when_redis_is_unavailable(self, monkeypatch):
+        app = create_test_app()
+        middleware = RateLimitMiddleware(app)
+        monkeypatch.setattr("app.middleware.rate_limit.get_redis", lambda: (_ for _ in ()).throw(RuntimeError("redis down")))
+        allowed, remaining, _ = asyncio.run(middleware._check_rate_limit("ip:test", 20))
+        assert allowed is False
+        assert remaining == 0
 
 
 class TestSecurityMiddleware:

@@ -109,7 +109,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         Returns:
             (is_allowed, remaining_requests, reset_time)
         """
-        redis = get_redis()
         limit = request_limit or self.requests_per_minute
         current_time = int(time.time())
         window_start = current_time - self.window_size
@@ -118,6 +117,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         key = f"rate_limit:{identifier}"
         
         try:
+            redis = get_redis()
             # 使用 Redis 管道执行原子操作
             pipe = redis.pipeline()
             
@@ -153,5 +153,6 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
             
         except Exception as e:
             logger.error("Rate limit check failed: {}", e)
-            # 如果 Redis 出错,允许请求通过 (fail open)
-            return True, limit, current_time + self.window_size
+            # 限流存储不可用时拒绝请求，避免认证、支付接口在 Redis 故障期间
+            # 完全失去爆破和刷接口防护。恢复 Redis 后请求自动恢复。
+            return False, 0, current_time + self.window_size

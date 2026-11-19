@@ -151,6 +151,16 @@ Stripe 模式下提现会先预留余额，再创建 Connect Transfer/Payout；�
 | REDIS_URL | Redis 连接字符串 | redis://localhost:6379/0 |
 | SECRET_KEY | JWT 密钥 | your-secret-key |
 | STRIPE_SECRET_KEY | Stripe 密钥 | sk_test_xxx |
+| GOOGLE_CLIENT_IDS | Google Web/Android/iOS Client ID，逗号分隔 | xxx.apps.googleusercontent.com |
+| ALLOWED_HOSTS | 生产 API 域名，逗号分隔 | api.example.com |
+| FIREBASE_CREDENTIALS_PATH | FCM 服务账号 JSON 路径 | /run/secrets/firebase.json |
+| FCM_PROJECT_ID | Firebase 项目 ID | weight-bet-prod |
+| APNS_KEY_ID | APNs Auth Key ID | ABC123DEFG |
+| APNS_TEAM_ID | Apple Developer Team ID | TEAM123 |
+| APNS_PRIVATE_KEY_PATH | APNs `.p8` 私钥路径 | /run/secrets/AuthKey.p8 |
+| APNS_BUNDLE_ID | iOS Bundle ID | com.weightloss.betting |
+
+通知发送说明：设备令牌注册后，后端会按平台调用 FCM HTTP v1 或 APNs Provider API；未配置对应凭据时会返回失败状态，不会把“仅写日志”报告为发送成功。服务账号 JSON、APNs 私钥和 Google 配置文件都不能提交到 Git。
 
 ## 许可证
 

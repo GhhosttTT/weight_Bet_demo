@@ -525,12 +525,24 @@ SECRET_KEY=your-super-secret-key-here
 # Stripe
 STRIPE_SECRET_KEY=sk_live_xxx
 
-# Firebase
-FIREBASE_CREDENTIALS=path/to/serviceAccountKey.json
+# Firebase / FCM HTTP v1
+FIREBASE_CREDENTIALS_PATH=path/to/serviceAccountKey.json
+FCM_PROJECT_ID=your-firebase-project-id
+
+# Google 登录（后端允许配置多个客户端 ID，逗号分隔）
+GOOGLE_CLIENT_IDS=your-web-client-id.apps.googleusercontent.com
+
+# APNs Token Authentication
+APNS_KEY_ID=your-key-id
+APNS_TEAM_ID=your-team-id
+APNS_PRIVATE_KEY_PATH=path/to/AuthKey_XXXXXX.p8
+APNS_BUNDLE_ID=com.weightloss.betting
+APNS_USE_SANDBOX=false
 
 # 生产环境配置
 DEBUG=false
 ALLOWED_ORIGINS=https://yourdomain.com
+ALLOWED_HOSTS=api.yourdomain.com
 ```
 
 ## 安全措施
@@ -577,14 +589,14 @@ MIT License
 - [x] 支付集成（Stripe）
 - [x] 结算系统（三次选择匹配机制）
 - [x] 仲裁系统
-- [x] 通知推送（FCM + APNs）
+- [x] 通知推送（FCM HTTP v1 + APNs Provider API，需配置生产凭据）
 - [x] 资金管理（冻结/解冻/划转）
 - [x] Android 客户端基础架构
 - [x] iOS 客户端基础架构
 
 ### 进行中功能 🚧
 
-- [ ] Google OAuth 第三方登录
+- [x] Google OAuth 第三方登录（需配置 Google Client ID 与移动端 OAuth 文件）
 - [ ] 完整的 UI 界面实现
 
 ### 待开发功能 📋

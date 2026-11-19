@@ -55,6 +55,10 @@ class ChargeIntentResponse(BaseModel):
 class ChargeIntentRequest(BaseModel):
     """创建 PaymentIntent 的请求；卡信息由 Stripe 客户端组件收集。"""
     amount: float = Field(..., ge=0.01)
+    idempotency_key: Optional[str] = Field(default=None, min_length=16, max_length=255, alias="idempotencyKey")
+
+    class Config:
+        populate_by_name = True
 
 
 class WithdrawRequest(BaseModel):

@@ -30,9 +30,7 @@ class TokenManager @Inject constructor(
     }
     
     suspend fun saveTokens(accessToken: String, refreshToken: String, userId: String? = null) {
-        val accessPreview = if (accessToken.length > 20) accessToken.take(20) + "..." else accessToken
-        val refreshPreview = if (refreshToken.length > 20) refreshToken.take(20) + "..." else refreshToken
-        Log.d(TAG, "Saving tokens - Access: $accessPreview, Refresh: $refreshPreview, UserId: $userId")
+        Log.d(TAG, "Saving authentication tokens (userId present: ${!userId.isNullOrBlank()})")
         context.dataStore.edit { preferences ->
             preferences[ACCESS_TOKEN_KEY] = accessToken
             preferences[REFRESH_TOKEN_KEY] = refreshToken
@@ -47,7 +45,7 @@ class TokenManager @Inject constructor(
         val token = context.dataStore.data.map { preferences ->
             preferences[ACCESS_TOKEN_KEY]
         }.first()
-        Log.d(TAG, "Retrieved access token: ${if (token.isNullOrEmpty()) "EMPTY" else "EXISTS (${token.take(20)}...)"}")
+        Log.d(TAG, "Retrieved access token: ${if (token.isNullOrEmpty()) "EMPTY" else "EXISTS"}")
         return token
     }
     

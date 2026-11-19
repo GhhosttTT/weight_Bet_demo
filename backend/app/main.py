@@ -155,7 +155,7 @@ app.add_middleware(
 if not settings.DEBUG:
     app.add_middleware(
         TrustedHostMiddleware,
-        allowed_hosts=["*"]  # 生产环境应该配置具体的域名
+        allowed_hosts=settings.allowed_hosts_list
     )
 
 

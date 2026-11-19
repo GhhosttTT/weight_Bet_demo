@@ -13,6 +13,7 @@ from app.main import app
 from app.database import Base, get_db
 from app.models.user import User
 from app.models.betting_plan import BettingPlan, PlanStatus
+from app.redis_client import get_redis
 
 
 # 测试数据库配置
@@ -40,6 +41,11 @@ def client():
     # 多个接口测试模块都会修改 app.dependency_overrides；每个用例重新
     # 绑定本模块的数据库，避免收集顺序导致连接到已清理的测试库。
     app.dependency_overrides[get_db] = override_get_db
+    # 每个 TestClient 都代表隔离的测试应用，清除共享 Redis 中的限流窗口，
+    # 避免前序模块的 testclient 请求污染本模块的认证场景。
+    redis = get_redis()
+    for key in redis.scan_iter(match="rate_limit:*"):
+        redis.delete(key)
     Base.metadata.create_all(bind=engine)
     with TestClient(app) as test_client:
         yield test_client

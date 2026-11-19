@@ -42,10 +42,10 @@ class NotificationService {
             return
         }
         
-        await registerDeviceTokenWithBackend(pendingToken)
-        
-        // Clear pending token after successful registration
-        UserDefaults.standard.removeObject(forKey: "pending_device_token")
+        let result = await notificationRepository.registerDeviceToken(token: pendingToken)
+        if case .success = result {
+            UserDefaults.standard.removeObject(forKey: "pending_device_token")
+        }
     }
     
     // MARK: - Notification Permissions

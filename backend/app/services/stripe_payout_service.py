@@ -162,7 +162,12 @@ class StripePayoutService:
         return {"success": True, "status": "pending", "payout_id": payout.id, "idempotent": False}
 
     @staticmethod
-    def handle_payout_webhook(db: Session, event_type: str, payout: dict) -> dict:
+    def handle_payout_webhook(
+        db: Session,
+        event_type: str,
+        payout: dict,
+        connected_account: str = None,
+    ) -> dict:
         transaction_id = (payout.get("metadata") or {}).get("transaction_id")
         query = db.query(Transaction)
         transaction = query.filter(Transaction.external_payment_id == payout.get("id")).with_for_update().first()
@@ -173,9 +178,21 @@ class StripePayoutService:
         if transaction.status in (TransactionStatus.COMPLETED, TransactionStatus.FAILED):
             return {"received": True, "handled": True, "idempotent": True}
         amount = abs(transaction.amount)
+        user = db.query(User).filter(User.id == transaction.user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="用户不存在")
         balance = db.query(Balance).filter(Balance.user_id == transaction.user_id).with_for_update().first()
         if not balance:
             raise HTTPException(status_code=404, detail="账户不存在")
+        if connected_account and connected_account != user.stripe_account_id:
+            raise HTTPException(status_code=400, detail="Stripe Connect 账户与本地提现不匹配")
+        actual_amount = payout.get("amount")
+        actual_currency = (payout.get("currency") or "").lower()
+        expected_amount = int(round(amount * 100))
+        if actual_amount is None or int(actual_amount) != expected_amount:
+            raise HTTPException(status_code=400, detail="Stripe 出款金额与本地提现不匹配")
+        if not actual_currency or actual_currency != settings.STRIPE_CURRENCY.lower():
+            raise HTTPException(status_code=400, detail="Stripe 出款币种与本地配置不匹配")
         if event_type == "payout.paid":
             balance.frozen_balance = PaymentService._subtract_money(balance.frozen_balance, amount)
             transaction.status = TransactionStatus.COMPLETED

@@ -160,6 +160,7 @@ Stripe 模式下提现会先预留余额，再创建 Connect Transfer/Payout；�
 | APNS_TEAM_ID | Apple Developer Team ID | TEAM123 |
 | APNS_PRIVATE_KEY_PATH | APNs `.p8` 私钥路径 | /run/secrets/AuthKey.p8 |
 | APNS_BUNDLE_ID | iOS Bundle ID | com.weightloss.betting |
+| ENVIRONMENT | 运行环境（development/staging/production） | production |
 
 通知发送说明：设备令牌注册后，后端会按平台调用 FCM HTTP v1 或 APNs Provider API；未配置对应凭据时会返回失败状态，不会把“仅写日志”报告为发送成功。服务账号 JSON、APNs 私钥和 Google 配置文件都不能提交到 Git。
 

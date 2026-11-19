@@ -54,6 +54,7 @@ class Settings(BaseSettings):
     APP_NAME: str = "减肥对赌 APP"
     APP_VERSION: str = "1.0.0"
     DEBUG: bool = False
+    ENVIRONMENT: str = "development"
     ALLOWED_ORIGINS: str = "http://localhost:3000"
     ALLOWED_HOSTS: str = "*"
     
@@ -85,12 +86,16 @@ class Settings(BaseSettings):
 
 
 def validate_runtime_configuration(current: Settings = None) -> None:
-    """拒绝生产数据库连接下的开发占位配置。"""
+    """拒绝生产环境中的开发占位配置和不安全数据库。"""
     runtime = current or settings
-    if runtime.DATABASE_URL.lower().startswith("sqlite"):
+    environment = runtime.ENVIRONMENT.strip().lower()
+    is_production = environment in {"production", "prod", "staging"}
+    if runtime.DATABASE_URL.lower().startswith("sqlite") and not is_production:
         return
 
     errors = []
+    if is_production and runtime.DATABASE_URL.lower().startswith("sqlite"):
+        errors.append("生产环境不能使用 SQLite，必须配置 PostgreSQL 等生产数据库")
     if not runtime.SECRET_KEY or runtime.SECRET_KEY == "test-secret-key-for-development" or len(runtime.SECRET_KEY) < 32:
         errors.append("SECRET_KEY 必须是至少 32 位的生产密钥")
     if "localhost" in runtime.ALLOWED_ORIGINS or "127.0.0.1" in runtime.ALLOWED_ORIGINS:

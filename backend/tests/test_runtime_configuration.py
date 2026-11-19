@@ -31,3 +31,16 @@ def test_postgres_accepts_complete_secure_configuration():
         STRIPE_CONNECT_REFRESH_URL="https://app.example.com/payment/connect/retry",
     )
     validate_runtime_configuration(runtime)
+
+
+def test_runtime_configuration_rejects_sqlite_in_production():
+    runtime = Settings(
+        DATABASE_URL="sqlite:///./production.db",
+        ENVIRONMENT="production",
+        SECRET_KEY="x" * 40,
+        ALLOWED_ORIGINS="https://app.example.com",
+        ALLOWED_HOSTS="api.example.com",
+        GOOGLE_CLIENT_IDS="web-client.apps.googleusercontent.com",
+    )
+    with pytest.raises(RuntimeError, match="SQLite"):
+        validate_runtime_configuration(runtime)

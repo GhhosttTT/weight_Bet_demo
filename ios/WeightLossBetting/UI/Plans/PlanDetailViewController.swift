@@ -628,14 +628,13 @@ class PlanDetailViewController: UIViewController {
         actionButtonsView.isHidden = false
         acceptPlanFormView.isHidden = true
         
-        cancelButton.isHidden = true
+        cancelButton.isHidden = false
+        cancelButton.setTitle("撤销计划", for: .normal)
         rejectButton.isHidden = true
         acceptButton.isHidden = true
         confirmButton.isHidden = true
         checkInButton.isHidden = true
-        giveUpButton.isHidden = false
-        giveUpButton.setTitle("放弃计划", for: .normal)
-        giveUpButton.tintColor = AppTheme.Colors.error
+        giveUpButton.isHidden = true
     }
     
     private func showAcceptRejectForm() {

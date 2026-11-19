@@ -252,7 +252,9 @@ class SettlementChoiceService:
         Returns:
             SettlementMatchingResult: 匹配结果
         """
-        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        # 匹配和推进轮次共享同一计划行锁，避免两个匹配请求同时
+        # 读取旧轮次并重复推进。
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).with_for_update().first()
         if not plan:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
@@ -396,7 +398,9 @@ class SettlementChoiceService:
         Returns:
             Tuple[bool, str]: (是否成功推进，消息)
         """
-        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).first()
+        # 超时推进也会修改 settlement_round 或启动仲裁，必须与匹配入口
+        # 使用同一把计划行锁。
+        plan = db.query(BettingPlan).filter(BettingPlan.id == plan_id).with_for_update().first()
         if not plan:
             return False, "计划不存在"
 

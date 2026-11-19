@@ -28,7 +28,7 @@ class LoginViewModel @Inject constructor(
     val user: LiveData<User> = _user
     
     fun login(email: String, password: String) {
-        Log.d("LoginViewModel", "login() called with email: $email")
+        Log.d("LoginViewModel", "login() called")
         if (email.isBlank()) {
             _loginState.value = LoginState.Error("请输入邮箱")
             return

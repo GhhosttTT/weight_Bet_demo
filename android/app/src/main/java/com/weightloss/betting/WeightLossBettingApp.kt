@@ -15,7 +15,8 @@ class WeightLossBettingApp : Application() {
         super.onCreate()
         // 初始化 XUI
         XUI.init(this)
-        XUI.debug(true)
+        // Release 包关闭 XUI 调试输出，避免把请求和用户上下文写入 Logcat。
+        XUI.debug(BuildConfig.DEBUG)
         val publishableKey = getString(com.weightloss.betting.R.string.stripe_publishable_key)
         if (publishableKey.isNotBlank() && !publishableKey.contains("replace_me")) {
             PaymentConfiguration.init(this, publishableKey)

@@ -1,7 +1,6 @@
 package com.weightloss.betting.data.remote
 
 import android.util.Log
-import com.google.gson.Gson
 import okhttp3.Interceptor
 import okhttp3.Response
 import javax.inject.Inject
@@ -10,9 +9,7 @@ import javax.inject.Inject
  * 错误处理拦截器 - 记录错误但不抛出异常
  * 让 Repository 层的 safeApiCall 处理错误响应
  */
-class ErrorInterceptor @Inject constructor(
-    private val gson: Gson
-) : Interceptor {
+class ErrorInterceptor @Inject constructor() : Interceptor {
     
     companion object {
         private const val TAG = "ErrorInterceptor"
@@ -28,15 +25,8 @@ class ErrorInterceptor @Inject constructor(
         }
         
         // 记录错误但不抛出异常
-        val errorBody = response.peekBody(Long.MAX_VALUE).string()
-        val errorResponse = try {
-            gson.fromJson(errorBody, ErrorResponse::class.java)
-        } catch (e: Exception) {
-            null
-        }
-        
-        val errorMessage = errorResponse?.message ?: response.message
-        Log.w(TAG, "HTTP ${response.code}: $errorMessage for ${request.url}")
+        // 错误响应可能包含邮箱等服务端回显内容；发布日志只保留状态和路径。
+        Log.w(TAG, "HTTP ${response.code} for ${request.url.encodedPath}")
         
         // 返回响应，让 Repository 层处理
         return response

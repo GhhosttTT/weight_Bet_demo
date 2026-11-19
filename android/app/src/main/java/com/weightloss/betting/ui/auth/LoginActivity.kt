@@ -64,7 +64,7 @@ class LoginActivity : BaseActivity() {
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString()
             val password = binding.etPassword.text.toString()
-            Log.d("LoginActivity", "Login button clicked, email: $email")
+            Log.d("LoginActivity", "Login button clicked")
             viewModel.login(email, password)
         }
         

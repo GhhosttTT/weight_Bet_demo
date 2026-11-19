@@ -61,7 +61,7 @@ class TokenManager @Inject constructor(
         val userId = context.dataStore.data.map { preferences ->
             preferences[USER_ID_KEY]
         }.first()
-        Log.d(TAG, "Retrieved user ID: ${userId ?: "EMPTY"}")
+        Log.d(TAG, "Retrieved user ID: ${if (userId.isNullOrEmpty()) "EMPTY" else "EXISTS"}")
         return userId
     }
     

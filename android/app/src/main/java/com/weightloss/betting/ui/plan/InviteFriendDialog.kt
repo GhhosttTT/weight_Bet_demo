@@ -153,7 +153,7 @@ class InviteFriendDialog : DialogFragment() {
         binding.btnSearchFriend.setOnClickListener {
             android.util.Log.d("InviteFriendDialog", "Search button clicked")
             val email = binding.emailInput.text.toString().trim()
-            android.util.Log.d("InviteFriendDialog", "Email: $email")
+            android.util.Log.d("InviteFriendDialog", "Friend search submitted")
             
             if (email.isBlank()) {
                 binding.emailInput.error = "请输入邮箱地址"

@@ -48,7 +48,7 @@ class ProfileFragment : Fragment() {
     private fun loadUserProfile() {
         lifecycleScope.launch {
             userId = tokenManager.getUserId()
-            android.util.Log.d("ProfileFragment", "User ID from TokenManager: $userId")
+            android.util.Log.d("ProfileFragment", "User ID loaded: ${!userId.isNullOrBlank()}")
             if (userId != null) {
                 viewModel.loadUserProfile(userId!!)
             } else {
@@ -102,7 +102,7 @@ class ProfileFragment : Fragment() {
     }
     
     private fun displayUserInfo(user: com.weightloss.betting.data.model.User) {
-        android.util.Log.d("ProfileFragment", "Displaying user info: $user")
+        android.util.Log.d("ProfileFragment", "Displaying profile info")
         binding.tvNickname.text = user.nickname
         binding.tvEmail.text = user.email
         binding.tvGender.text = GenderMapper.toDisplay(user.gender)

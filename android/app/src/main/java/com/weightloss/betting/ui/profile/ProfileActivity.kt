@@ -35,7 +35,7 @@ class ProfileActivity : BaseActivity() {
         // Load user ID and profile
         lifecycleScope.launch {
             userId = tokenManager.getUserId()
-            android.util.Log.d("ProfileActivity", "User ID from TokenManager: $userId")
+            android.util.Log.d("ProfileActivity", "User ID loaded: ${!userId.isNullOrBlank()}")
             if (userId != null) {
                 viewModel.loadUserProfile(userId!!)
             } else {
@@ -89,7 +89,7 @@ class ProfileActivity : BaseActivity() {
     }
     
     private fun displayUserInfo(user: com.weightloss.betting.data.model.User) {
-        android.util.Log.d("ProfileActivity", "Displaying user info: $user")
+        android.util.Log.d("ProfileActivity", "Displaying profile info")
         binding.tvNickname.text = user.nickname
         binding.tvGender.text = when (user.gender) {
             "male" -> "男"

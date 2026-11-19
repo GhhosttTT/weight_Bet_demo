@@ -97,7 +97,7 @@ class CreatePlanViewModel {
                 
                 switch result {
                 case .success(let plan):
-                    print("✅ [CreatePlanVM] 计划创建成功！planId=\(plan.id)")
+                    print("✅ [CreatePlanVM] 计划创建成功")
                     self?.plan = plan
                     self?.onSuccess?(plan)
                     

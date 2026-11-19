@@ -9,6 +9,10 @@ ANDROID_CHARGE_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/
 IOS_CHARGE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewController.swift"
 IOS_WITHDRAW = ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewController.swift"
 IOS_PLAN_DETAIL = ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewController.swift"
+IOS_NETWORK_FILES = (
+    ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift",
+    ROOT / "ios/WeightLossBetting/Data/Network/ErrorInterceptor.swift",
+)
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -39,6 +43,15 @@ def test_charge_limits_match_between_mobile_platforms():
     assert 'amount >= 0.01' in ios
     assert 'amountDouble > 10000' in android
     assert 'amount <= 10000' in ios
+
+
+def test_ios_network_logging_does_not_emit_urls_or_response_bodies():
+    source = "\n".join(path.read_text(encoding="utf-8") for path in IOS_NETWORK_FILES)
+
+    assert 'absoluteString' not in source
+    assert 'Raw response' not in source
+    assert 'Response Body' not in source
+    assert 'Error Body' not in source
 
 
 def test_pending_plan_creator_uses_cancel_action_on_ios():

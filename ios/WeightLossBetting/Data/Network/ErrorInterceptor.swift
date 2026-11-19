@@ -9,14 +9,8 @@ final class ErrorInterceptor: EventMonitor {
         
         // Log errors for debugging
         if !httpResponse.isSuccessful {
-            print("❌ Error Response:")
-            print("   URL: \(request.request?.url?.absoluteString ?? "unknown")")
-            print("   Status Code: \(httpResponse.statusCode)")
-            
-            if let data = response.data,
-               let errorString = String(data: data, encoding: .utf8) {
-                print("   Error Body: \(errorString)")
-            }
+            // Avoid logging URLs, query parameters, authorization data, or bodies.
+            print("❌ Network request failed (HTTP \(httpResponse.statusCode))")
         }
     }
 }

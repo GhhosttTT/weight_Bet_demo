@@ -584,7 +584,6 @@ class PlanDetailViewController: UIViewController {
         
         // Participant info
         let (participantNickname, participantEmail) = viewModel.getParticipantNicknameAndEmail()
-        print("🔍 [DEBUG] 参与者信息：nickname=\(participantNickname ?? "nil"), email=\(participantEmail ?? "nil")")
         
         var finalNickname = participantNickname
         var finalEmail = participantEmail
@@ -594,7 +593,6 @@ class PlanDetailViewController: UIViewController {
         if hasNoParticipantInfo, let preFill = preFillParticipant {
             finalNickname = preFill.nickname
             finalEmail = preFill.email
-            print("🔍 [DEBUG] 使用预填充参与者信息：\(finalNickname!) (\(finalEmail!))")
         }
         
         if let nickname = finalNickname, !nickname.isEmpty {

@@ -135,11 +135,11 @@ class NotificationService {
         switch type {
         case "invite":
             if let planId = relatedId {
-                print("📍 Navigate to plan invitation: \(planId)")
+                print("📍 Navigate to plan invitation")
             }
         case "plan_active":
             if let planId = relatedId {
-                print("📍 Navigate to active plan: \(planId)")
+                print("📍 Navigate to active plan")
             }
         case "settlement":
             if let settlementId = relatedId {
@@ -147,7 +147,7 @@ class NotificationService {
             }
         case "check_in_reminder":
             if let planId = relatedId {
-                print("📍 Navigate to check-in for plan: \(planId)")
+                print("📍 Navigate to check-in for plan")
             }
         default:
             print("📍 Unknown notification type: \(type)")

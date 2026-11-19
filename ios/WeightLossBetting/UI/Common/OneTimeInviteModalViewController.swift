@@ -99,14 +99,14 @@ final class OneTimeInviteModalViewController: UIViewController {
     }
 
     @objc private func viewTapped() {
-        print("🔴 [InviteModal] 用户点击了查看计划按钮，planId=\(invitation.planId)")
+        print("🔴 [InviteModal] 用户点击了查看计划按钮")
         
         let planId = invitation.planId
         // 先发送通知，避免弹窗释放后无法发送
         print("📢 [InviteModal] 准备发送导航通知...")
         print("   - 通知名称：navigateToNotificationType")
         print("   - 类型：invite")
-        print("   - planId: \(planId)")
+        print("   - 类型：invite")
         
         NotificationCenter.default.post(
             name: NSNotification.Name(rawValue: "navigateToNotificationType"),

@@ -101,7 +101,7 @@ final class DoubleCheckModalViewController: UIViewController {
         let planId = item.planId
         // 先发送通知，避免弹窗释放后无法发送
         print("📢 [DoubleCheckModal] 准备发送导航通知...")
-        print("   - 类型：double_check, planId: \(planId)")
+        print("   - 类型：double_check")
         
         NotificationCenter.default.post(
             name: NSNotification.Name(rawValue: "navigateToNotificationType"),

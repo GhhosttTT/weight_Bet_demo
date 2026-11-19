@@ -225,7 +225,7 @@ final class PendingActionsService: NSObject, UIAdaptivePresentationControllerDel
         let result = await repository.postDoubleCheck(planId: planId, parameters: parameters)
         switch result {
         case .success:
-            print("✅ Double-check posted successfully for plan \(planId)")
+            print("✅ Double-check posted successfully")
             // trigger background processing
             Task {
                 await PendingActionsRetryQueue.shared.processQueue()

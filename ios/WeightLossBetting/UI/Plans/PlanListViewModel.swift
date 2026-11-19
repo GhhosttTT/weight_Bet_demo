@@ -17,7 +17,7 @@ class PlanListViewModel {
     // MARK: - Public Methods
     
     func loadPlans(userId: String, status: PlanStatus? = nil, forceRefresh: Bool = false) {
-        print("🔵 [PlanListVM] 开始加载计划列表，userId=\(userId), status=\(status?.rawValue ?? "全部"), forceRefresh=\(forceRefresh)")
+        print("🔵 [PlanListVM] 开始加载计划列表，status=\(status?.rawValue ?? "全部"), forceRefresh=\(forceRefresh)")
         onLoadingChanged?(true)
         
         let statusString = status?.rawValue
@@ -34,14 +34,7 @@ class PlanListViewModel {
                         print("   - 计划 ID: \(plan.id)")
                         print("   - 状态：\(plan.status.rawValue)")
                         print("   - 赌金：¥\(plan.betAmount)")
-                        print("   - 创建者 ID: \(plan.creatorId ?? "nil")")
-                        print("   - 创建者昵称：\(plan.creatorNickname ?? "nil")")
-                        print("   - 创建者邮箱：\(plan.creatorEmail ?? "nil")")
-                        print("   - 参与者 ID: \(plan.participantId ?? "nil")")
-                        print("   - 参与者昵称：\(plan.participantNickname ?? "nil")")
-                        print("   - 参与者邮箱：\(plan.participantEmail ?? "nil")")
-                        print("   - 是否是创建者：\(plan.isCreator ? "是" : "否")")
-                        print("   - 是否是参与者：\(plan.isParticipant ? "是" : "否")")
+                        print("   - 是否是创建者：\(plan.isCreator ? "是" : "否")，是否是参与者：\(plan.isParticipant ? "是" : "否")")
                     }
                     print("\n")
                     self?.plans = plans

@@ -357,7 +357,7 @@ class InviteViewController: UIViewController {
             // Push 计划详情页面
             let planDetailVC = PlanDetailViewController(planId: planId)
             navController.pushViewController(planDetailVC, animated: true)
-            print("✅ [InviteVC] 已导航到计划详情页面：\(planId)")
+            print("✅ [InviteVC] 已导航到计划详情页面")
         } else {
             print("❌ [InviteVC] 无法找到导航控制器，无法跳转到计划详情")
         }

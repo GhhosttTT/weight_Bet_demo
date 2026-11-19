@@ -230,17 +230,9 @@ class APIService {
     
     func searchUserByEmail(email: String, completion: @escaping (Result<UserPreview, Error>) -> Void) {
         let url = "\(baseURL)/users/search?email=\(email.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? "")"
-        print("🔍 [APIService] Searching user by email: \(url)")
-
         session.request(url, method: .get)
             .validate()
             .responseData { response in
-                print("🔍 [APIService] Search response status: \(response.response?.statusCode ?? -1)")
-                if let data = response.data,
-                   let jsonString = String(data: data, encoding: .utf8) {
-                    print("🔍 [APIService] Raw response: \(jsonString)")
-                }
-
                 guard let data = response.data else {
                     completion(.failure(response.error ?? NSError(domain: "APIService", code: -1, userInfo: [NSLocalizedDescriptionKey: "No data received"])))
                     return
@@ -273,26 +265,12 @@ class APIService {
     // MARK: - Betting Plan Endpoints
     
     func createBettingPlan(parameters: [String: Any], completion: @escaping (Result<BettingPlan, Error>) -> Void) {
-        // 打印请求参数
-        print("📡 [APIService] 创建计划请求参数:")
-        for (key, value) in parameters {
-            print("   - \(key): \(value)")
-        }
-        
         session.request("\(baseURL)/betting-plans",
                        method: .post,
                        parameters: parameters,
                        encoding: JSONEncoding.default)
             .validate()
             .responseDecodable(of: BettingPlan.self, decoder: decoder) { response in
-                // 打印响应
-                if let httpResponse = response.response {
-                    print("📡 [APIService] 创建计划响应状态码：\(httpResponse.statusCode)")
-                }
-                if let responseData = response.data,
-                   let jsonString = String(data: responseData, encoding: .utf8) {
-                    print("📡 [APIService] 创建计划响应内容：\(jsonString)")
-                }
                 self.handleDirectResponse(response, completion: completion)
             }
     }
@@ -775,10 +753,7 @@ class APIService {
                     print("✅ [APIService] Recommendations decoded successfully")
                 case .failure(let error):
                     print("❌ [APIService] Failed to decode recommendations: \(error.localizedDescription)")
-                    if let data = response.data,
-                       let jsonString = String(data: data, encoding: .utf8) {
-                        print("   Raw response: \(jsonString)")
-                    }
+                    print("   Recommendation response could not be decoded")
                 }
                 self.handleDirectResponse(response, completion: completion)
             }
@@ -880,14 +855,7 @@ class APIService {
         case .success(let value):
             completion(.success(value))
         case .failure(let error):
-            // 打印详细的错误信息用于调试
-            print("❌ Error Response:")
-            print("   URL: \(response.request?.url?.absoluteString ?? "unknown")")
-            print("   Status Code: \(response.response?.statusCode ?? -1)")
-            if let data = response.data, let responseString = String(data: data, encoding: .utf8) {
-                print("   Response Body: \(responseString)")
-            }
-            print("   Error: \(error.localizedDescription)")
+            print("❌ API request failed (HTTP \(response.response?.statusCode ?? -1))")
             
             if let statusCode = response.response?.statusCode {
                 // Try to parse error message from response body

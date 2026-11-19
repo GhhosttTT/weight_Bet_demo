@@ -284,7 +284,7 @@ class ProfileViewController: UIViewController {
             print("❌ No user data")
             return
         }
-        print("✅ Navigating to payment method for user: \(user.id)")
+        print("✅ Navigating to payment method")
         
         let paymentVC = PaymentMethodViewController(userId: user.id)
         navigationController?.pushViewController(paymentVC, animated: true)

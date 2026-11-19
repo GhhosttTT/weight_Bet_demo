@@ -183,7 +183,7 @@ class PlansViewController: UIViewController {
             // Don't show error if user is not logged in yet
             return
         }
-        print("🔵 [PlansVC] Loading plans for user: \(currentUserId)")
+        print("🔵 [PlansVC] Loading plans")
         viewModel.loadPlans(userId: currentUserId, forceRefresh: forceRefresh)
     }
     

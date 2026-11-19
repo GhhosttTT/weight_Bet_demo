@@ -28,11 +28,11 @@ class MainTabBarController: UITabBarController {
             print("❌ [MainTabBar] 通知信息格式不正确")
             return
         }
-        print("   - 类型：\(type), planId: \(planId)")
+        print("   - 类型：\(type)")
         
         // 处理计划相关通知，跳转到计划详情
         if ["invite", "double_check", "plan_active", "settlement"].contains(type) {
-            print("🚀 [MainTabBar] 开始导航到计划详情：\(planId)")
+            print("🚀 [MainTabBar] 开始导航到计划详情")
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
                 // 容错方案1：切到计划tab正常跳转

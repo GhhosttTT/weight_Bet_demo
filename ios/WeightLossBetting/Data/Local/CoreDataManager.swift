@@ -81,7 +81,7 @@ class CoreDataManager {
     
     func getCachedCheckIns(planId: String) -> [CheckIn] {
         // Disabled to avoid CoreData model loading errors
-        print("⚠️️ CoreData caching disabled for getting check-ins: \(planId)")
+        print("⚠️️ CoreData caching disabled for getting check-ins")
         return []
     }
 

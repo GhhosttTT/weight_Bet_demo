@@ -15,6 +15,7 @@ from app.models.betting_plan import BettingPlan
 from app.models.settlement import Settlement
 from app.models.dispute import Dispute, DisputeStatus
 from app.services.settlement_service import SettlementService
+from app.services.notification_service import NotificationService
 from app.schemas.settlement import SettlementResponse, SettlementCalculation
 from app.schemas.dispute import DisputeCreate, DisputeResponse
 from app.logger import get_logger
@@ -241,8 +242,20 @@ async def submit_dispute(
             }
         )
         
-        # TODO: 发送通知给管理员
-        logger.info("Notifying administrators about dispute {}", dispute_id)
+        # 争议已先落库，再通知管理员；推送服务异常不能回滚已提交的争议。
+        admins = db.query(User).filter(User.role == "admin").all()
+        for admin in admins:
+            try:
+                NotificationService.send_dispute_submitted_notification(
+                    db, admin.id, dispute_id, settlement_id
+                )
+            except Exception as notification_error:
+                logger.error(
+                    "Failed to notify administrator {} about dispute {}: {}",
+                    admin.id,
+                    dispute_id,
+                    notification_error,
+                )
         
         return DisputeResponse.from_orm(dispute)
         

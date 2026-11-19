@@ -86,3 +86,20 @@ def test_apns_delivery_builds_alert_payload(tmp_path, monkeypatch):
     assert NotificationService._send_apns("device-token", _request()) is True
     assert calls[0][0].endswith("/3/device/device-token")
     assert calls[0][1]["json"]["aps"]["alert"]["title"] == "计划邀请"
+
+
+def test_dispute_notification_targets_admin_with_related_ids(monkeypatch):
+    captured = []
+
+    def capture(db, request):
+        captured.append(request)
+        return SimpleNamespace(success=True)
+
+    monkeypatch.setattr(NotificationService, "send_notification", capture)
+    NotificationService.send_dispute_submitted_notification(
+        object(), "admin-1", "dispute-1", "settlement-1"
+    )
+
+    assert captured[0].user_id == "admin-1"
+    assert captured[0].notification_type == NotificationType.DISPUTE_SUBMITTED
+    assert captured[0].data == {"dispute_id": "dispute-1", "settlement_id": "settlement-1"}

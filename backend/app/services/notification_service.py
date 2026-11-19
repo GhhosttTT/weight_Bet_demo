@@ -368,6 +368,22 @@ class NotificationService:
             data={"plan_id": plan_id},
         )
         return NotificationService.send_notification(db, request)
+
+    @staticmethod
+    def send_dispute_submitted_notification(
+        db: Session,
+        admin_user_id: str,
+        dispute_id: str,
+        settlement_id: str,
+    ):
+        request = SendNotificationRequest(
+            user_id=admin_user_id,
+            notification_type=NotificationType.DISPUTE_SUBMITTED,
+            title="收到新的结算争议",
+            body="有一条结算争议等待后台处理。",
+            data={"dispute_id": dispute_id, "settlement_id": settlement_id},
+        )
+        return NotificationService.send_notification(db, request)
     
     @staticmethod
     def send_settlement_notification(

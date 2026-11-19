@@ -22,6 +22,7 @@ class NotificationType(str, Enum):
     CHECK_IN_REMINDER = "check_in_reminder"
     CHECK_IN_REVIEW = "check_in_review"
     PLAN_EXPIRED = "plan_expired"
+    DISPUTE_SUBMITTED = "dispute_submitted"
 
 
 class RegisterDeviceTokenRequest(BaseModel):

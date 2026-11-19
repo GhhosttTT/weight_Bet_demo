@@ -12,7 +12,7 @@ from app.services.user_service import UserService
 from app.services.friend_search_service import FriendSearchService
 from app.services.audit_service import AuditService
 from app.middleware.auth import get_current_user_id
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 router = APIRouter()
 
@@ -185,8 +185,8 @@ class AuditLogQuery(BaseModel):
     resource_type: Optional[str] = None
     start_date: Optional[datetime] = None
     end_date: Optional[datetime] = None
-    limit: int = 100
-    offset: int = 0
+    limit: int = Field(default=100, ge=1, le=500)
+    offset: int = Field(default=0, ge=0)
 
 
 @router.post("/{user_id}/audit-logs")

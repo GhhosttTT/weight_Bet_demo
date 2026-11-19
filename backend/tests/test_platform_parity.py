@@ -17,6 +17,8 @@ ANDROID_API = ROOT / "android/app/src/main/java/com/weightloss/betting/data/remo
 ANDROID_PROFILE_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/profile/ProfileViewModel.kt"
 IOS_API = ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift"
 IOS_PROFILE_VM = ROOT / "ios/WeightLossBetting/UI/Profile/ProfileViewModel.swift"
+ANDROID_MAIN = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/MainActivity.kt"
+IOS_PENDING_ACTIONS = ROOT / "ios/WeightLossBetting/Data/Service/PendingActionsService.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -77,3 +79,13 @@ def test_account_deletion_and_backend_logout_are_exposed_on_both_mobile_platform
     assert 'suspend fun logout()' in android_vm
     assert 'func deleteUserAccount(userId: String' in ios_api
     assert 'func deleteAccount(completion:' in ios_vm
+
+
+def test_pending_actions_refresh_when_both_platforms_return_to_foreground():
+    android = ANDROID_MAIN.read_text(encoding="utf-8")
+    ios = IOS_PENDING_ACTIONS.read_text(encoding="utf-8")
+
+    assert "override fun onResume()" in android
+    assert "checkPendingActions()" in android
+    assert "func checkAndHandlePendingActions()" in ios
+    assert "waitForModalDismiss" in ios

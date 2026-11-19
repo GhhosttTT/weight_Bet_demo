@@ -74,11 +74,15 @@ class MainActivity : AppCompatActivity() {
         // 处理通知点击跳转
         handleNotificationIntent(intent)
         
-        // 检查待处理操作
-        checkPendingActions()
-        
         // 启用边缘滑动返回
         EdgeSwipeBackHelper.enableForFragmentActivity(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // 与 iOS 前台恢复行为一致：返回主页面时重新拉取待处理操作，
+        // 避免用户在弹窗处理后仍看不到下一条邀请或结算提醒。
+        checkPendingActions()
     }
 
     private fun registerCurrentPushToken() {
@@ -160,28 +164,25 @@ class MainActivity : AppCompatActivity() {
             if (result is NetworkResult.Success) {
                 val pendingActions = result.data
                 // 如果有邀请，显示邀请弹窗（只显示一次）
-                if (pendingActions.invitations.isNotEmpty()) {
-                    val invitation = pendingActions.invitations.first()
+                pendingActions.invitations.firstOrNull { invitation ->
+                    !prefs.getBoolean("invitation_shown_${invitation.id}", false)
+                }?.let { invitation ->
                     val shownKey = "invitation_shown_${invitation.id}"
-                    if (!prefs.getBoolean(shownKey, false)) {
-                        showInvitationDialog(invitation, shownKey)
-                    }
+                    showInvitationDialog(invitation, shownKey)
                 }
                 // 如果有 Double Check，显示确认弹窗（只显示一次）
-                if (pendingActions.doubleChecks.isNotEmpty()) {
-                    val doubleCheck = pendingActions.doubleChecks.first()
+                pendingActions.doubleChecks.firstOrNull { doubleCheck ->
+                    !prefs.getBoolean("doublecheck_shown_${doubleCheck.planId}", false)
+                }?.let { doubleCheck ->
                     val shownKey = "doublecheck_shown_${doubleCheck.planId}"
-                    if (!prefs.getBoolean(shownKey, false)) {
-                        showDoubleCheckDialog(doubleCheck, shownKey)
-                    }
+                    showDoubleCheckDialog(doubleCheck, shownKey)
                 }
                 // 如果有待结算的计划，显示结算弹窗（只显示一次）
-                if (pendingActions.settlements.isNotEmpty()) {
-                    val settlement = pendingActions.settlements.first()
+                pendingActions.settlements.firstOrNull { settlement ->
+                    !prefs.getBoolean("settlement_shown_${settlement.planId}", false)
+                }?.let { settlement ->
                     val shownKey = "settlement_shown_${settlement.planId}"
-                    if (!prefs.getBoolean(shownKey, false)) {
-                        showSettlementDialog(settlement, shownKey)
-                    }
+                    showSettlementDialog(settlement, shownKey)
                 }
             } else if (result is NetworkResult.Error) {
                 // 非致命错误，仅记录日志

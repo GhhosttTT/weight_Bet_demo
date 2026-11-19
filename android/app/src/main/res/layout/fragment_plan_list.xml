@@ -42,7 +42,7 @@
                     app:chipBackgroundColor="@color/chip_background"
                     app:chipStrokeColor="@color/chip_stroke"
                     app:chipStrokeWidth="1dp"
-                    app:chipTextColor="@color/chip_text"
+                    android:textColor="@color/chip_text"
                     app:checkedIconVisible="false"
                     app:rippleColor="@color/xui_config_color_primary" />
 
@@ -55,7 +55,7 @@
                     app:chipBackgroundColor="@color/chip_background"
                     app:chipStrokeColor="@color/chip_stroke"
                     app:chipStrokeWidth="1dp"
-                    app:chipTextColor="@color/chip_text"
+                    android:textColor="@color/chip_text"
                     app:checkedIconVisible="false"
                     app:rippleColor="@color/xui_config_color_primary" />
 
@@ -68,7 +68,7 @@
                     app:chipBackgroundColor="@color/chip_background"
                     app:chipStrokeColor="@color/chip_stroke"
                     app:chipStrokeWidth="1dp"
-                    app:chipTextColor="@color/chip_text"
+                    android:textColor="@color/chip_text"
                     app:checkedIconVisible="false"
                     app:rippleColor="@color/xui_config_color_primary" />
 
@@ -81,7 +81,7 @@
                     app:chipBackgroundColor="@color/chip_background"
                     app:chipStrokeColor="@color/chip_stroke"
                     app:chipStrokeWidth="1dp"
-                    app:chipTextColor="@color/chip_text"
+                    android:textColor="@color/chip_text"
                     app:checkedIconVisible="false"
                     app:rippleColor="@color/xui_config_color_primary" />
 

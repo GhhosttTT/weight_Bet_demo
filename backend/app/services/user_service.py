@@ -13,6 +13,8 @@ from app.models.check_in import CheckIn
 from app.models.transaction import Transaction
 from app.models.balance import Balance
 from app.models.settlement import Settlement
+from app.models.refresh_token import RefreshToken
+from app.models.device_token import DeviceToken
 from app.schemas.user import UserUpdate, UserResponse
 from app.logger import get_logger
 
@@ -401,6 +403,14 @@ class UserService:
                 logger.warning("User {} has available balance {}, will be cleared", user_id, balance.available_balance)
             balance.available_balance = 0
             balance.frozen_balance = 0
+
+        # 账户删除后立即终止所有登录会话，并撤销推送目标，避免匿名化账户仍可被旧令牌访问。
+        db.query(RefreshToken).filter(RefreshToken.user_id == user_id).update(
+            {RefreshToken.revoked_at: datetime.utcnow()}, synchronize_session=False
+        )
+        db.query(DeviceToken).filter(DeviceToken.user_id == user_id).delete(
+            synchronize_session=False
+        )
         
         db.commit()
         

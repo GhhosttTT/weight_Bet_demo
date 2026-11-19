@@ -14,6 +14,8 @@ from app.models.betting_plan import BettingPlan, PlanStatus
 from app.models.check_in import CheckIn, ReviewStatus
 from app.models.transaction import Transaction, TransactionType, TransactionStatus
 from app.models.audit_log import AuditLog
+from app.models.refresh_token import RefreshToken
+from app.models.device_token import DeviceToken, Platform
 from app.services.user_service import UserService
 from app.services.audit_service import AuditService
 from fastapi import HTTPException
@@ -215,6 +217,14 @@ class TestAccountDeletion:
             frozen_balance=0.0
         )
         db.add(balance)
+        db.add(RefreshToken(
+            id="delete-refresh-token", user_id=user.id, token_hash="hash",
+            expires_at=datetime.utcnow(),
+        ))
+        db.add(DeviceToken(
+            id="delete-device-token", user_id=user.id, token="device-token-delete",
+            platform=Platform.ANDROID,
+        ))
         
         db.commit()
         
@@ -236,6 +246,8 @@ class TestAccountDeletion:
         deleted_balance = db.query(Balance).filter(Balance.user_id == user.id).first()
         assert deleted_balance.available_balance == 0.0
         assert deleted_balance.frozen_balance == 0.0
+        assert db.query(RefreshToken).filter(RefreshToken.user_id == user.id).one().revoked_at is not None
+        assert db.query(DeviceToken).filter(DeviceToken.user_id == user.id).count() == 0
 
     def test_delete_user_account_removes_local_check_in_photo(self, db: Session):
         user = User(

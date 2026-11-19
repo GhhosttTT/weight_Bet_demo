@@ -169,6 +169,60 @@ class StripePayoutService:
         db.commit()
         return {"success": True, "status": "pending", "payout_id": payout.id, "idempotent": False}
 
+    @classmethod
+    def reconcile_pending_payout(cls, db: Session, transaction_id: str) -> dict:
+        """从 Stripe 查询已创建的 Payout，恢复丢失的 Webhook 状态。"""
+        cls._require_stripe()
+        transaction = db.query(Transaction).filter(
+            Transaction.id == transaction_id,
+            Transaction.type == TransactionType.WITHDRAW,
+            Transaction.status == TransactionStatus.PENDING,
+        ).with_for_update().first()
+        if not transaction:
+            raise HTTPException(status_code=404, detail="待对账提现交易不存在")
+        if not transaction.external_payment_id:
+            raise HTTPException(status_code=409, detail="提现尚未创建 Stripe Payout，请先执行重试")
+        user = db.query(User).filter(User.id == transaction.user_id).first()
+        if not user or not user.stripe_account_id:
+            raise HTTPException(status_code=409, detail="提现账户不存在")
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            payout = stripe.Payout.retrieve(
+                transaction.external_payment_id,
+                stripe_account=user.stripe_account_id,
+            )
+        except stripe.error.StripeError as error:
+            raise HTTPException(status_code=502, detail="Stripe 出款状态查询失败") from error
+
+        status_map = {
+            "paid": "payout.paid",
+            "failed": "payout.failed",
+            "canceled": "payout.canceled",
+        }
+        event_type = status_map.get(payout.get("status"))
+        if not event_type:
+            return {
+                "success": True,
+                "status": "pending",
+                "payout_id": transaction.external_payment_id,
+                "stripe_status": payout.get("status"),
+                "handled": False,
+            }
+        result = cls.handle_payout_webhook(
+            db,
+            event_type,
+            dict(payout),
+            connected_account=user.stripe_account_id,
+        )
+        return {
+            "success": True,
+            "status": result.get("status", "pending"),
+            "payout_id": transaction.external_payment_id,
+            "stripe_status": payout.get("status"),
+            "handled": result.get("handled", False),
+        }
+
     @staticmethod
     def handle_payout_webhook(
         db: Session,

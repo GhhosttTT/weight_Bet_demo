@@ -170,3 +170,32 @@ def test_retry_pending_payout_recovers_missing_transfer(db_session, stripe_confi
     assert stored.external_payment_id == "po_recovered"
     assert create_transfer.call_args[1]["idempotency_key"] == "weight-bet-transfer-recover-tx-001"
     assert create_payout.call_args[1]["idempotency_key"] == "weight-bet-payout-recover-tx-001"
+
+
+def test_reconcile_pending_payout_applies_stripe_paid_status(db_session, stripe_config):
+    user = db_session.query(User).one()
+    user.stripe_account_id = "acct_reconcile"
+    transaction = Transaction(
+        id="reconcile-tx-001", user_id=user.id, type=TransactionType.WITHDRAW,
+        amount=-20, status=TransactionStatus.PENDING, external_payment_id="po_reconcile",
+    )
+    balance = db_session.query(Balance).one()
+    balance.available_balance = 80
+    balance.frozen_balance = 20
+    db_session.add(transaction)
+    db_session.commit()
+
+    payout = {
+        "id": "po_reconcile",
+        "status": "paid",
+        "amount": 2000,
+        "currency": "cny",
+        "metadata": {"transaction_id": transaction.id, "user_id": user.id},
+    }
+    with patch("app.services.stripe_payout_service.stripe.Payout.retrieve", return_value=payout) as retrieve:
+        result = StripePayoutService.reconcile_pending_payout(db_session, transaction.id)
+
+    retrieve.assert_called_once_with("po_reconcile", stripe_account="acct_reconcile")
+    assert result["status"] == "completed"
+    assert db_session.query(Transaction).one().status == TransactionStatus.COMPLETED
+    assert db_session.query(Balance).one().frozen_balance == 0

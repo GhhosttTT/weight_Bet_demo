@@ -40,7 +40,6 @@ def dashboard(_: User = Depends(get_current_admin), db: Session = Depends(get_db
         "pending_payouts": db.query(func.count(Transaction.id)).filter(
             Transaction.type == TransactionType.WITHDRAW,
             Transaction.status == TransactionStatus.PENDING,
-            Transaction.external_payment_id.is_(None),
         ).scalar() or 0,
         "updated_at": datetime.utcnow(),
     }
@@ -279,7 +278,6 @@ def list_pending_payouts(
     records = db.query(Transaction).filter(
         Transaction.type == TransactionType.WITHDRAW,
         Transaction.status == TransactionStatus.PENDING,
-        Transaction.external_payment_id.is_(None),
     ).order_by(Transaction.created_at.asc()).offset(offset).limit(limit).all()
     return [
         {
@@ -287,7 +285,9 @@ def list_pending_payouts(
             "user_id": item.user_id,
             "amount": abs(item.amount),
             "external_transfer_id": item.external_transfer_id,
+            "external_payment_id": item.external_payment_id,
             "needs_transfer_recovery": item.external_transfer_id is None,
+            "needs_payout_reconciliation": item.external_payment_id is not None,
             "created_at": item.created_at,
         }
         for item in records
@@ -347,6 +347,26 @@ def retry_payout(
         id=str(uuid.uuid4()),
         user_id=admin.id,
         action="retry_payout",
+        resource_type="transaction",
+        resource_id=transaction_id,
+        details=result,
+    ))
+    db.commit()
+    return result
+
+
+@router.post("/payouts/{transaction_id}/reconcile")
+def reconcile_payout(
+    transaction_id: str,
+    admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """查询 Stripe Payout 状态，恢复丢失 Webhook 导致的 pending 提现。"""
+    result = StripePayoutService.reconcile_pending_payout(db, transaction_id)
+    db.add(AuditLog(
+        id=str(uuid.uuid4()),
+        user_id=admin.id,
+        action="reconcile_payout",
         resource_type="transaction",
         resource_id=transaction_id,
         details=result,

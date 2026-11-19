@@ -48,4 +48,6 @@ jobs:
 
       - name: Compile debug Kotlin
         working-directory: android
-        run: ./gradlew :app:compileDebugKotlin --no-daemon
+        run: |
+          chmod +x gradlew
+          ./gradlew :app:compileDebugKotlin --no-daemon

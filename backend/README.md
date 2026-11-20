@@ -137,10 +137,14 @@ Stripe 模式下提现会先预留余额，再创建 Connect Transfer/Payout；�
 - `GET /api/betting-plans/{planId}/progress` - 获取进度统计
 
 ### 支付
-- `POST /api/payments/charge` - 充值
+- `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent（生产充值入口）
+- `POST /api/payments/stripe/webhook` - 接收 Stripe 支付与出款回调
 - `POST /api/payments/withdraw` - 提现
+- `POST /api/payments/connect/onboarding` - 创建 Stripe Connect 提现账户认证链接
 - `GET /api/users/{userId}/balance` - 获取余额
 - `GET /api/users/{userId}/transactions` - 获取交易历史
+
+`POST /api/payments/charge` 仅用于 `PAYMENT_PROVIDER=demo` 的本地演示；Stripe 模式会返回 410，移动端不得调用该接口。
 
 ### 结算
 - `GET /api/settlements/{settlementId}` - 获取结算详情

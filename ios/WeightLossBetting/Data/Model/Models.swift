@@ -235,6 +235,7 @@ struct Transaction: Codable {
 }
 
 enum TransactionType: String, Codable {
+    case charge
     case freeze
     case unfreeze
     case transfer

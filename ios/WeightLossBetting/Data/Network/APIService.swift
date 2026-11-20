@@ -555,22 +555,6 @@ class APIService {
             }
     }
     
-    func charge(amount: Double, paymentMethodId: String, completion: @escaping (Result<ChargeResult, Error>) -> Void) {
-        let parameters: [String: Any] = [
-            "amount": amount,
-            "payment_method_id": paymentMethodId
-        ]
-        
-        session.request("\(baseURL)/payments/charge",
-                       method: .post,
-                       parameters: parameters,
-                       encoding: JSONEncoding.default)
-            .validate()
-            .responseDecodable(of: ChargeResult.self, decoder: decoder) { response in
-                self.handleDirectResponse(response, completion: completion)
-            }
-    }
-
     func createChargeIntent(amount: Double, idempotencyKey: String, completion: @escaping (Result<ChargeIntentResult, Error>) -> Void) {
         let parameters: [String: Any] = ["amount": amount, "idempotencyKey": idempotencyKey]
         session.request("\(baseURL)/payments/charge/intent",

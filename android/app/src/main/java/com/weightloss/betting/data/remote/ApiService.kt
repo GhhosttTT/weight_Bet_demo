@@ -133,9 +133,6 @@ interface ApiService {
     
     // ==================== 支付 API ====================
     
-    @POST("api/payments/charge")
-    suspend fun charge(@Body request: ChargeRequest): Response<ChargeResult>
-
     @POST("api/payments/charge/intent")
     suspend fun createChargeIntent(@Body request: ChargeIntentRequest): Response<ChargeIntentResult>
     

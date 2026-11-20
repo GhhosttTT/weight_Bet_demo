@@ -34,6 +34,10 @@ IOS_INFO_PLIST = ROOT / "ios/WeightLossBetting/Info.plist"
 ANDROID_COACH_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/main/CoachViewModel.kt"
 IOS_COACH_VM = ROOT / "ios/WeightLossBetting/UI/Main/CoachViewModel.swift"
 ANDROID_COACH_FRAGMENT = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/main/CoachFragment.kt"
+ANDROID_PAYMENT_API = ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt"
+ANDROID_PAYMENT_REPOSITORY = ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/PaymentRepository.kt"
+IOS_PAYMENT_API = ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift"
+IOS_PAYMENT_REPOSITORY = ROOT / "ios/WeightLossBetting/Data/Repository/PaymentRepository.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -196,3 +200,17 @@ def test_coach_error_state_uses_the_same_placeholder_copy_on_both_platforms():
 
     assert 'binding.tvEmptyMessage.text = "AI 推荐服务正在启动中\\n请稍后刷新页面"' in android
     assert 'createPlaceholderLabel(text: "AI 推荐服务正在启动中\\n请稍后刷新页面")' in ios
+
+
+def test_mobile_payment_data_layers_expose_only_payment_intent_for_charges():
+    android_api = ANDROID_PAYMENT_API.read_text(encoding="utf-8")
+    android_repository = ANDROID_PAYMENT_REPOSITORY.read_text(encoding="utf-8")
+    ios_api = IOS_PAYMENT_API.read_text(encoding="utf-8")
+    ios_repository = IOS_PAYMENT_REPOSITORY.read_text(encoding="utf-8")
+
+    assert '"api/payments/charge"' not in android_api
+    assert "suspend fun createChargeIntent" in android_api
+    assert "suspend fun charge(" not in android_repository
+    assert "/payments/charge\"" not in ios_api
+    assert "createChargeIntent(amount:" in ios_api
+    assert "func charge(amount:" not in ios_repository

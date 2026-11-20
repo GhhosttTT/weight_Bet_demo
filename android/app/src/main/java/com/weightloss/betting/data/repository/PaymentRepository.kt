@@ -14,13 +14,6 @@ class PaymentRepository @Inject constructor(
     private val apiService: ApiService
 ) : BaseRepository() {
     
-    /**
-     * 充值
-     */
-    suspend fun charge(request: ChargeRequest): NetworkResult<ChargeResult> {
-        return safeApiCall { apiService.charge(request) }
-    }
-
     suspend fun createChargeIntent(request: ChargeIntentRequest): NetworkResult<ChargeIntentResult> {
         return safeApiCall { apiService.createChargeIntent(request) }
     }

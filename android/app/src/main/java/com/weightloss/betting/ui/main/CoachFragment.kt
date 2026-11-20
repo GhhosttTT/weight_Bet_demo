@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.ProgressBar
 import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
@@ -67,11 +66,11 @@ class CoachFragment : Fragment() {
                 }
                 is CoachState.Error -> {
                     binding.progressBar.visibility = View.GONE
-                    Toast.makeText(requireContext(), state.message, Toast.LENGTH_LONG).show()
+                    displayPlaceholder()
                 }
                 is CoachState.Empty -> {
                     binding.progressBar.visibility = View.GONE
-                    binding.tvEmptyMessage.visibility = View.VISIBLE
+                    displayPlaceholder()
                 }
             }
         })
@@ -79,6 +78,17 @@ class CoachFragment : Fragment() {
     
     private fun loadRecommendation() {
         viewModel.loadRecommendation()
+    }
+
+    private fun displayPlaceholder() {
+        binding.tvCalories.text = "--"
+        binding.tvWater.text = "--"
+        binding.tvSleep.text = "--"
+        binding.llExerciseRecommendations.removeAllViews()
+        binding.llDietRecommendations.removeAllViews()
+        binding.cvTips.visibility = View.GONE
+        binding.tvEmptyMessage.text = "AI 推荐服务正在启动中\n请稍后刷新页面"
+        binding.tvEmptyMessage.visibility = View.VISIBLE
     }
     
     private fun displayExerciseRecommendations(recommendations: List<ExerciseRecommendation>) {

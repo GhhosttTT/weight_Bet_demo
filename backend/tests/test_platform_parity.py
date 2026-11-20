@@ -33,6 +33,7 @@ IOS_APP_DELEGATE = ROOT / "ios/WeightLossBetting/AppDelegate.swift"
 IOS_INFO_PLIST = ROOT / "ios/WeightLossBetting/Info.plist"
 ANDROID_COACH_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/main/CoachViewModel.kt"
 IOS_COACH_VM = ROOT / "ios/WeightLossBetting/UI/Main/CoachViewModel.swift"
+ANDROID_COACH_FRAGMENT = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/main/CoachFragment.kt"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -187,3 +188,11 @@ def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     assert "NetworkResult.Error" in android
     assert "getRecommendation(useCache: useCache" in ios
     assert "cacheRecommendation(result.data)" in (ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/RecommendationRepository.kt").read_text(encoding="utf-8")
+
+
+def test_coach_error_state_uses_the_same_placeholder_copy_on_both_platforms():
+    android = ANDROID_COACH_FRAGMENT.read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Main/CoachViewController.swift").read_text(encoding="utf-8")
+
+    assert 'binding.tvEmptyMessage.text = "AI 推荐服务正在启动中\\n请稍后刷新页面"' in android
+    assert 'createPlaceholderLabel(text: "AI 推荐服务正在启动中\\n请稍后刷新页面")' in ios

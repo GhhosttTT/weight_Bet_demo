@@ -31,6 +31,8 @@ ANDROID_LOGIN_STRINGS = ROOT / "android/app/src/main/res/values/strings.xml"
 IOS_LOGIN = ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift"
 IOS_APP_DELEGATE = ROOT / "ios/WeightLossBetting/AppDelegate.swift"
 IOS_INFO_PLIST = ROOT / "ios/WeightLossBetting/Info.plist"
+ANDROID_COACH_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/main/CoachViewModel.kt"
+IOS_COACH_VM = ROOT / "ios/WeightLossBetting/UI/Main/CoachViewModel.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -171,3 +173,14 @@ def test_google_login_configuration_state_matches_between_mobile_platforms():
     assert "configureGoogleSignIn()" in ios_delegate
     assert "GIDConfiguration(clientID: clientID)" in ios_delegate
     assert "GIDClientID" in ios_plist
+
+
+def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
+    android = ANDROID_COACH_VM.read_text(encoding="utf-8")
+    ios = IOS_COACH_VM.read_text(encoding="utf-8")
+
+    assert "viewModelScope.launch" in android
+    assert "getRecommendation(useCache = true)" in android
+    assert "NetworkResult.Success" in android
+    assert "NetworkResult.Error" in android
+    assert "getRecommendation(useCache: true" in ios

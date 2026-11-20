@@ -35,6 +35,7 @@ ANDROID_COACH_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/m
 IOS_COACH_VM = ROOT / "ios/WeightLossBetting/UI/Main/CoachViewModel.swift"
 ANDROID_COACH_FRAGMENT = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/main/CoachFragment.kt"
 ANDROID_COACH_LAYOUT = ROOT / "android/app/src/main/res/layout/fragment_coach.xml"
+ANDROID_BOTTOM_NAV = ROOT / "android/app/src/main/res/menu/bottom_navigation_menu.xml"
 ANDROID_PAYMENT_API = ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt"
 ANDROID_PAYMENT_REPOSITORY = ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/PaymentRepository.kt"
 IOS_PAYMENT_API = ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift"
@@ -211,6 +212,16 @@ def test_coach_semantic_colors_use_the_shared_brand_palette():
     assert 'android:textColor="@color/brand_primary"' in android
     assert "textColor = AppTheme.Colors.accent" in ios
     assert "textColor = AppTheme.Colors.primary" in ios
+
+
+def test_bottom_navigation_uses_matching_semantic_icons_on_both_platforms():
+    android = ANDROID_BOTTOM_NAV.read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Main/MainTabBarController.swift").read_text(encoding="utf-8")
+
+    for icon in ("ic_nav_home", "ic_nav_coach", "ic_nav_plans", "ic_nav_profile"):
+        assert f'android:icon="@drawable/{icon}"' in android
+    for icon in ('"house"', '"heart.fill"', '"list.bullet"', '"person"'):
+        assert icon in ios
 
 
 def test_mobile_payment_data_layers_expose_only_payment_intent_for_charges():

@@ -41,10 +41,11 @@ class PlanAdapter(
                 "completed" -> "已完成"
                 "cancelled" -> "已取消"
                 "rejected" -> "已拒绝"
+                "expired" -> "已过期"
                 else -> plan.status
             }
             
-            binding.tvBetAmount.text = "赌金: ¥${plan.betAmount}"
+            binding.tvBetAmount.text = "赌金: ¥${String.format(Locale.getDefault(), "%.2f", plan.betAmount)}"
             binding.tvDateRange.text = "${dateFormat.format(plan.startDate)} 至 ${dateFormat.format(plan.endDate)}"
             
             val goalText = if (plan.creatorInitialWeight != null && plan.creatorTargetWeight != null) {

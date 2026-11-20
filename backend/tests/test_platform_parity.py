@@ -48,6 +48,8 @@ ANDROID_REGISTER = ROOT / "android/app/src/main/res/layout/activity_register.xml
 ANDROID_EDIT_PROFILE = ROOT / "android/app/src/main/res/layout/activity_edit_profile.xml"
 IOS_REGISTER = ROOT / "ios/WeightLossBetting/UI/Auth/RegisterViewController.swift"
 IOS_EDIT_PROFILE = ROOT / "ios/WeightLossBetting/UI/Profile/EditProfileViewController.swift"
+ANDROID_PLAN_ADAPTER = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/PlanAdapter.kt"
+IOS_PLANS = ROOT / "ios/WeightLossBetting/UI/Plans/PlansViewController.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -301,3 +303,12 @@ def test_auth_and_profile_forms_use_matching_labels_and_validation_boundaries():
     assert 'items = ["男", "女"]' in ios_register
     assert 'items: ["男", "女"]' in ios_edit
     assert '"Other"' not in ios_edit
+
+
+def test_plan_list_renders_expired_state_and_two_decimal_amount_on_both_platforms():
+    android = ANDROID_PLAN_ADAPTER.read_text(encoding="utf-8")
+    ios = IOS_PLANS.read_text(encoding="utf-8")
+    assert '"expired" -> "已过期"' in android
+    assert 'String.format(Locale.getDefault(), "%.2f", plan.betAmount)' in android
+    assert 'case .expired:' in ios
+    assert 'String(format: "%.2f", plan.betAmount)' in ios

@@ -8,6 +8,7 @@ from app.database import get_db
 from app.models.user import User
 from app.models.refresh_token import RefreshToken
 from app.utils.security import decode_token
+from app.config import settings
 from app.logger import get_logger
 
 logger = get_logger()
@@ -57,6 +58,13 @@ def get_current_user(
     # 退出登录或刷新轮换后，原会话记录会被吊销，Access Token 也应立即失效。
     # 兼容没有 jti 的历史/测试 token，仍由用户存在性和签名校验保护。
     token_id = payload.get("jti")
+    if not token_id and not settings.ALLOW_LEGACY_ACCESS_TOKENS:
+        logger.warning("Authentication failed: legacy access token is disabled")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="访问令牌版本已过期，请重新登录",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     if token_id:
         session = db.query(RefreshToken).filter(
             RefreshToken.id == token_id,

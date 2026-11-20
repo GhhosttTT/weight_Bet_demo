@@ -34,6 +34,8 @@ class Settings(BaseSettings):
     ALGORITHM: str = "HS256"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
     REFRESH_TOKEN_EXPIRE_DAYS: int = 30
+    # 迁移旧版本 JWT。生产部署必须关闭，当前默认值仅兼容本地旧测试/客户端。
+    ALLOW_LEGACY_ACCESS_TOKENS: bool = True
     
     # Stripe 配置
     STRIPE_SECRET_KEY: str = "sk_test_dummy"
@@ -111,6 +113,8 @@ def validate_runtime_configuration(current: Settings = None) -> None:
         errors.append("生产环境不能使用 SQLite，必须配置 PostgreSQL 等生产数据库")
     if not runtime.SECRET_KEY or runtime.SECRET_KEY == "test-secret-key-for-development" or len(runtime.SECRET_KEY) < 32:
         errors.append("SECRET_KEY 必须是至少 32 位的生产密钥")
+    if is_production and runtime.ALLOW_LEGACY_ACCESS_TOKENS:
+        errors.append("生产环境必须关闭 ALLOW_LEGACY_ACCESS_TOKENS")
     if "localhost" in runtime.ALLOWED_ORIGINS or "127.0.0.1" in runtime.ALLOWED_ORIGINS:
         errors.append("ALLOWED_ORIGINS 不能使用本地开发地址")
     if not runtime.ALLOWED_HOSTS or "*" in runtime.allowed_hosts_list:

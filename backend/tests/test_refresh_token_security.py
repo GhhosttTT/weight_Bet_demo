@@ -70,3 +70,17 @@ def test_logout_immediately_revokes_access_token_for_the_same_session(auth_db):
     with pytest.raises(HTTPException) as error:
         get_current_user(credentials, auth_db)
     assert error.value.status_code == 401
+
+
+def test_legacy_access_token_can_be_disabled_after_migration(auth_db, monkeypatch):
+    from app.utils.security import create_access_token
+
+    token = create_access_token({"sub": "refresh-user-001"})
+    credentials = HTTPAuthorizationCredentials(scheme="Bearer", credentials=token)
+    monkeypatch.setattr("app.middleware.auth.settings.ALLOW_LEGACY_ACCESS_TOKENS", False)
+
+    with pytest.raises(HTTPException) as error:
+        get_current_user(credentials, auth_db)
+
+    assert error.value.status_code == 401
+    assert "版本已过期" in error.value.detail

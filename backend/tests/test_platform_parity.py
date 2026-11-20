@@ -320,6 +320,11 @@ def test_plan_list_renders_expired_state_and_two_decimal_amount_on_both_platform
     assert 'String.format(Locale.getDefault(), "%.2f", plan.betAmount)' in android
     assert 'case .expired:' in ios
     assert 'String(format: "%.2f", plan.betAmount)' in ios
+    assert '赌金: ¥${String.format(Locale.getDefault(), "%.2f", plan.betAmount)}' in android
+    assert 'betAmountLabel.text = "赌金: ¥\\(String(format: "%.2f", plan.betAmount))"' in ios
+    assert 'goalText = if (plan.creatorInitialWeight != null && plan.creatorTargetWeight != null)' in android
+    assert 'goalLabel.text = "目标: \\(String(format: "%.1f", initialWeight))kg → \\(String(format: "%.1f", targetWeight))kg"' in ios
+    assert 'emptyStateLabel.text = "暂无计划"' in ios
 
 
 def test_transaction_history_uses_matching_chinese_labels_and_safe_amount_format():

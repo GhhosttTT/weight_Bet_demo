@@ -80,7 +80,7 @@ class PlansViewController: UIViewController {
         
         // Empty state label
         emptyStateLabel = UILabel()
-        emptyStateLabel.text = "暂无对赌计划"
+        emptyStateLabel.text = "暂无计划"
         emptyStateLabel.textAlignment = .center
         emptyStateLabel.textColor = AppTheme.Colors.secondaryLabel
         emptyStateLabel.font = .systemFont(ofSize: 16)
@@ -327,7 +327,7 @@ class PlanCell: UITableViewCell {
         }
         
         // Bet amount
-        betAmountLabel.text = "¥\(String(format: "%.2f", plan.betAmount))"
+        betAmountLabel.text = "赌金: ¥\(String(format: "%.2f", plan.betAmount))"
         
         // Date range
         let dateFormatter = DateFormatter()
@@ -337,7 +337,11 @@ class PlanCell: UITableViewCell {
         dateRangeLabel.text = "\(startDateStr) 至 \(endDateStr)"
         
         // Goal
-        let weightLoss = plan.creatorTargetWeightLoss
-        goalLabel.text = "目标减重：\(String(format: "%.1f", weightLoss))kg"
+        if let initialWeight = plan.creatorInitialWeight,
+           let targetWeight = plan.creatorTargetWeight {
+            goalLabel.text = "目标: \(String(format: "%.1f", initialWeight))kg → \(String(format: "%.1f", targetWeight))kg"
+        } else {
+            goalLabel.text = "目标: 待设置"
+        }
     }
 }

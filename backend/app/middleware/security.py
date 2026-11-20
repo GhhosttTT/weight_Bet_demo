@@ -55,6 +55,7 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         r"<embed[^>]*>",
         r"<applet[^>]*>",
     ]
+    MAX_JSON_BODY_BYTES = 1024 * 1024
     
     def __init__(self, app, enable_csrf: bool = True):
         super().__init__(app)
@@ -157,7 +158,24 @@ class SecurityMiddleware(BaseHTTPMiddleware):
         server 中一直等待剩余请求体。
         """
         try:
-            body_bytes = await request.body()
+            content_length = request.headers.get("content-length")
+            if content_length and int(content_length) > self.MAX_JSON_BODY_BYTES:
+                raise HTTPException(
+                    status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                    detail="JSON 请求体不能超过 1MB",
+                )
+
+            chunks = []
+            total_bytes = 0
+            async for chunk in request.stream():
+                total_bytes += len(chunk)
+                if total_bytes > self.MAX_JSON_BODY_BYTES:
+                    raise HTTPException(
+                        status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,
+                        detail="JSON 请求体不能超过 1MB",
+                    )
+                chunks.append(chunk)
+            body_bytes = b"".join(chunks)
             async def receive():
                 return {
                     "type": "http.request",
@@ -167,6 +185,8 @@ class SecurityMiddleware(BaseHTTPMiddleware):
             request._receive = receive
             if body_bytes:
                 return json.loads(body_bytes)
+        except HTTPException:
+            raise
         except Exception as e:
             logger.error("Failed to parse request body: {}", e)
         return None

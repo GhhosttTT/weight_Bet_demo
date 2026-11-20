@@ -254,6 +254,19 @@ class TestSecurityMiddleware:
         response = client.post("/test", json=safe_data)
         assert response.status_code == 200
 
+    def test_json_body_size_is_limited(self):
+        app = create_test_app()
+        app.add_middleware(SecurityMiddleware)
+        client = TestClient(app)
+
+        response = client.post(
+            "/test",
+            json={"payload": "x" * (SecurityMiddleware.MAX_JSON_BODY_BYTES + 1)},
+        )
+
+        assert response.status_code == 413
+        assert response.json()["detail"] == "JSON 请求体不能超过 1MB"
+
     def test_cross_site_write_is_rejected(self):
         app = create_test_app()
         app.add_middleware(SecurityMiddleware)

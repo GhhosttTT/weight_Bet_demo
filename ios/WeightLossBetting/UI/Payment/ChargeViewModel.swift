@@ -42,7 +42,12 @@ final class ChargeViewModel {
 
     func paymentCompleted() { chargeIdempotencyKey = nil; chargeState = .success }
     func paymentCanceled() { chargeIdempotencyKey = nil; chargeState = .error("已取消支付") }
-    func paymentFailed(_ message: String) { chargeState = .error(message) }
+    func paymentFailed(_ message: String) {
+        // Stripe 已明确拒绝当前 PaymentIntent；下一次重试必须创建新的
+        // 本地交易和 Stripe 幂等键，避免重复复用已失败的 PaymentIntent。
+        chargeIdempotencyKey = nil
+        chargeState = .error(message)
+    }
 
     private func parseError(_ error: Error) -> String {
         if let networkError = error as? NetworkError {

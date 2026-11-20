@@ -223,6 +223,16 @@ def test_android_google_login_uses_credential_manager_nonce_and_snake_case_paylo
     assert "googleLogin(idToken: String, nonce: String? = null)" in repository
 
 
+def test_payment_failure_resets_idempotency_key_on_both_mobile_platforms():
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift").read_text(encoding="utf-8")
+
+    android_failure = android.split("fun paymentFailed", 1)[1].split("}", 1)[0]
+    ios_failure = ios.split("func paymentFailed", 1)[1].split("}", 1)[0]
+    assert "chargeIdempotencyKey = null" in android_failure
+    assert "chargeIdempotencyKey = nil" in ios_failure
+
+
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     android = ANDROID_COACH_VM.read_text(encoding="utf-8")
     ios = IOS_COACH_VM.read_text(encoding="utf-8")

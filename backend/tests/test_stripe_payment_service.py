@@ -1,6 +1,10 @@
 """Stripe PaymentIntent 与 Webhook 入账测试。"""
 
 from unittest.mock import patch
+import hashlib
+import hmac
+import json
+import time
 
 import pytest
 from fastapi import HTTPException
@@ -199,6 +203,38 @@ def test_webhook_success_credits_once(db_session, monkeypatch):
     assert second["idempotent"] is True
     assert balance.available_balance == 20.0
     assert db_session.query(Transaction).one().status == TransactionStatus.COMPLETED
+
+
+def test_webhook_accepts_real_stripe_signature_and_credits_once(db_session, monkeypatch):
+    """使用 Stripe SDK 的真实签名格式，验证 Webhook 验签与业务处理的连接。"""
+    secret = "whsec_realistic"
+    monkeypatch.setattr(settings, "STRIPE_WEBHOOK_SECRET", secret)
+    transaction = Transaction(
+        id="charge-tx-real-signature", user_id="stripe-user-001", type=TransactionType.CHARGE,
+        amount=20.0, status=TransactionStatus.PENDING, external_payment_id="pi_real_signature",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    payload = json.dumps({
+        "id": "evt_real_signature",
+        "object": "event",
+        "type": "payment_intent.succeeded",
+        "data": {"object": {
+            "id": "pi_real_signature",
+            "metadata": {"transaction_id": transaction.id, "user_id": transaction.user_id},
+            "amount_received": 2000,
+            "currency": "cny",
+        }},
+    }, separators=(",", ":")).encode()
+    timestamp = int(time.time())
+    signed_payload = f"{timestamp}.".encode() + payload
+    digest = hmac.new(secret.encode(), signed_payload, hashlib.sha256).hexdigest()
+    signature = f"t={timestamp},v1={digest}"
+
+    result = StripePaymentService.handle_webhook(db_session, payload, signature)
+
+    assert result["status"] == "completed"
+    assert db_session.query(Balance).one().available_balance == 20.0
 
 
 def test_webhook_failure_does_not_credit(db_session, monkeypatch):

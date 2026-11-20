@@ -4,8 +4,10 @@ iOS 客户端采用 Swift + MVVM + Alamofire + Core Data 架构开发。
 
 ### Google 登录配置
 
-Google 登录使用 `GoogleSignIn` Pod。请从 Google Cloud Console 下载 `GoogleService-Info.plist`
-并加入 Xcode App Target；登录完成后客户端会把 ID Token 交给后端 `/api/auth/google`，由后端完成身份校验。
+Google 登录使用 `GoogleSignIn` Pod。请在 Xcode 的 App Target Build Settings 配置
+`GOOGLE_CLIENT_ID`，并配置 `GOOGLE_REVERSED_CLIENT_ID` 的 URL Scheme；项目会把前者写入
+`GIDClientID` 并在启动时初始化 GoogleSignIn。登录完成后客户端会把 ID Token 交给后端
+`/api/auth/google`，由后端完成身份校验。未配置时，两端都会禁用 Google 登录按钮并显示统一提示。
 
 充值使用 Stripe PaymentSheet。请执行 `pod install` 更新依赖，客户端请求 `/api/payments/charge/intent`
 获取 client secret，PaymentSheet 完成确认后由 Stripe Webhook 更新余额；提现使用 Stripe Connect Express，

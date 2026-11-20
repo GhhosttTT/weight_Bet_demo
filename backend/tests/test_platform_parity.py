@@ -26,6 +26,11 @@ IOS_PROFILE_VM = ROOT / "ios/WeightLossBetting/UI/Profile/ProfileViewModel.swift
 ANDROID_MAIN = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/MainActivity.kt"
 ANDROID_NOTIFICATION_HELPER = ROOT / "android/app/src/main/java/com/weightloss/betting/util/NotificationPermissionHelper.kt"
 IOS_PENDING_ACTIONS = ROOT / "ios/WeightLossBetting/Data/Service/PendingActionsService.swift"
+ANDROID_LOGIN = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/auth/LoginActivity.kt"
+ANDROID_LOGIN_STRINGS = ROOT / "android/app/src/main/res/values/strings.xml"
+IOS_LOGIN = ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift"
+IOS_APP_DELEGATE = ROOT / "ios/WeightLossBetting/AppDelegate.swift"
+IOS_INFO_PLIST = ROOT / "ios/WeightLossBetting/Info.plist"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -147,3 +152,22 @@ def test_notification_permission_is_requested_once_on_android_like_ios_login_flo
     assert "hasNotificationPermission" in android
     assert "requestNotificationPermission" in helper
     assert "requestNotificationPermissionsIfNeeded" in ios
+
+
+def test_google_login_configuration_state_matches_between_mobile_platforms():
+    android = ANDROID_LOGIN.read_text(encoding="utf-8")
+    android_strings = ANDROID_LOGIN_STRINGS.read_text(encoding="utf-8")
+    ios = IOS_LOGIN.read_text(encoding="utf-8")
+    ios_delegate = IOS_APP_DELEGATE.read_text(encoding="utf-8")
+    ios_plist = IOS_INFO_PLIST.read_text(encoding="utf-8")
+
+    assert "updateGoogleSignInAvailability()" in android
+    assert 'binding.btnGoogleLogin.isEnabled = googleSignInConfigured' in android
+    assert "Google 登录未配置" in android
+    assert "default_web_client_id" in android_strings
+    assert "updateGoogleSignInAvailability()" in ios
+    assert "googleSignInButton.isEnabled = configured" in ios
+    assert "Google 登录未配置" in ios
+    assert "configureGoogleSignIn()" in ios_delegate
+    assert "GIDConfiguration(clientID: clientID)" in ios_delegate
+    assert "GIDClientID" in ios_plist

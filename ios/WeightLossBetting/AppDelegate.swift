@@ -17,6 +17,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         IQKeyboardManager.shared.enableAutoToolbar = true
         IQKeyboardManager.shared.shouldResignOnTouchOutside = true
 
+        configureGoogleSignIn()
+
         if let publishableKey = Bundle.main.object(forInfoDictionaryKey: "StripePublishableKey") as? String,
            !publishableKey.isEmpty,
            !publishableKey.contains("$(") {
@@ -47,6 +49,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         print("✅ [AppDelegate] didFinishLaunchingWithOptions completed")
         return true
+    }
+
+    private func configureGoogleSignIn() {
+        guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String,
+              !clientID.isEmpty,
+              !clientID.contains("$(") else {
+            print("ℹ️ Google Sign-In 未配置，登录按钮将保持禁用")
+            return
+        }
+        GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)
+        print("✅ Google Sign-In configured")
     }
     
     // MARK: - APNs Configuration

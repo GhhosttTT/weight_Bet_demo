@@ -20,6 +20,8 @@
 	<string>1</string>
 	<key>StripePublishableKey</key>
 	<string>$(STRIPE_PUBLISHABLE_KEY)</string>
+	<key>GIDClientID</key>
+	<string>$(GOOGLE_CLIENT_ID)</string>
 	<key>API_BASE_URL</key>
 	<string>$(API_BASE_URL)</string>
 	<key>CFBundleURLTypes</key>

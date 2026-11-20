@@ -1,6 +1,7 @@
 import UIKit
 import IQKeyboardManagerSwift
 import Alamofire
+import GoogleSignIn
 
 class LoginViewController: UIViewController {
     
@@ -110,7 +111,18 @@ class LoginViewController: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupActions()
+        updateGoogleSignInAvailability()
         setupDebugButton()
+    }
+
+    private func updateGoogleSignInAvailability() {
+        let configured = GIDSignIn.sharedInstance.configuration != nil
+        googleSignInButton.isEnabled = configured
+        googleSignInButton.alpha = configured ? 1.0 : 0.55
+        if !configured {
+            googleSignInButton.setTitle("Google 登录未配置", for: .normal)
+            googleSignInButton.accessibilityHint = "请先配置 Google OAuth Client ID"
+        }
     }
     
     private func setupDebugButton() {
@@ -241,6 +253,10 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func googleSignInButtonTapped() {
+        guard GIDSignIn.sharedInstance.configuration != nil else {
+            showAlert(message: "Google 登录尚未配置，请联系管理员")
+            return
+        }
         activityIndicator.startAnimating()
         googleSignInButton.isEnabled = false
         

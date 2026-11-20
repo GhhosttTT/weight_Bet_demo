@@ -22,6 +22,7 @@ class LoginActivity : BaseActivity() {
     
     private lateinit var binding: ActivityLoginBinding
     private val viewModel: LoginViewModel by viewModels()
+    private var googleSignInConfigured = false
 
     private val googleSignInLauncher = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()
@@ -54,8 +55,20 @@ class LoginActivity : BaseActivity() {
         Log.d("LoginActivity", "Layout inflated and content view set")
         
         setupViews()
+        updateGoogleSignInAvailability()
         observeViewModel()
         Log.d("LoginActivity", "Setup completed")
+    }
+
+    private fun updateGoogleSignInAvailability() {
+        googleSignInConfigured = !getString(com.weightloss.betting.R.string.default_web_client_id)
+            .startsWith("YOUR_")
+        binding.btnGoogleLogin.isEnabled = googleSignInConfigured
+        binding.btnGoogleLogin.alpha = if (googleSignInConfigured) 1f else 0.55f
+        if (!googleSignInConfigured) {
+            binding.btnGoogleLogin.text = "Google 登录未配置"
+            binding.btnGoogleLogin.contentDescription = "请先配置 Google OAuth Client ID"
+        }
     }
     
     private fun setupViews() {
@@ -84,7 +97,7 @@ class LoginActivity : BaseActivity() {
     private fun startGoogleSignIn() {
         val webClientId = getString(com.weightloss.betting.R.string.default_web_client_id)
         if (webClientId.startsWith("YOUR_")) {
-            Toast.makeText(this, "请先配置 Google Web Client ID", Toast.LENGTH_LONG).show()
+            Toast.makeText(this, "Google 登录尚未配置，请联系管理员", Toast.LENGTH_LONG).show()
             return
         }
         val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -119,7 +132,7 @@ class LoginActivity : BaseActivity() {
     private fun showLoading(show: Boolean) {
         binding.progressBar.visibility = if (show) View.VISIBLE else View.GONE
         binding.btnLogin.isEnabled = !show
-        binding.btnGoogleLogin.isEnabled = !show
+        binding.btnGoogleLogin.isEnabled = !show && googleSignInConfigured
     }
     
     private fun navigateToMain() {

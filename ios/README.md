@@ -18,8 +18,7 @@ Google 登录使用 `GoogleSignIn` Pod。请在 Xcode 的 App Target Build Setti
 AppDelegate 会用它初始化 Stripe SDK。真实环境同时配置后端 `PAYMENT_PROVIDER=stripe`、
 `STRIPE_SECRET_KEY` 和 `STRIPE_WEBHOOK_SECRET`。
 同时在 Xcode 的 Build Settings 配置 `API_BASE_URL`，生产环境必须使用 HTTPS 地址。
-Google 登录还需在 Build Settings 配置 `GOOGLE_REVERSED_CLIENT_ID`，值取自
-`GoogleService-Info.plist` 的 `REVERSED_CLIENT_ID`，用于登录完成后的回调 URL Scheme。
+`GOOGLE_REVERSED_CLIENT_ID` 会写入登录完成后的回调 URL Scheme。两个 Google 构建变量都替换默认占位符后，登录按钮才会启用。
 
 ## 项目结构
 
@@ -133,7 +132,7 @@ View (ViewController) ←→ ViewModel ←→ Repository ←→ API/Database
 - ✅ 用户注册
 - ✅ JWT Token 管理
 - ✅ 自动 Token 刷新
-- ✅ Google 第三方登录（需要加入 `GoogleService-Info.plist` 并配置后端 Client ID）
+- ✅ Google 第三方登录（需要配置 Google 构建变量和后端 Client ID）
 
 ### 2. 对赌计划
 - ✅ 创建对赌计划
@@ -189,10 +188,9 @@ View (ViewController) ←→ ViewModel ←→ Repository ←→ API/Database
    
    ⚠️ **注意**: 必须打开 `.xcworkspace` 文件,而不是 `.xcodeproj` 文件
 
-4. **配置 Firebase**:
-   - 在 Firebase Console 创建 iOS 应用
-   - 下载 `GoogleService-Info.plist` 文件
-   - 将文件添加到 Xcode 项目中
+4. **配置 Google 登录**:
+   - 在 App Target 的 Build Settings 设置 `GOOGLE_CLIENT_ID`
+   - 设置 `GOOGLE_REVERSED_CLIENT_ID`，并替换默认占位符
 
 5. **配置后端 API 地址**:
    - 打开 `Data/Network/APIService.swift`
@@ -210,9 +208,10 @@ View (ViewController) ←→ ViewModel ←→ Repository ←→ API/Database
 private let baseURL = "https://your-api-domain.com/api"
 ```
 
-### Firebase 配置
-1. 将 `GoogleService-Info.plist` 添加到项目
-2. 在 `AppDelegate.swift` 中已配置 Firebase 初始化
+### Google 登录配置
+1. 在 App Target 的 Build Settings 配置 `GOOGLE_CLIENT_ID`。
+2. 配置 `GOOGLE_REVERSED_CLIENT_ID`，它会写入回调 URL Scheme。
+3. 后端配置 `GOOGLE_CLIENT_IDS`，至少包含 iOS 使用的 Client ID。
 
 ### Stripe 配置
 在实现支付功能时,需要配置 Stripe 的 Publishable Key

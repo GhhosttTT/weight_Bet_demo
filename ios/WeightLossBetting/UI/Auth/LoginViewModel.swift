@@ -31,7 +31,7 @@ class LoginViewModel {
             let configurationError = NSError(
                 domain: "LoginViewModel",
                 code: -3,
-                userInfo: [NSLocalizedDescriptionKey: "Google 登录未配置，请加入 GoogleService-Info.plist"]
+                userInfo: [NSLocalizedDescriptionKey: "Google 登录尚未配置，请联系管理员"]
             )
             completion(.failure(configurationError))
             return

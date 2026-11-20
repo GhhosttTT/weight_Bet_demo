@@ -4,6 +4,28 @@ import IQKeyboardManagerSwift
 import GoogleSignIn
 import StripePaymentSheet
 
+enum GoogleSignInConfiguration {
+    static var clientID: String? {
+        guard let value = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String else { return nil }
+        let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, !trimmed.contains("$("), !trimmed.hasPrefix("YOUR_") else { return nil }
+        return trimmed
+    }
+
+    static var hasCallbackScheme: Bool {
+        guard let types = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] else { return false }
+        return types
+            .compactMap { $0["CFBundleURLSchemes"] as? [String] }
+            .flatMap { $0 }
+            .contains { scheme in
+                let value = scheme.trimmingCharacters(in: .whitespacesAndNewlines)
+                return !value.isEmpty && !value.contains("$(") && !value.hasPrefix("YOUR_")
+            }
+    }
+
+    static var isConfigured: Bool { clientID != nil && hasCallbackScheme }
+}
+
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
@@ -52,10 +74,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     private func configureGoogleSignIn() {
-        guard let clientID = Bundle.main.object(forInfoDictionaryKey: "GIDClientID") as? String,
-              !clientID.isEmpty,
-              !clientID.contains("$(") else {
-            print("ℹ️ Google Sign-In 未配置，登录按钮将保持禁用")
+        guard let clientID = GoogleSignInConfiguration.clientID,
+              GoogleSignInConfiguration.hasCallbackScheme else {
+            print("ℹ️ Google Sign-In 未完整配置，登录按钮将保持禁用")
             return
         }
         GIDSignIn.sharedInstance.configuration = GIDConfiguration(clientID: clientID)

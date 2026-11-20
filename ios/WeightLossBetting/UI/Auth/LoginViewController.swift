@@ -116,7 +116,7 @@ class LoginViewController: UIViewController {
     }
 
     private func updateGoogleSignInAvailability() {
-        let configured = GIDSignIn.sharedInstance.configuration != nil
+        let configured = GoogleSignInConfiguration.isConfigured && GIDSignIn.sharedInstance.configuration != nil
         googleSignInButton.isEnabled = configured
         googleSignInButton.alpha = configured ? 1.0 : 0.55
         if !configured {
@@ -253,7 +253,8 @@ class LoginViewController: UIViewController {
     }
     
     @objc private func googleSignInButtonTapped() {
-        guard GIDSignIn.sharedInstance.configuration != nil else {
+        guard GoogleSignInConfiguration.isConfigured,
+              GIDSignIn.sharedInstance.configuration != nil else {
             showAlert(message: "Google 登录尚未配置，请联系管理员")
             return
         }

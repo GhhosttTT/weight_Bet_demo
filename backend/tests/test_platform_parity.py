@@ -173,6 +173,8 @@ def test_google_login_configuration_state_matches_between_mobile_platforms():
     assert "configureGoogleSignIn()" in ios_delegate
     assert "GIDConfiguration(clientID: clientID)" in ios_delegate
     assert "GIDClientID" in ios_plist
+    assert "hasCallbackScheme" in ios_delegate
+    assert "GoogleSignInConfiguration.isConfigured" in ios
 
 
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
@@ -183,4 +185,5 @@ def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     assert "getRecommendation(useCache = true)" in android
     assert "NetworkResult.Success" in android
     assert "NetworkResult.Error" in android
-    assert "getRecommendation(useCache: true" in ios
+    assert "getRecommendation(useCache: useCache" in ios
+    assert "cacheRecommendation(result.data)" in (ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/RecommendationRepository.kt").read_text(encoding="utf-8")

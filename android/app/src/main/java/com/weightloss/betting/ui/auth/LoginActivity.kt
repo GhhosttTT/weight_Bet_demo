@@ -61,8 +61,7 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun updateGoogleSignInAvailability() {
-        googleSignInConfigured = !getString(com.weightloss.betting.R.string.default_web_client_id)
-            .startsWith("YOUR_")
+        googleSignInConfigured = configuredGoogleClientId() != null
         binding.btnGoogleLogin.isEnabled = googleSignInConfigured
         binding.btnGoogleLogin.alpha = if (googleSignInConfigured) 1f else 0.55f
         if (!googleSignInConfigured) {
@@ -95,8 +94,8 @@ class LoginActivity : BaseActivity() {
     }
 
     private fun startGoogleSignIn() {
-        val webClientId = getString(com.weightloss.betting.R.string.default_web_client_id)
-        if (webClientId.startsWith("YOUR_")) {
+        val webClientId = configuredGoogleClientId()
+        if (webClientId == null) {
             Toast.makeText(this, "Google 登录尚未配置，请联系管理员", Toast.LENGTH_LONG).show()
             return
         }
@@ -107,6 +106,13 @@ class LoginActivity : BaseActivity() {
         val client = GoogleSignIn.getClient(this, options)
         showLoading(true)
         googleSignInLauncher.launch(client.signInIntent)
+    }
+
+    private fun configuredGoogleClientId(): String? {
+        val value = getString(com.weightloss.betting.R.string.default_web_client_id).trim()
+        if (value.isEmpty() || value.startsWith("\$")) return null
+        if (value.startsWith("YOUR_") || value.equals("replace_me", ignoreCase = true)) return null
+        return value.takeIf { it.matches(Regex("^[0-9]+-[a-z0-9-]+\\.apps\\.googleusercontent\\.com$")) }
     }
     
     private fun observeViewModel() {

@@ -965,6 +965,8 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = WeightLossBetting/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				GOOGLE_CLIENT_ID = "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com";
+				GOOGLE_REVERSED_CLIENT_ID = "YOUR_REVERSED_CLIENT_ID";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -1005,6 +1007,8 @@
 				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = WeightLossBetting/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 14.0;
+				GOOGLE_CLIENT_ID = "YOUR_WEB_CLIENT_ID.apps.googleusercontent.com";
+				GOOGLE_REVERSED_CLIENT_ID = "YOUR_REVERSED_CLIENT_ID";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

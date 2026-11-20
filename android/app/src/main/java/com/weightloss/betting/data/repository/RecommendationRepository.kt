@@ -23,7 +23,11 @@ class RecommendationRepository @Inject constructor(
                 return NetworkResult.Success(it)
             }
         }
-        return safeApiCall { apiService.getRecommendation(useCache) }
+        val result = safeApiCall { apiService.getRecommendation(useCache) }
+        if (result is NetworkResult.Success) {
+            cacheRecommendation(result.data)
+        }
+        return result
     }
 
     suspend fun refreshRecommendation(): NetworkResult<RecommendationResponse> {

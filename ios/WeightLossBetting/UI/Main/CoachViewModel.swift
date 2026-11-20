@@ -7,7 +7,7 @@ class CoachViewModel {
     
     func loadRecommendation(useCache: Bool = true, completion: @escaping (Result<RecommendationResponse, Error>) -> Void) {
         // Always use cache first for instant loading
-        recommendationRepository.getRecommendation(useCache: true, completion: completion)
+        recommendationRepository.getRecommendation(useCache: useCache, completion: completion)
     }
     
     func refreshRecommendation(completion: @escaping (Result<RecommendationResponse, Error>) -> Void) {

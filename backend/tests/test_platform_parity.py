@@ -209,6 +209,20 @@ def test_google_login_configuration_state_matches_between_mobile_platforms():
     assert "GoogleSignInConfiguration.isConfigured" in ios
 
 
+def test_android_google_login_uses_credential_manager_nonce_and_snake_case_payload():
+    android = ANDROID_LOGIN.read_text(encoding="utf-8")
+    models = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/model/Models.kt").read_text(encoding="utf-8")
+    repository = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/AuthRepository.kt").read_text(encoding="utf-8")
+
+    assert "CredentialManager" in android
+    assert "GetGoogleIdOption.Builder()" in android
+    assert ".setNonce(nonce)" in android
+    assert "GoogleIdTokenCredential.createFrom" in android
+    assert '@SerializedName("id_token")' in models
+    assert "val nonce: String? = null" in models
+    assert "googleLogin(idToken: String, nonce: String? = null)" in repository
+
+
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     android = ANDROID_COACH_VM.read_text(encoding="utf-8")
     ios = IOS_COACH_VM.read_text(encoding="utf-8")

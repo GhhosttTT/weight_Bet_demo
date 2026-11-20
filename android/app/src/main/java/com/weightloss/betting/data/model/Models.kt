@@ -27,7 +27,9 @@ data class RefreshTokenRequest(
 )
 
 data class GoogleLoginRequest(
-    val idToken: String
+    @SerializedName("id_token")
+    val idToken: String,
+    val nonce: String? = null
 )
 
 data class AuthResult(

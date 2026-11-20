@@ -76,12 +76,12 @@ class LoginViewModel @Inject constructor(
         }
     }
     
-    fun googleLogin(idToken: String) {
+    fun googleLogin(idToken: String, nonce: String? = null) {
         Log.d("LoginViewModel", "googleLogin() called")
         _loginState.value = LoginState.Loading
             
         viewModelScope.launch {
-            when (val result = authRepository.googleLogin(idToken)) {
+            when (val result = authRepository.googleLogin(idToken, nonce)) {
                 is NetworkResult.Success -> {
                     Log.d("LoginViewModel", "Google login successful!")
                     _loginState.value = LoginState.Success

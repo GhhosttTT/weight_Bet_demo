@@ -1,18 +1,23 @@
 package com.weightloss.betting.ui.auth
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
 import androidx.activity.viewModels
-import androidx.activity.result.contract.ActivityResultContracts
+import androidx.lifecycle.lifecycleScope
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import com.google.android.libraries.identity.googleid.GoogleIdTokenParsingException
 import com.weightloss.betting.databinding.ActivityLoginBinding
 import com.weightloss.betting.ui.MainActivity
 import com.weightloss.betting.ui.base.BaseActivity
-import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import dagger.hilt.android.AndroidEntryPoint
+import java.util.UUID
+import kotlinx.coroutines.launch
 
 /**
  * 登录界面
@@ -24,28 +29,7 @@ class LoginActivity : BaseActivity() {
     private val viewModel: LoginViewModel by viewModels()
     private var googleSignInConfigured = false
 
-    private val googleSignInLauncher = registerForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
-    ) { result ->
-        if (result.resultCode != RESULT_OK) {
-            showLoading(false)
-            return@registerForActivityResult
-        }
-        val task = GoogleSignIn.getSignedInAccountFromIntent(result.data)
-        try {
-            val idToken = task.result?.idToken
-            if (idToken.isNullOrBlank()) {
-                showLoading(false)
-                Toast.makeText(this, "Google 未返回有效身份凭证", Toast.LENGTH_LONG).show()
-            } else {
-                viewModel.googleLogin(idToken)
-            }
-        } catch (error: Exception) {
-            showLoading(false)
-            Log.e("LoginActivity", "Google sign-in failed", error)
-            Toast.makeText(this, "Google 登录失败，请重试", Toast.LENGTH_LONG).show()
-        }
-    }
+    private val credentialManager by lazy { CredentialManager.create(this) }
     
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -99,13 +83,40 @@ class LoginActivity : BaseActivity() {
             Toast.makeText(this, "Google 登录尚未配置，请联系管理员", Toast.LENGTH_LONG).show()
             return
         }
-        val options = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-            .requestIdToken(webClientId)
-            .requestEmail()
+        val nonce = UUID.randomUUID().toString()
+        val googleIdOption = GetGoogleIdOption.Builder()
+            .setFilterByAuthorizedAccounts(false)
+            .setServerClientId(webClientId)
+            .setAutoSelectEnabled(false)
+            .setNonce(nonce)
             .build()
-        val client = GoogleSignIn.getClient(this, options)
+        val request = GetCredentialRequest.Builder()
+            .addCredentialOption(googleIdOption)
+            .build()
         showLoading(true)
-        googleSignInLauncher.launch(client.signInIntent)
+        lifecycleScope.launch {
+            try {
+                val result = credentialManager.getCredential(this@LoginActivity, request)
+                val credential = result.credential
+                if (credential is CustomCredential &&
+                    credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL
+                ) {
+                    val googleCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                    viewModel.googleLogin(googleCredential.idToken, nonce)
+                } else {
+                    showLoading(false)
+                    Toast.makeText(this@LoginActivity, "Google 未返回有效身份凭证", Toast.LENGTH_LONG).show()
+                }
+            } catch (error: GoogleIdTokenParsingException) {
+                showLoading(false)
+                Log.e("LoginActivity", "Google credential parsing failed", error)
+                Toast.makeText(this@LoginActivity, "Google 登录凭证无效，请重试", Toast.LENGTH_LONG).show()
+            } catch (error: Exception) {
+                showLoading(false)
+                Log.e("LoginActivity", "Google sign-in failed", error)
+                Toast.makeText(this@LoginActivity, "Google 登录失败，请重试", Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
     private fun configuredGoogleClientId(): String? {

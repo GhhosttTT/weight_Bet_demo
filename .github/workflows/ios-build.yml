@@ -45,4 +45,14 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
+            -resultBundlePath build/WeightLossBetting.xcresult \
+            -showBuildTimingSummary \
             build
+
+      - name: Upload Xcode result bundle
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-xcresult-${{ github.run_id }}
+          path: ios/build/WeightLossBetting.xcresult
+          if-no-files-found: ignore

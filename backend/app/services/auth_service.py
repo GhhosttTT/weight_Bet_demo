@@ -227,7 +227,7 @@ class AuthService:
 
     
     @staticmethod
-    def google_login(db: Session, id_token_str: str) -> AuthResult:
+    def google_login(db: Session, id_token_str: str, nonce: str = None) -> AuthResult:
         """
         Google 第三方登录
         
@@ -262,6 +262,8 @@ class AuthService:
                 raise ValueError("invalid issuer")
             if idinfo.get("email_verified") is not True:
                 raise ValueError("email is not verified")
+            if nonce is not None and idinfo.get("nonce") != nonce:
+                raise ValueError("invalid nonce")
             
             # 获取用户信息
             email = (idinfo.get("email") or "").strip().lower()

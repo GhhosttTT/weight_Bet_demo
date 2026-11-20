@@ -85,4 +85,4 @@ def google_login(
     
     - **id_token**: Google ID Token
     """
-    return AuthService.google_login(db, request.id_token)
+    return AuthService.google_login(db, request.id_token, request.nonce)

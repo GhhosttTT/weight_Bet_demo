@@ -152,3 +152,15 @@ def test_google_login_rejects_subject_mismatch_for_existing_email(
             AuthService.google_login(db_session, "token")
 
     assert error.value.status_code == 409
+
+
+def test_google_login_rejects_mismatched_nonce(db_session, google_config):
+    with patch(
+        "app.services.auth_service.id_token.verify_oauth2_token",
+        return_value=google_claims(nonce="server-issued-nonce"),
+    ):
+        with pytest.raises(HTTPException) as error:
+            AuthService.google_login(db_session, "token", nonce="different-nonce-value")
+
+    assert error.value.status_code == 400
+    assert db_session.query(User).count() == 0

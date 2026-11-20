@@ -1,5 +1,6 @@
 package com.weightloss.betting.ui.auth
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.View

@@ -200,6 +200,9 @@ def test_admin_page_csp_allows_its_same_origin_inline_assets(admin_context):
     assert "style-src 'self' 'unsafe-inline'" in csp
     assert "sessionStorage" in response.text
     assert "localStorage.setItem('wb_admin_token'" not in response.text
+    assert "/payouts/" in response.text
+    assert "reconcilePayout" in response.text
+    assert "/reconcile" in response.text
 
 
 def test_admin_update_endpoints_require_admin_role(admin_context):

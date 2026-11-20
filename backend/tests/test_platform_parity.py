@@ -147,7 +147,7 @@ def test_ios_network_logging_does_not_emit_urls_or_response_bodies():
 
 def test_pending_plan_creator_uses_cancel_action_on_ios():
     ios = IOS_PLAN_DETAIL.read_text(encoding="utf-8")
-    pending_branch = ios[ios.index("private func showCancelOnly()"):ios.index("private func showAcceptRejectForm()")]
+    pending_branch = ios[ios.index("private func showCancelOnly(showInvite:"):ios.index("private func showAcceptRejectForm()")]
     assert 'cancelButton.isHidden = false' in pending_branch
     assert 'cancelButton.setTitle("撤销计划"' in pending_branch
     assert 'giveUpButton.isHidden = true' in pending_branch
@@ -373,10 +373,12 @@ def test_active_plan_detail_exposes_matching_progress_history_and_comments_actio
 
     for text in ("btnCheckIn", "btnProgress", "btnCheckInHistory", "btnComments", 'plan.status == "active"'):
         assert text in android
-    for text in ("progressButton", "checkInHistoryButton", "commentsButton", "ProgressViewController", "CheckInHistoryViewController", "CommentsViewController"):
+    for text in ("progressButton", "checkInHistoryButton", "commentsButton", "inviteButton", "ProgressViewController", "CheckInHistoryViewController", "CommentsViewController", "InviteViewController"):
         assert text in ios
     for text in ("查看进度", "查看打卡历史", "查看评论"):
         assert text in ios
     assert "progressButton.isHidden = false" in ios
     assert "checkInHistoryButton.isHidden = false" in ios
     assert "commentsButton.isHidden = false" in ios
+    assert "showCancelOnly(showInvite: plan.participantId == nil)" in ios
+    assert 'inviteButton.setTitle("邀请好友"' in ios

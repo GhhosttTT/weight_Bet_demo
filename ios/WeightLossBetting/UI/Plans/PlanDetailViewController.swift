@@ -37,6 +37,7 @@ class PlanDetailViewController: UIViewController {
     private var progressButton: UIButton!    // 查看进度（进行中阶段）
     private var checkInHistoryButton: UIButton! // 查看打卡历史（进行中阶段）
     private var commentsButton: UIButton!   // 查看评论（进行中阶段）
+    private var inviteButton: UIButton!     // 邀请好友（创建者待接受阶段）
     private var giveUpButton: UIButton!      // 放弃计划（进行中阶段）
     private var usesRevokeAction = false
     
@@ -128,6 +129,16 @@ class PlanDetailViewController: UIViewController {
         actionButtonsView.isHidden = true
         
         // Cancel button (for pending/pendingConfirmation)
+        inviteButton = UIButton(type: .system)
+        inviteButton.setTitle("邀请好友", for: .normal)
+        inviteButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        inviteButton.backgroundColor = AppTheme.Colors.primary
+        inviteButton.setTitleColor(.white, for: .normal)
+        inviteButton.layer.cornerRadius = 10
+        inviteButton.addTarget(self, action: #selector(inviteTapped), for: .touchUpInside)
+        inviteButton.translatesAutoresizingMaskIntoConstraints = false
+        actionButtonsView.addSubview(inviteButton)
+
         cancelButton = UIButton(type: .system)
         cancelButton.setTitle("取消计划", for: .normal)
         cancelButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
@@ -351,7 +362,12 @@ class PlanDetailViewController: UIViewController {
             acceptPlanFormView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             acceptPlanFormView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -100), // 底部预留100px避免被悬浮按钮遮挡
             
-            cancelButton.topAnchor.constraint(equalTo: actionButtonsView.topAnchor),
+            inviteButton.topAnchor.constraint(equalTo: actionButtonsView.topAnchor),
+            inviteButton.leadingAnchor.constraint(equalTo: actionButtonsView.leadingAnchor, constant: 16),
+            inviteButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
+            inviteButton.heightAnchor.constraint(equalToConstant: 44),
+
+            cancelButton.topAnchor.constraint(equalTo: inviteButton.bottomAnchor, constant: 10),
             cancelButton.leadingAnchor.constraint(equalTo: actionButtonsView.leadingAnchor, constant: 16),
             cancelButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
             cancelButton.heightAnchor.constraint(equalToConstant: 44),
@@ -433,6 +449,7 @@ class PlanDetailViewController: UIViewController {
                 self?.rejectButton.isEnabled = !isLoading
                 self?.confirmButton.isEnabled = !isLoading
                 self?.cancelButton.isEnabled = !isLoading
+                self?.inviteButton.isEnabled = !isLoading
                 self?.checkInButton.isEnabled = !isLoading
                 self?.progressButton.isEnabled = !isLoading
                 self?.checkInHistoryButton.isEnabled = !isLoading
@@ -548,7 +565,7 @@ class PlanDetailViewController: UIViewController {
             
             if isCreator {
                 // 创建者：只能取消
-                showCancelOnly()
+                showCancelOnly(showInvite: plan.participantId == nil)
             } else {
                 // 被邀请者：可以接受或拒绝（强制显示表单，防止身份判断异常）
                 showAcceptRejectForm()
@@ -667,17 +684,19 @@ class PlanDetailViewController: UIViewController {
     
     // MARK: - Button Display Methods
     
-    private func showCancelOnly() {
+    private func showCancelOnly(showInvite: Bool) {
         usesRevokeAction = true
         actionButtonsView.isHidden = false
         acceptPlanFormView.isHidden = true
         
+        inviteButton.isHidden = !showInvite
         cancelButton.isHidden = false
         cancelButton.setTitle("撤销计划", for: .normal)
         rejectButton.isHidden = true
         acceptButton.isHidden = true
         confirmButton.isHidden = true
         checkInButton.isHidden = true
+        inviteButton.isHidden = true
         progressButton.isHidden = true
         checkInHistoryButton.isHidden = true
         commentsButton.isHidden = true
@@ -693,6 +712,7 @@ class PlanDetailViewController: UIViewController {
         acceptButton.isHidden = false
         confirmButton.isHidden = true
         checkInButton.isHidden = true
+        inviteButton.isHidden = true
         progressButton.isHidden = true
         checkInHistoryButton.isHidden = true
         commentsButton.isHidden = true
@@ -709,6 +729,7 @@ class PlanDetailViewController: UIViewController {
         acceptButton.isHidden = true
         confirmButton.isHidden = false
         checkInButton.isHidden = true
+        inviteButton.isHidden = true
         progressButton.isHidden = true
         checkInHistoryButton.isHidden = true
         commentsButton.isHidden = true
@@ -729,6 +750,7 @@ class PlanDetailViewController: UIViewController {
         acceptButton.isHidden = true
         confirmButton.isHidden = true
         checkInButton.isHidden = false
+        inviteButton.isHidden = true
         progressButton.isHidden = false
         checkInHistoryButton.isHidden = false
         commentsButton.isHidden = false
@@ -753,6 +775,14 @@ class PlanDetailViewController: UIViewController {
             }
         })
         present(alert, animated: true)
+    }
+
+    @objc private func inviteTapped() {
+        guard let planId = viewModel.plan?.id else { return }
+        navigationController?.pushViewController(
+            InviteViewController(planId: planId),
+            animated: true
+        )
     }
     
     @objc private func rejectTapped() {

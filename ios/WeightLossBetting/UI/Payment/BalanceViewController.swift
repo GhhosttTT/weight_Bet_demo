@@ -124,11 +124,7 @@ class BalanceViewController: UIViewController {
     
     // Charge button tapped event
     @IBAction func chargeButtonTapped(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let chargeVC = storyboard.instantiateViewController(withIdentifier: "ChargeViewController") as? ChargeViewController else {
-            view.makeToast("充值页面配置异常，请联系管理员", duration: 3.0, position: .bottom)
-            return
-        }
+        let chargeVC = ChargeViewController()
         navigationController?.pushViewController(chargeVC, animated: true)
     }
     
@@ -141,11 +137,7 @@ class BalanceViewController: UIViewController {
     
     // Withdraw button tapped event
     @IBAction func withdrawButtonTapped(_ sender: Any) {
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        guard let withdrawVC = storyboard.instantiateViewController(withIdentifier: "WithdrawViewController") as? WithdrawViewController else {
-            view.makeToast("提现页面配置异常，请联系管理员", duration: 3.0, position: .bottom)
-            return
-        }
+        let withdrawVC = WithdrawViewController()
         navigationController?.pushViewController(withdrawVC, animated: true)
     }
 }

@@ -326,3 +326,10 @@ def test_transaction_history_uses_matching_chinese_labels_and_safe_amount_format
     assert 'String(format: "%.2f", abs(transaction.amount))' in ios
     assert 'SimpleDateFormat("MM-dd HH:mm"' in android
     assert 'formatter.dateFormat = "MM-dd HH:mm"' in ios
+
+
+def test_ios_balance_buttons_open_code_based_payment_pages():
+    ios = IOS_BALANCE.read_text(encoding="utf-8")
+    assert 'let chargeVC = ChargeViewController()' in ios
+    assert 'let withdrawVC = WithdrawViewController()' in ios
+    assert 'UIStoryboard(name: "Main"' not in ios

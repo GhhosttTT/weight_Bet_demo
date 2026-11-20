@@ -22,14 +22,14 @@ jobs:
           gem --version
 
       - name: Install CocoaPods
-        run: sudo gem install cocoapods --no-document
+        run: sudo gem install cocoapods -v 1.16.2 --no-document
 
       - name: Print CocoaPods version
         run: pod --version
 
       - name: Install pods
         working-directory: ios
-        run: pod install --repo-update
+        run: pod install --no-repo-update --verbose
 
       - name: Build iOS simulator target
         working-directory: ios

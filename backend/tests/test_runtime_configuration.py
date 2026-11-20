@@ -29,6 +29,7 @@ def test_postgres_accepts_complete_secure_configuration():
         STRIPE_WEBHOOK_SECRET="whsec_live_realistic",
         STRIPE_CONNECT_RETURN_URL="https://app.example.com/payment/connect/complete",
         STRIPE_CONNECT_REFRESH_URL="https://app.example.com/payment/connect/retry",
+        REDIS_URL="redis://redis.internal:6379/0",
     )
     validate_runtime_configuration(runtime)
 
@@ -104,3 +105,10 @@ def test_stripe_configuration_rejects_invalid_country_code():
 
 def test_stripe_configuration_accepts_two_decimal_currency_and_country():
     validate_runtime_configuration(_secure_stripe_runtime(STRIPE_CURRENCY="cny", STRIPE_CONNECT_COUNTRY="US"))
+
+
+def test_production_rejects_default_local_redis():
+    runtime = _secure_stripe_runtime(REDIS_URL="redis://localhost:6379/0")
+    runtime.ENVIRONMENT = "production"
+    with pytest.raises(RuntimeError, match="Redis"):
+        validate_runtime_configuration(runtime)

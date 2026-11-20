@@ -122,8 +122,12 @@ try:
         )
         # 测试连接
         redis_client.ping()
-except Exception:
-    # 如果连接失败，使用假的 Redis 客户端
+except Exception as error:
+    # 生产/预发布环境不能静默降级到进程内 Redis，否则多 worker 下限流和缓存
+    # 会各自维护一份状态，造成安全策略失效或数据不一致。
+    if settings.ENVIRONMENT.strip().lower() in {"production", "prod", "staging"}:
+        raise RuntimeError("生产环境 Redis 连接失败，拒绝使用进程内 FakeRedis") from error
+    # 开发和测试环境保留无外部 Redis 时的兼容行为。
     redis_client = FakeRedis()
 
 

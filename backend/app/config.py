@@ -117,6 +117,9 @@ def validate_runtime_configuration(current: Settings = None) -> None:
         errors.append("ALLOWED_HOSTS 必须配置正式域名")
     if not runtime.google_client_ids_list:
         errors.append("GOOGLE_CLIENT_IDS 必须配置，避免生产环境出现不可用的 Google 登录按钮")
+    redis_url = (runtime.REDIS_URL or "").strip().lower()
+    if is_production and (not redis_url or redis_url == "redis://localhost:6379/0"):
+        errors.append("生产环境必须配置独立的 Redis 地址，不能使用默认本地 Redis")
     if payment_provider not in {"demo", "stripe"}:
         errors.append("PAYMENT_PROVIDER 只能配置为 demo 或 stripe")
     if is_production and payment_provider != "stripe":

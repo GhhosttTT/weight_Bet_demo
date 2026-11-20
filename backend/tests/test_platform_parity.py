@@ -52,6 +52,7 @@ ANDROID_PLAN_ADAPTER = ROOT / "android/app/src/main/java/com/weightloss/betting/
 IOS_PLANS = ROOT / "ios/WeightLossBetting/UI/Plans/PlansViewController.swift"
 ANDROID_TRANSACTION_ADAPTER = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/TransactionAdapter.kt"
 IOS_BALANCE = ROOT / "ios/WeightLossBetting/UI/Payment/BalanceViewController.swift"
+ANDROID_LOGIN_LAYOUT = ROOT / "android/app/src/main/res/layout/activity_login.xml"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -333,3 +334,13 @@ def test_ios_balance_buttons_open_code_based_payment_pages():
     assert 'let chargeVC = ChargeViewController()' in ios
     assert 'let withdrawVC = WithdrawViewController()' in ios
     assert 'UIStoryboard(name: "Main"' not in ios
+
+
+def test_login_google_separator_and_register_copy_match_between_platforms():
+    android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")
+    assert 'android:id="@+id/tvOr"' in android
+    assert 'android:text="或者"' in android
+    assert 'label.text = "或者"' in ios
+    assert 'android:text="还没有账号？立即注册"' in android
+    assert 'button.setTitle("还没有账号？立即注册"' in ios

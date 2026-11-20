@@ -68,7 +68,7 @@ class LoginViewController: UIViewController {
     
     private let registerButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("没有账号？注册", for: .normal)
+        button.setTitle("还没有账号？立即注册", for: .normal)
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()

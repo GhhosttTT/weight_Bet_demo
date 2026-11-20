@@ -203,6 +203,9 @@ def test_admin_page_csp_allows_its_same_origin_inline_assets(admin_context):
     assert "/payouts/" in response.text
     assert "reconcilePayout" in response.text
     assert "/reconcile" in response.text
+    assert "notifications" in response.text
+    assert "/api/notifications/send" in response.text
+    assert "notification-user-id" in response.text
 
 
 def test_admin_update_endpoints_require_admin_role(admin_context):

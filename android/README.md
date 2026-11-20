@@ -12,6 +12,7 @@ Google 登录已接入 `play-services-auth`。请在 `app/src/main/res/values/st
 
 充值使用 Stripe PaymentSheet：客户端请求 `/api/payments/charge/intent` 获取 client secret，
 PaymentSheet 完成确认后由 Stripe Webhook 更新余额。开发环境仍可使用 Demo 模式，生产环境必须配置真实 Stripe 密钥。
+绑定支付方式使用 `/api/payments/setup-intent` 和 PaymentSheet，Android 页面不读取或保存完整卡号、有效期和安全码。
 
 Android 还需要配置 `stripe_publishable_key`（建议通过未提交的 `app/src/debug/res/values/strings.xml`
 或 release resource overlay 注入 `pk_test_...` / `pk_live_...`），Application 启动时会初始化 Stripe SDK。

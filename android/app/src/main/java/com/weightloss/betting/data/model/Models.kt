@@ -239,6 +239,12 @@ data class ChargeIntentResult(
     val status: String
 )
 
+data class SetupIntentResult(
+    @SerializedName("setup_intent_id") val setupIntentId: String,
+    @SerializedName("client_secret") val clientSecret: String?,
+    val status: String
+)
+
 data class WithdrawRequest(
     val amount: Double,
     @SerializedName("payment_method_id")

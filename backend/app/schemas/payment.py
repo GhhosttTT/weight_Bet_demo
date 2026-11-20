@@ -61,6 +61,13 @@ class ChargeIntentRequest(BaseModel):
         populate_by_name = True
 
 
+class SetupIntentResponse(BaseModel):
+    """Stripe SetupIntent 客户端确认凭证。"""
+    setup_intent_id: str
+    client_secret: Optional[str]
+    status: str
+
+
 class WithdrawRequest(BaseModel):
     """提现请求"""
     amount: float = Field(..., ge=0.01)

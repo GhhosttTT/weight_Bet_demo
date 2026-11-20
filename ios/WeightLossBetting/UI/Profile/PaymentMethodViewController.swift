@@ -1,228 +1,127 @@
 import UIKit
+import StripePaymentSheet
 
-class PaymentMethodViewController: UIViewController {
-    
-    // MARK: - UI Components
-    
-    private let titleLabel: UILabel = {
+final class PaymentMethodViewController: UIViewController {
+    private let securityMessage: UILabel = {
         let label = UILabel()
-        label.text = "绑定支付方式"
-        label.font = .systemFont(ofSize: 24, weight: .bold)
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private let descriptionLabel: UILabel = {
-        let label = UILabel()
-        label.text = "生产环境使用 Stripe 安全组件处理卡信息；演示环境只保存脱敏标识。"
-        label.font = .systemFont(ofSize: 14)
-        label.textColor = AppTheme.Colors.secondaryLabel
-        label.textAlignment = .center
+        label.text = "生产环境使用 Stripe 安全组件处理卡信息。应用不会读取或保存完整银行卡号、有效期和安全码。"
+        label.font = .systemFont(ofSize: 16)
         label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
-    
-    private let cardNumberTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "银行卡号"
-        textField.borderStyle = .roundedRect
-        textField.keyboardType = .numberPad
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
+
+    private let detailMessage: UILabel = {
+        let label = UILabel()
+        label.text = "充值时会在 Stripe 支付页面中选择银行卡；提现请使用 Stripe Connect 设置提现账户。"
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = AppTheme.Colors.secondaryLabel
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
-    
-    private let expiryTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "有效期 MM/YY"
-        textField.borderStyle = .roundedRect
-        textField.keyboardType = .numberPad
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
-    
-    private let cvvTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "安全码"
-        textField.borderStyle = .roundedRect
-        textField.keyboardType = .numberPad
-        textField.isSecureTextEntry = true
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
-    
-    private let cardHolderTextField: UITextField = {
-        let textField = UITextField()
-        textField.placeholder = "持卡人姓名"
-        textField.borderStyle = .roundedRect
-        textField.autocapitalizationType = .words
-        textField.translatesAutoresizingMaskIntoConstraints = false
-        return textField
-    }()
-    
-    private let saveButton: UIButton = {
+
+    private let setupButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("保存支付方式", for: .normal)
+        button.setTitle("使用 Stripe 安全设置", for: .normal)
         button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
-    
+
     private let activityIndicator: UIActivityIndicatorView = {
-        let indicator = UIActivityIndicatorView(style: .large)
+        let indicator = UIActivityIndicatorView(style: .medium)
         indicator.hidesWhenStopped = true
         indicator.translatesAutoresizingMaskIntoConstraints = false
         return indicator
     }()
-    
-    // MARK: - Properties
-    
+
     private let viewModel = PaymentMethodViewModel()
+    private var paymentSheet: PaymentSheet?
     private let userId: String
-    
-    // MARK: - Initialization
-    
+
     init(userId: String) {
         self.userId = userId
         super.init(nibName: nil, bundle: nil)
     }
-    
+
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
-    
-    // MARK: - Lifecycle
-    
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        setupUI()
-        setupActions()
-    }
-    
-    // MARK: - Setup
-    
-    private func setupUI() {
         title = "绑定支付方式"
         view.backgroundColor = AppTheme.Colors.background
-        
-        view.addSubview(titleLabel)
-        view.addSubview(descriptionLabel)
-        view.addSubview(cardNumberTextField)
-        view.addSubview(expiryTextField)
-        view.addSubview(cvvTextField)
-        view.addSubview(cardHolderTextField)
-        view.addSubview(saveButton)
+        view.addSubview(securityMessage)
+        view.addSubview(detailMessage)
+        view.addSubview(setupButton)
         view.addSubview(activityIndicator)
-        
+
         NSLayoutConstraint.activate([
-            titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            titleLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
-            
-            descriptionLabel.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 16),
-            descriptionLabel.leadingAnchor.constraint(equalTo: titleLabel.leadingAnchor),
-            descriptionLabel.trailingAnchor.constraint(equalTo: titleLabel.trailingAnchor),
-            
-            cardNumberTextField.topAnchor.constraint(equalTo: descriptionLabel.bottomAnchor, constant: 32),
-            cardNumberTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
-            cardNumberTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
-            cardNumberTextField.heightAnchor.constraint(equalToConstant: 50),
-            
-            expiryTextField.topAnchor.constraint(equalTo: cardNumberTextField.bottomAnchor, constant: 16),
-            expiryTextField.leadingAnchor.constraint(equalTo: cardNumberTextField.leadingAnchor),
-            expiryTextField.widthAnchor.constraint(equalTo: cardNumberTextField.widthAnchor, multiplier: 0.48),
-            expiryTextField.heightAnchor.constraint(equalToConstant: 50),
-            
-            cvvTextField.topAnchor.constraint(equalTo: expiryTextField.topAnchor),
-            cvvTextField.trailingAnchor.constraint(equalTo: cardNumberTextField.trailingAnchor),
-            cvvTextField.widthAnchor.constraint(equalTo: expiryTextField.widthAnchor),
-            cvvTextField.heightAnchor.constraint(equalToConstant: 50),
-            
-            cardHolderTextField.topAnchor.constraint(equalTo: expiryTextField.bottomAnchor, constant: 16),
-            cardHolderTextField.leadingAnchor.constraint(equalTo: cardNumberTextField.leadingAnchor),
-            cardHolderTextField.trailingAnchor.constraint(equalTo: cardNumberTextField.trailingAnchor),
-            cardHolderTextField.heightAnchor.constraint(equalToConstant: 50),
-            
-            saveButton.topAnchor.constraint(equalTo: cardHolderTextField.bottomAnchor, constant: 32),
-            saveButton.leadingAnchor.constraint(equalTo: cardNumberTextField.leadingAnchor),
-            saveButton.trailingAnchor.constraint(equalTo: cardNumberTextField.trailingAnchor),
-            saveButton.heightAnchor.constraint(equalToConstant: 50),
-            
-            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            securityMessage.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 32),
+            securityMessage.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            securityMessage.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            detailMessage.topAnchor.constraint(equalTo: securityMessage.bottomAnchor, constant: 16),
+            detailMessage.leadingAnchor.constraint(equalTo: securityMessage.leadingAnchor),
+            detailMessage.trailingAnchor.constraint(equalTo: securityMessage.trailingAnchor),
+            setupButton.topAnchor.constraint(equalTo: detailMessage.bottomAnchor, constant: 32),
+            setupButton.leadingAnchor.constraint(equalTo: securityMessage.leadingAnchor),
+            setupButton.trailingAnchor.constraint(equalTo: securityMessage.trailingAnchor),
+            setupButton.heightAnchor.constraint(equalToConstant: 50),
+            activityIndicator.centerXAnchor.constraint(equalTo: setupButton.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: setupButton.centerYAnchor)
         ])
-    }
-    
-    private func setupActions() {
-        saveButton.addTarget(self, action: #selector(saveButtonTapped), for: .touchUpInside)
-        
-        // Add tap gesture to dismiss keyboard
-        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(dismissKeyboard))
-        view.addGestureRecognizer(tapGesture)
-    }
-    
-    // MARK: - Actions
-    
-    @objc private func saveButtonTapped() {
-        guard let cardNumber = cardNumberTextField.text, !cardNumber.isEmpty,
-              let expiry = expiryTextField.text, !expiry.isEmpty,
-              let cvv = cvvTextField.text, !cvv.isEmpty,
-              let cardHolder = cardHolderTextField.text, !cardHolder.isEmpty else {
-            showAlert(message: "请填写所有字段")
-            return
+
+        setupButton.addTarget(self, action: #selector(setupButtonTapped), for: .touchUpInside)
+        viewModel.onStateChanged = { [weak self] state in
+            DispatchQueue.main.async { self?.handle(state) }
         }
-        
-        activityIndicator.startAnimating()
-        saveButton.isEnabled = false
-        
-        viewModel.bindPaymentMethod(
-            userId: userId,
-            cardNumber: cardNumber,
-            expiry: expiry,
-            cvv: cvv,
-            cardHolder: cardHolder
-        ) { [weak self] result in
-            DispatchQueue.main.async {
-                self?.activityIndicator.stopAnimating()
-                self?.saveButton.isEnabled = true
-                
+    }
+
+    @objc private func setupButtonTapped() {
+        viewModel.createSetupIntent()
+    }
+
+    private func handle(_ state: PaymentMethodState) {
+        switch state {
+        case .idle:
+            activityIndicator.stopAnimating()
+            setupButton.isEnabled = true
+        case .loading:
+            activityIndicator.startAnimating()
+            setupButton.isEnabled = false
+        case .setupIntentReady(let clientSecret):
+            var configuration = PaymentSheet.Configuration()
+            configuration.merchantDisplayName = "BetFit"
+            paymentSheet = PaymentSheet(
+                setupIntentClientSecret: clientSecret,
+                configuration: configuration
+            )
+            paymentSheet?.present(from: self) { [weak self] result in
                 switch result {
-                case .success:
-                    self?.showSuccessAndDismiss()
-                    
-                case .failure(let error):
-                    self?.showAlert(message: error.localizedDescription)
+                case .completed: self?.viewModel.setupCompleted()
+                case .canceled: self?.viewModel.setupCanceled()
+                case .failed(let error): self?.viewModel.setupFailed(error.localizedDescription)
                 }
             }
+        case .success:
+            activityIndicator.stopAnimating()
+            showAlert(title: "设置完成", message: "支付方式已通过 Stripe 安全设置") { [weak self] in
+                self?.navigationController?.popViewController(animated: true)
+            }
+        case .error(let message):
+            activityIndicator.stopAnimating()
+            setupButton.isEnabled = true
+            showAlert(title: "设置失败", message: message)
         }
     }
-    
-    @objc private func dismissKeyboard() {
-        view.endEditing(true)
-    }
-    
-    private func showSuccessAndDismiss() {
-        let alert = UIAlertController(
-            title: "成功",
-            message: "支付方式已成功添加",
-            preferredStyle: .alert
-        )
-        
-        alert.addAction(UIAlertAction(title: "确定", style: .default) { [weak self] _ in
-            self?.navigationController?.popViewController(animated: true)
-        })
-        
-        present(alert, animated: true)
-    }
-    
-    // MARK: - Helper
-    
-    private func showAlert(message: String) {
-        let alert = UIAlertController(title: "错误", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "确定", style: .default))
+
+    private func showAlert(title: String, message: String, completion: (() -> Void)? = nil) {
+        let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "确定", style: .default) { _ in completion?() })
         present(alert, animated: true)
     }
 }

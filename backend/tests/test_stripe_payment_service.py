@@ -83,6 +83,40 @@ def test_create_intent_reuses_client_idempotency_key(db_session, monkeypatch):
     assert create.call_args[1]["idempotency_key"] == "weight-bet-charge-request-key-123456"
 
 
+def test_create_setup_intent_does_not_receive_raw_card_data(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
+    monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test_realistic")
+    fake_intent = type("SetupIntent", (), {
+        "id": "seti_123", "client_secret": "seti_secret_123", "status": "requires_payment_method"
+    })()
+    with patch("app.services.stripe_payment_service.stripe.SetupIntent.create", return_value=fake_intent) as create:
+        result = StripePaymentService.create_setup_intent(db_session, "stripe-user-001")
+    assert result == {
+        "setup_intent_id": "seti_123",
+        "client_secret": "seti_secret_123",
+        "status": "requires_payment_method",
+    }
+    assert create.call_args[1]["payment_method_types"] == ["card"]
+    assert "card_number" not in create.call_args[1]
+    assert "cvv" not in create.call_args[1]
+
+
+def test_setup_intent_webhook_binds_verified_stripe_payment_method(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "STRIPE_WEBHOOK_SECRET", "whsec_realistic")
+    event = {
+        "type": "setup_intent.succeeded",
+        "data": {"object": {
+            "id": "seti_123",
+            "payment_method": "pm_real_123",
+            "metadata": {"user_id": "stripe-user-001"},
+        }},
+    }
+    with patch("app.services.stripe_payment_service.stripe.Webhook.construct_event", return_value=event):
+        result = StripePaymentService.handle_webhook(db_session, b"payload", "signature")
+    assert result["status"] == "completed"
+    assert db_session.query(User).one().payment_method_id == "pm_real_123"
+
+
 def test_webhook_rejects_amount_mismatch(db_session, monkeypatch):
     monkeypatch.setattr(settings, "STRIPE_WEBHOOK_SECRET", "whsec_realistic")
     transaction = Transaction(

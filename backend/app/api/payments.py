@@ -11,6 +11,7 @@ from app.schemas.payment import (
     ChargeRequest,
     ChargeIntentResponse,
     ChargeIntentRequest,
+    SetupIntentResponse,
     WithdrawRequest
 )
 from app.services.payment_service import PaymentService
@@ -119,6 +120,15 @@ def create_charge_intent(
     return StripePaymentService.create_charge_intent(
         db, current_user_id, request.amount, idempotency_key=request.idempotency_key
     )
+
+
+@router.post("/setup-intent", response_model=SetupIntentResponse)
+def create_setup_intent(
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """创建 Stripe SetupIntent；客户端通过 PaymentSheet 收集卡信息。"""
+    return StripePaymentService.create_setup_intent(db, current_user_id)
 
 
 @router.post("/stripe/webhook")

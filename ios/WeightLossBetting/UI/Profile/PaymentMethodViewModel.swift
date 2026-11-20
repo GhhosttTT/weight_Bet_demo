@@ -1,76 +1,41 @@
 import Foundation
 
-class PaymentMethodViewModel {
-    private let userRepository = UserRepository.shared
-    
-    // MARK: - Bind Payment Method
-    
-    func bindPaymentMethod(
-        userId: String,
-        cardNumber: String,
-        expiry: String,
-        cvv: String,
-        cardHolder: String,
-        completion: @escaping (Result<Void, Error>) -> Void
-    ) {
-        // Validate card number (basic validation)
-        let cleanedCardNumber = cardNumber.replacingOccurrences(of: " ", with: "")
-        guard cleanedCardNumber.count >= 13 && cleanedCardNumber.count <= 19 else {
-            completion(.failure(PaymentError.invalidCardNumber))
-            return
-        }
-        
-        // Validate expiry format (MM/YY)
-        let expiryComponents = expiry.split(separator: "/")
-        guard expiryComponents.count == 2,
-              let month = Int(expiryComponents[0]),
-              let year = Int(expiryComponents[1]),
-              month >= 1 && month <= 12 else {
-            completion(.failure(PaymentError.invalidExpiry))
-            return
-        }
-        
-        // Validate CVV
-        guard cvv.count >= 3 && cvv.count <= 4 else {
-            completion(.failure(PaymentError.invalidCVV))
-            return
-        }
-        
-        // Validate cardholder name
-        guard cardHolder.count >= 2 else {
-            completion(.failure(PaymentError.invalidCardHolder))
-            return
-        }
-        
-        // 当前后端只接收支付方式标识。演示环境使用卡号后四位生成脱敏标识，生产环境应替换为支付网关返回的 token。
-        let lastFourDigits = String(cleanedCardNumber.suffix(4))
-        let parameters: [String: Any] = [
-            "payment_method_id": "card_\(lastFourDigits)"
-        ]
-        
-        // Bind payment method
-        userRepository.bindPaymentMethod(userId: userId, parameters: parameters, completion: completion)
-    }
+enum PaymentMethodState {
+    case idle
+    case loading
+    case setupIntentReady(String)
+    case success
+    case error(String)
 }
 
-// MARK: - Payment Errors
+final class PaymentMethodViewModel {
+    private let paymentRepository = PaymentRepository.shared
+    var onStateChanged: ((PaymentMethodState) -> Void)?
 
-enum PaymentError: LocalizedError {
-    case invalidCardNumber
-    case invalidExpiry
-    case invalidCVV
-    case invalidCardHolder
-    
-    var errorDescription: String? {
-        switch self {
-        case .invalidCardNumber:
-            return "请输入有效的银行卡号"
-        case .invalidExpiry:
-            return "有效期格式应为 MM/YY"
-        case .invalidCVV:
-            return "请输入 3-4 位安全码"
-        case .invalidCardHolder:
-            return "请输入持卡人姓名"
+    private var state: PaymentMethodState = .idle {
+        didSet { onStateChanged?(state) }
+    }
+
+    func createSetupIntent() {
+        state = .loading
+        Task {
+            let result = await paymentRepository.createSetupIntent()
+            switch result {
+            case .success(let intent):
+                guard let clientSecret = intent.clientSecret, !clientSecret.isEmpty else {
+                    state = .error("支付方式初始化缺少确认凭证")
+                    return
+                }
+                state = .setupIntentReady(clientSecret)
+            case .failure(let error):
+                state = .error(error.localizedDescription)
+            case .loading:
+                break
+            }
         }
     }
+
+    func setupCompleted() { state = .success }
+    func setupCanceled() { state = .idle }
+    func setupFailed(_ message: String) { state = .error(message) }
 }

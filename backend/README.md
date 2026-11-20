@@ -106,6 +106,7 @@ mypy app/
 真实支付接口：
 
 - `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent，客户端 PaymentSheet 确认后由 Webhook 入账
+- `POST /api/payments/setup-intent` - 创建 Stripe SetupIntent，客户端 PaymentSheet 安全收集支付方式
 - `POST /api/payments/stripe/webhook` - 验证 Stripe 签名并完成充值入账
 - `POST /api/payments/connect/onboarding` - 创建 Stripe Connect Express 提现账户认证链接
 
@@ -138,6 +139,7 @@ Stripe 模式下提现会先预留余额，再创建 Connect Transfer/Payout；�
 
 ### 支付
 - `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent（生产充值入口）
+- `POST /api/payments/setup-intent` - 创建 Stripe SetupIntent（生产绑定支付方式入口）
 - `POST /api/payments/stripe/webhook` - 接收 Stripe 支付与出款回调
 - `POST /api/payments/withdraw` - 提现
 - `POST /api/payments/connect/onboarding` - 创建 Stripe Connect 提现账户认证链接

@@ -71,6 +71,7 @@
 
 ### 4. 支付与资金管理
 - ✅ Stripe PaymentIntent 充值（客户端 PaymentSheet 确认，Webhook 入账）
+- ✅ Stripe SetupIntent 绑定支付方式（客户端 PaymentSheet 收集卡信息，应用不接触完整卡号）
 - ✅ 余额查询和交易历史
 - ✅ 资金冻结/解冻机制
 - ✅ 充值和提现功能（Stripe Connect Express）
@@ -227,6 +228,7 @@ open WeightLossBetting.xcworkspace
 
 ### 支付
 - `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent（生产充值入口）
+- `POST /api/payments/setup-intent` - 创建 Stripe SetupIntent（生产绑定支付方式入口）
 - `POST /api/payments/stripe/webhook` - 接收 Stripe 支付与出款回调（签名校验）
 - `POST /api/payments/withdraw` - 提现
 - `POST /api/payments/connect/onboarding` - 创建 Stripe Connect 提现账户认证链接

@@ -17,57 +17,29 @@
             android:title="绑定支付方式" />
 
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:text="绑定后可用于充值和提现。演示环境只保存脱敏标识。"
-            android:textSize="14sp" />
-
-        <EditText
-            android:id="@+id/etCardNumber"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="20dp"
-            android:hint="银行卡号"
-            android:inputType="number"
-            android:maxLength="19" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-            <EditText
-                android:id="@+id/etExpiry"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="有效期 MM/YY"
-                android:inputType="text" />
-            <EditText
-                android:id="@+id/etCvv"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_weight="1"
-                android:hint="安全码"
-                android:inputType="numberPassword"
-                android:maxLength="4" />
-        </LinearLayout>
-
-        <EditText
-            android:id="@+id/etHolder"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:hint="持卡人姓名"
-            android:inputType="textPersonName" />
-
-        <Button
-            android:id="@+id/btnSave"
+            android:id="@+id/tvSecurityMessage"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="保存支付方式" />
+            android:text="生产环境使用 Stripe 安全组件处理卡信息。应用不会读取或保存完整银行卡号、有效期和安全码。"
+            android:textSize="16sp"
+            android:lineSpacingExtra="6dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:text="充值时会在 Stripe 支付页面中选择银行卡；提现请使用 Stripe Connect 设置提现账户。"
+            android:textSize="14sp"
+            android:textColor="@color/xui_config_color_text_content"
+            android:lineSpacingExtra="4dp" />
+
+        <Button
+            android:id="@+id/btnSetup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:text="使用 Stripe 安全设置" />
 
         <ProgressBar
             android:id="@+id/progressBar"

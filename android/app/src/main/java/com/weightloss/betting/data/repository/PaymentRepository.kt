@@ -21,6 +21,10 @@ class PaymentRepository @Inject constructor(
     suspend fun createChargeIntent(request: ChargeIntentRequest): NetworkResult<ChargeIntentResult> {
         return safeApiCall { apiService.createChargeIntent(request) }
     }
+
+    suspend fun createSetupIntent(): NetworkResult<SetupIntentResult> {
+        return safeApiCall { apiService.createSetupIntent() }
+    }
     
     /**
      * 提现

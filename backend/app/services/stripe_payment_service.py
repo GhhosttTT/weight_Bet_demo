@@ -14,6 +14,7 @@ from sqlalchemy.orm import Session
 from app.config import settings
 from app.models.balance import Balance
 from app.models.transaction import Transaction, TransactionStatus, TransactionType
+from app.models.user import User
 from app.services.payment_service import PaymentService
 
 
@@ -101,6 +102,27 @@ class StripePaymentService:
             "status": intent.status,
         }
 
+    @classmethod
+    def create_setup_intent(cls, db: Session, user_id: str) -> dict:
+        """创建由 Stripe PaymentSheet 收集卡信息的 SetupIntent。"""
+        cls._require_stripe_mode()
+        user = db.query(User).filter(User.id == user_id).first()
+        if not user:
+            raise HTTPException(status_code=404, detail="用户不存在")
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            intent = stripe.SetupIntent.create(
+                payment_method_types=["card"],
+                metadata={"user_id": user_id},
+            )
+        except stripe.error.StripeError as error:
+            raise HTTPException(status_code=502, detail="Stripe 支付方式初始化失败") from error
+        return {
+            "setup_intent_id": intent.id,
+            "client_secret": getattr(intent, "client_secret", None),
+            "status": intent.status,
+        }
+
     @staticmethod
     def handle_webhook(db: Session, payload: bytes, signature: str) -> dict:
         if stripe is None:
@@ -121,6 +143,24 @@ class StripePaymentService:
             return StripePayoutService.handle_payout_webhook(
                 db, event_type, intent, connected_account=event.get("account")
             )
+        if event_type in ("setup_intent.succeeded", "setup_intent.setup_failed", "setup_intent.canceled"):
+            metadata = intent.get("metadata") or {}
+            user_id = metadata.get("user_id")
+            if not user_id:
+                raise HTTPException(status_code=400, detail="Stripe SetupIntent 缺少用户标识")
+            user = db.query(User).filter(User.id == user_id).first()
+            if not user:
+                raise HTTPException(status_code=404, detail="用户不存在")
+            if event_type == "setup_intent.succeeded":
+                payment_method_id = intent.get("payment_method")
+                if isinstance(payment_method_id, dict):
+                    payment_method_id = payment_method_id.get("id")
+                if not payment_method_id or not str(payment_method_id).startswith("pm_"):
+                    raise HTTPException(status_code=400, detail="Stripe SetupIntent 缺少有效支付方式")
+                user.payment_method_id = payment_method_id
+                db.commit()
+                return {"received": True, "handled": True, "status": "completed"}
+            return {"received": True, "handled": True, "status": "failed"}
         if event_type not in (
             "payment_intent.succeeded",
             "payment_intent.payment_failed",

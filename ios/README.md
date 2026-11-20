@@ -11,6 +11,7 @@ Google 登录使用 `GoogleSignIn` Pod。请在 Xcode 的 App Target Build Setti
 
 充值使用 Stripe PaymentSheet。请执行 `pod install` 更新依赖，客户端请求 `/api/payments/charge/intent`
 获取 client secret，PaymentSheet 完成确认后由 Stripe Webhook 更新余额；提现使用 Stripe Connect Express，
+绑定支付方式使用 `/api/payments/setup-intent` 和 PaymentSheet，iOS 页面不读取或保存完整卡号、有效期和安全码；
 用户需要先完成提现账户认证。
 提现页面提供“设置账户”入口，会打开 Stripe Connect Express 认证页面。
 

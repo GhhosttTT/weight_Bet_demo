@@ -258,12 +258,20 @@ def test_ios_transaction_model_can_decode_backend_charge_records():
     assert "transaction.type == .charge" in ios_balance
 
 
-def test_payment_method_page_uses_matching_chinese_copy_on_both_platforms():
+def test_payment_method_page_uses_matching_stripe_secure_setup_on_both_platforms():
     android = (ROOT / "android/app/src/main/res/layout/activity_payment_method.xml").read_text(encoding="utf-8")
+    android_activity = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/profile/PaymentMethodActivity.kt").read_text(encoding="utf-8")
+    android_api = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt").read_text(encoding="utf-8")
     ios = IOS_PAYMENT_METHOD_VC.read_text(encoding="utf-8")
     ios_vm = IOS_PAYMENT_METHOD_VM.read_text(encoding="utf-8")
-    for text in ("绑定支付方式", "银行卡号", "有效期 MM/YY", "安全码", "持卡人姓名", "保存支付方式"):
+    ios_api = (ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift").read_text(encoding="utf-8")
+    for text in ("绑定支付方式", "Stripe 安全", "不会读取或保存完整银行卡号"):
         assert text in android
         assert text in ios
-    for text in ("请输入有效的银行卡号", "有效期格式应为 MM/YY", "请输入 3-4 位安全码", "请输入持卡人姓名"):
-        assert text in ios_vm
+    assert "setup-intent" in android_api
+    assert "presentWithSetupIntent" in android_activity
+    assert "createSetupIntent" in ios_api
+    assert "setupIntentClientSecret" in ios
+    assert "etCardNumber" not in android
+    assert "cardNumberTextField" not in ios
+    assert "请输入有效的银行卡号" not in ios_vm

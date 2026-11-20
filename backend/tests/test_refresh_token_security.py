@@ -2,6 +2,7 @@
 
 import pytest
 from fastapi import HTTPException
+from fastapi.security import HTTPAuthorizationCredentials
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import StaticPool
@@ -11,6 +12,7 @@ from app.models.user import Gender, User
 from app.models.device_token import DeviceToken, Platform
 from app.schemas.auth import LoginRequest
 from app.services.auth_service import AuthService
+from app.middleware.auth import get_current_user
 from app.utils.security import hash_password
 
 
@@ -53,3 +55,18 @@ def test_logout_revokes_refresh_token(auth_db):
         AuthService.refresh_token(auth_db, result.refresh_token)
     assert error.value.status_code == 401
     assert auth_db.query(DeviceToken).count() == 0
+
+
+def test_logout_immediately_revokes_access_token_for_the_same_session(auth_db):
+    result = AuthService.login(auth_db, LoginRequest(email="refresh@example.com", password="secret123"))
+    credentials = HTTPAuthorizationCredentials(
+        scheme="Bearer",
+        credentials=result.access_token,
+    )
+
+    assert get_current_user(credentials, auth_db).id == "refresh-user-001"
+    AuthService.revoke_refresh_token(auth_db, result.refresh_token)
+
+    with pytest.raises(HTTPException) as error:
+        get_current_user(credentials, auth_db)
+    assert error.value.status_code == 401

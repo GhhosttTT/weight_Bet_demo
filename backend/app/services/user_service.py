@@ -64,7 +64,7 @@ class UserService:
                 detail="用户不存在"
             )
         
-        return UserResponse.from_orm(user)
+        return UserResponse.model_validate(user)
     
     @staticmethod
     def update_user_profile(
@@ -105,7 +105,7 @@ class UserService:
             )
         
         # 更新字段
-        update_dict = update_data.dict(exclude_unset=True)
+        update_dict = update_data.model_dump(exclude_unset=True)
         for field, value in update_dict.items():
             setattr(user, field, value)
         
@@ -114,7 +114,7 @@ class UserService:
         
         logger.info("User profile updated: {}", user_id)
         
-        return UserResponse.from_orm(user)
+        return UserResponse.model_validate(user)
     
     @staticmethod
     def bind_payment_method(
@@ -160,7 +160,7 @@ class UserService:
         
         logger.info("Payment method bound for user: {}", user_id)
         
-        return UserResponse.from_orm(user)
+        return UserResponse.model_validate(user)
 
     @staticmethod
     def export_user_data(

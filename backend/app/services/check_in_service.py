@@ -132,7 +132,7 @@ class CheckInService:
             f"plan={request.plan_id}, status={review_status}"
         )
         
-        return CheckInResponse.from_orm(check_in)
+        return CheckInResponse.model_validate(check_in)
     
     @staticmethod
     def upload_photo(
@@ -177,7 +177,7 @@ class CheckInService:
         
         logger.info("Photo uploaded for check-in: {}", check_in_id)
         
-        return CheckInResponse.from_orm(check_in)
+        return CheckInResponse.model_validate(check_in)
     
     @staticmethod
     def review_check_in(
@@ -250,7 +250,7 @@ class CheckInService:
             f"status={request.review_status}"
         )
         
-        return CheckInResponse.from_orm(check_in)
+        return CheckInResponse.model_validate(check_in)
     
     @staticmethod
     def get_check_in_history(
@@ -288,7 +288,7 @@ class CheckInService:
             CheckIn.check_in_date.desc()
         ).limit(limit).offset(offset).all()
         
-        return [CheckInResponse.from_orm(check_in) for check_in in check_ins]
+        return [CheckInResponse.model_validate(check_in) for check_in in check_ins]
     
     @staticmethod
     def get_progress(

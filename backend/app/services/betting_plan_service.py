@@ -150,7 +150,7 @@ class BettingPlanService:
         logger.info("Betting plan created: {} by user {}", plan_id, creator_id)
         
         # 构造返回响应
-        plan_data = PlanResponse.from_orm(plan).dict()
+        plan_data = PlanResponse.model_validate(plan).model_dump()
         
         # 如果有被邀请人，补充被邀请人信息到响应中
         if invitee:
@@ -313,7 +313,7 @@ class BettingPlanService:
         except Exception as e:
             logger.error("Failed to notify creator about acceptance for plan %s: %s", plan_id, str(e))
     
-        return PlanResponse.from_orm(plan)
+        return PlanResponse.model_validate(plan)
 
     @staticmethod
     def confirm_plan(db: Session, plan_id: str, user_id: str) -> PlanResponse:
@@ -356,7 +356,7 @@ class BettingPlanService:
         except Exception as e:
             logger.error("Failed to notify user about plan confirmation: %s", str(e))
             
-        return PlanResponse.from_orm(plan)
+        return PlanResponse.model_validate(plan)
 
     @staticmethod
     def reject_plan(db: Session, plan_id: str, user_id: str) -> dict:

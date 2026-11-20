@@ -190,7 +190,7 @@ class ArbitrationService:
                 settlement_id, plan_id, creator_amount, participant_amount, arbitration_fee
             )
             
-            return SettlementResponse.from_orm(settlement)
+            return SettlementResponse.model_validate(settlement)
             
         except Exception as e:
             db.rollback()

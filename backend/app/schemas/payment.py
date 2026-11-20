@@ -1,7 +1,7 @@
 """
 支付相关的 Pydantic 模式
 """
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from datetime import datetime
 from app.models.transaction import TransactionType, TransactionStatus
@@ -14,8 +14,7 @@ class BalanceResponse(BaseModel):
     frozen_balance: float
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class TransactionResponse(BaseModel):
@@ -30,8 +29,7 @@ class TransactionResponse(BaseModel):
     created_at: datetime
     completed_at: Optional[datetime]
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class ChargeRequest(BaseModel):
@@ -39,8 +37,7 @@ class ChargeRequest(BaseModel):
     amount: float = Field(..., ge=0.01)
     payment_method_id: str = Field(..., min_length=1, alias="paymentMethodId")
     
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class ChargeIntentResponse(BaseModel):
@@ -57,8 +54,7 @@ class ChargeIntentRequest(BaseModel):
     amount: float = Field(..., ge=0.01)
     idempotency_key: Optional[str] = Field(default=None, min_length=16, max_length=255, alias="idempotencyKey")
 
-    class Config:
-        populate_by_name = True
+    model_config = ConfigDict(populate_by_name=True)
 
 
 class SetupIntentResponse(BaseModel):

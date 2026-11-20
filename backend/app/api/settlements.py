@@ -257,7 +257,7 @@ async def submit_dispute(
                     notification_error,
                 )
         
-        return DisputeResponse.from_orm(dispute)
+        return DisputeResponse.model_validate(dispute)
         
     except IntegrityError:
         db.rollback()

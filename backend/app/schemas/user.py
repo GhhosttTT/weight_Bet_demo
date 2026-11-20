@@ -1,7 +1,7 @@
 """
 用户相关的 Pydantic 模式
 """
-from pydantic import BaseModel, EmailStr, Field, validator
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 from typing import Optional
 from datetime import datetime
 from app.models.user import Gender
@@ -40,8 +40,7 @@ class UserResponse(UserBase):
     created_at: datetime
     updated_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class UserStats(BaseModel):
@@ -62,5 +61,4 @@ class UserSearchResult(BaseModel):
     age: int
     gender: Gender
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

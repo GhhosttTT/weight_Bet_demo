@@ -1,7 +1,7 @@
 """
 对赌计划相关的 Pydantic 模式
 """
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, ValidationInfo, field_validator
 from typing import Optional
 from datetime import datetime
 from app.models.betting_plan import PlanStatus
@@ -28,11 +28,12 @@ class GoalData(BaseModel):
     target_weight: float = Field(..., ge=30.0, le=300.0)
     target_weight_loss: float = Field(..., gt=0.0)
     
-    @validator('target_weight_loss')
-    def validate_weight_loss(cls, v, values):
+    @field_validator('target_weight_loss')
+    @classmethod
+    def validate_weight_loss(cls, v, info: ValidationInfo):
         """验证减重量"""
-        if 'initial_weight' in values and 'target_weight' in values:
-            expected_loss = values['initial_weight'] - values['target_weight']
+        if 'initial_weight' in info.data and 'target_weight' in info.data:
+            expected_loss = info.data['initial_weight'] - info.data['target_weight']
             if abs(v - expected_loss) > 0.01:
                 raise ValueError('target_weight_loss must equal initial_weight - target_weight')
         return v
@@ -48,22 +49,24 @@ class CreatePlanRequest(BaseModel):
     description: Optional[str] = Field(None, max_length=500)
     invitee_id: Optional[str] = None
     
-    @validator('end_date')
-    def validate_dates(cls, v, values):
+    @field_validator('end_date')
+    @classmethod
+    def validate_dates(cls, v, info: ValidationInfo):
         """验证日期"""
-        if 'start_date' in values:
-            if v <= values['start_date']:
+        if 'start_date' in info.data:
+            if v <= info.data['start_date']:
                 raise ValueError('end_date must be after start_date')
             duration = (v - values['start_date']).days
             if duration > 365:
                 raise ValueError('plan duration cannot exceed 365 days')
         return v
     
-    @validator('target_weight')
-    def validate_weight(cls, v, values):
+    @field_validator('target_weight')
+    @classmethod
+    def validate_weight(cls, v, info: ValidationInfo):
         """验证目标体重"""
-        if 'initial_weight' in values:
-            if v >= values['initial_weight']:
+        if 'initial_weight' in info.data:
+            if v >= info.data['initial_weight']:
                 raise ValueError('target_weight must be less than initial_weight')
         return v
 
@@ -73,11 +76,12 @@ class AcceptPlanRequest(BaseModel):
     initial_weight: float = Field(..., ge=30.0, le=300.0)
     target_weight: float = Field(..., ge=30.0, le=300.0)
     
-    @validator('target_weight')
-    def validate_weight(cls, v, values):
+    @field_validator('target_weight')
+    @classmethod
+    def validate_weight(cls, v, info: ValidationInfo):
         """验证目标体重"""
-        if 'initial_weight' in values:
-            if v >= values['initial_weight']:
+        if 'initial_weight' in info.data:
+            if v >= info.data['initial_weight']:
                 raise ValueError('target_weight must be less than initial_weight')
         return v
 
@@ -105,5 +109,4 @@ class PlanResponse(BaseModel):
     created_at: datetime
     activated_at: Optional[datetime]
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)

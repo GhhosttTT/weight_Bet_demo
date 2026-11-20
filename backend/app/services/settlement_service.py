@@ -336,7 +336,7 @@ class SettlementService:
                         user_id,
                     )
                     
-            return SettlementResponse.from_orm(settlement)
+            return SettlementResponse.model_validate(settlement)
                     
         except Exception as e:
             # 发生任何错误时回滚所有操作
@@ -386,7 +386,7 @@ class SettlementService:
                 detail="结算记录不存在"
             )
         
-        return SettlementResponse.from_orm(settlement)
+        return SettlementResponse.model_validate(settlement)
     
     @staticmethod
     def get_settlement_by_plan(
@@ -408,7 +408,7 @@ class SettlementService:
         ).first()
         
         if settlement:
-            return SettlementResponse.from_orm(settlement)
+            return SettlementResponse.model_validate(settlement)
         
         return None
     

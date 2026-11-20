@@ -1,7 +1,7 @@
 """
 结算选择相关的 Pydantic 模式
 """
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from datetime import datetime
 from enum import Enum
@@ -20,13 +20,15 @@ class SettlementChoiceRequest(BaseModel):
     self_achieved: bool = Field(..., description="自己是否达成目标")
     opponent_achieved: bool = Field(..., description="对方是否达成目标")
     
-    @validator('self_achieved')
+    @field_validator('self_achieved')
+    @classmethod
     def validate_self_achieved(cls, v):
         if not isinstance(v, bool):
             raise ValueError("self_achieved 必须是布尔值")
         return v
     
-    @validator('opponent_achieved')
+    @field_validator('opponent_achieved')
+    @classmethod
     def validate_opponent_achieved(cls, v):
         if not isinstance(v, bool):
             raise ValueError("opponent_achieved 必须是布尔值")
@@ -43,8 +45,7 @@ class SettlementChoiceResponse(BaseModel):
     round: int
     created_at: datetime
     
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class SettlementSelectionStatus(BaseModel):

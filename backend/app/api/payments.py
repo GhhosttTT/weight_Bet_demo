@@ -53,7 +53,7 @@ def get_balance(
         )
     
     balance = PaymentService.get_balance(db, user_id)
-    return BalanceResponse.from_orm(balance)
+    return BalanceResponse.model_validate(balance)
 
 
 @router.get("/users/{user_id}/transactions", response_model=List[TransactionResponse])
@@ -79,7 +79,7 @@ def get_transaction_history(
         )
     
     transactions = PaymentService.get_transaction_history(db, user_id, limit, offset)
-    return [TransactionResponse.from_orm(t) for t in transactions]
+    return [TransactionResponse.model_validate(t) for t in transactions]
 
 
 @router.post("/charge")

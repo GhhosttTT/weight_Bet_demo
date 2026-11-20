@@ -143,7 +143,7 @@ class SettlementChoiceService:
                 user_id, plan_id, current_round, request.self_achieved, request.opponent_achieved
             )
             
-            return SettlementChoiceResponse.from_orm(choice)
+            return SettlementChoiceResponse.model_validate(choice)
             
         except Exception as e:
             db.rollback()
@@ -229,8 +229,8 @@ class SettlementChoiceService:
             creator_submitted=creator_choice is not None,
             participant_submitted=participant_choice is not None,
             current_user_submitted=current_user_choice is not None,
-            creator_choice=SettlementChoiceResponse.from_orm(creator_choice) if creator_choice else None,
-            participant_choice=SettlementChoiceResponse.from_orm(participant_choice) if participant_choice else None,
+            creator_choice=SettlementChoiceResponse.model_validate(creator_choice) if creator_choice else None,
+            participant_choice=SettlementChoiceResponse.model_validate(participant_choice) if participant_choice else None,
             matched=False,  # 将在比对接口中设置
             settlement_completed=settlement is not None,
             in_arbitration=bool(settlement and settlement.in_arbitration)

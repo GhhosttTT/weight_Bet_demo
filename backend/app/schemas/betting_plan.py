@@ -56,7 +56,7 @@ class CreatePlanRequest(BaseModel):
         if 'start_date' in info.data:
             if v <= info.data['start_date']:
                 raise ValueError('end_date must be after start_date')
-            duration = (v - values['start_date']).days
+            duration = (v - info.data['start_date']).days
             if duration > 365:
                 raise ValueError('plan duration cannot exceed 365 days')
         return v

@@ -222,6 +222,15 @@ def test_admin_page_csp_allows_its_same_origin_inline_assets(admin_context):
     assert "style-src 'self' 'unsafe-inline'" in csp
     assert "sessionStorage" in response.text
     assert "localStorage.setItem('wb_admin_token'" not in response.text
+
+
+def test_admin_page_persists_refresh_token_and_revokes_it_on_logout(admin_context):
+    response = admin_context["client"].get("/admin/")
+
+    assert response.status_code == 200
+    assert "wb_admin_refresh_token" in response.text
+    assert "fetch('/api/auth/logout'" in response.text
+    assert "refresh_token:refreshToken" in response.text
     assert "/payouts/" in response.text
     assert "reconcilePayout" in response.text
     assert "/reconcile" in response.text

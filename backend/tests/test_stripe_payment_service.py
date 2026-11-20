@@ -16,6 +16,7 @@ from app.models.user import Gender, User
 from app.services.stripe_payment_service import StripePaymentService
 from app.api.payments import withdraw, charge
 from app.schemas.payment import ChargeRequest, WithdrawRequest
+from app.schemas.payment import ChargeIntentRequest
 
 
 @pytest.fixture()
@@ -46,6 +47,11 @@ def test_create_intent_requires_stripe_mode(db_session, monkeypatch):
     assert error.value.status_code == 503
 
 
+def test_charge_intent_requires_client_idempotency_key():
+    with pytest.raises(ValueError):
+        ChargeIntentRequest(amount=10)
+
+
 def test_create_intent_creates_pending_transaction(db_session, monkeypatch):
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
     monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test_realistic")
@@ -54,7 +60,7 @@ def test_create_intent_creates_pending_transaction(db_session, monkeypatch):
     })()
     with patch("app.services.stripe_payment_service.stripe.PaymentIntent.create", return_value=fake_intent) as create:
         result = StripePaymentService.create_charge_intent(
-            db_session, "stripe-user-001", 10.005
+            db_session, "stripe-user-001", 10.005, idempotency_key="request-key-100005"
         )
     assert result["status"] == "requires_action"
     transaction = db_session.query(Transaction).one()

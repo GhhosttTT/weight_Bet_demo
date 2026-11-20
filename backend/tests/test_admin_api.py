@@ -16,6 +16,7 @@ from app.models import (
     Transaction, TransactionType, TransactionStatus,
 )
 from app.utils.security import create_access_token, create_refresh_token, hash_password
+from app.services.notification_service import NotificationService
 
 
 engine = create_engine(
@@ -109,6 +110,27 @@ def test_manual_notification_send_requires_admin_role(admin_context):
         },
     )
     assert response.status_code == 403
+
+
+def test_admin_can_send_manual_notification(admin_context, monkeypatch):
+    def fake_send_notification(db, request):
+        assert request.user_id == "member-user"
+        assert request.title == "测试通知"
+        return {"success": True, "message": "通知已发送", "failed_tokens": []}
+
+    monkeypatch.setattr(NotificationService, "send_notification", fake_send_notification)
+    response = admin_context["client"].post(
+        "/api/notifications/send",
+        headers=admin_context["admin"],
+        json={
+            "user_id": "member-user",
+            "notification_type": "dispute_submitted",
+            "title": "测试通知",
+            "body": "请查看处理结果",
+        },
+    )
+    assert response.status_code == 200
+    assert response.json()["success"] is True
 
 
 def test_admin_rejects_refresh_and_invalid_tokens(admin_context):

@@ -98,6 +98,37 @@ def test_all_admin_reads_require_admin_role(admin_context):
         assert response.status_code == 403, path
 
 
+def test_admin_user_queue_returns_second_page(admin_context):
+    client = admin_context["client"]
+    headers = admin_context["admin"]
+    db = Session()
+    for index in range(51):
+        db.add(User(
+            id=f"page-user-{index:03d}",
+            email=f"page-{index:03d}@example.com",
+            password_hash="hash",
+            nickname=f"分页用户 {index}",
+            gender=Gender.OTHER,
+            age=30,
+            height=170,
+            current_weight=70,
+            role="user",
+        ))
+    db.commit()
+    db.close()
+
+    first_page = client.get("/api/admin/users?limit=50&offset=0", headers=headers)
+    second_page = client.get("/api/admin/users?limit=50&offset=50", headers=headers)
+
+    assert first_page.status_code == 200
+    assert second_page.status_code == 200
+    first_ids = {item["id"] for item in first_page.json()}
+    second_ids = {item["id"] for item in second_page.json()}
+    assert len(first_ids) == 50
+    assert len(second_ids) == 3
+    assert first_ids.isdisjoint(second_ids)
+
+
 def test_manual_notification_send_requires_admin_role(admin_context):
     response = admin_context["client"].post(
         "/api/notifications/send",

@@ -42,6 +42,8 @@ IOS_PAYMENT_API = ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift"
 IOS_PAYMENT_REPOSITORY = ROOT / "ios/WeightLossBetting/Data/Repository/PaymentRepository.swift"
 IOS_MODELS = ROOT / "ios/WeightLossBetting/Data/Model/Models.swift"
 IOS_BALANCE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/BalanceViewController.swift"
+IOS_PAYMENT_METHOD_VC = ROOT / "ios/WeightLossBetting/UI/Profile/PaymentMethodViewController.swift"
+IOS_PAYMENT_METHOD_VM = ROOT / "ios/WeightLossBetting/UI/Profile/PaymentMethodViewModel.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -254,3 +256,14 @@ def test_ios_transaction_model_can_decode_backend_charge_records():
     assert "case charge" in ios_models
     assert "case .charge:" in ios_balance
     assert "transaction.type == .charge" in ios_balance
+
+
+def test_payment_method_page_uses_matching_chinese_copy_on_both_platforms():
+    android = (ROOT / "android/app/src/main/res/layout/activity_payment_method.xml").read_text(encoding="utf-8")
+    ios = IOS_PAYMENT_METHOD_VC.read_text(encoding="utf-8")
+    ios_vm = IOS_PAYMENT_METHOD_VM.read_text(encoding="utf-8")
+    for text in ("绑定支付方式", "银行卡号", "有效期 MM/YY", "安全码", "持卡人姓名", "保存支付方式"):
+        assert text in android
+        assert text in ios
+    for text in ("请输入有效的银行卡号", "有效期格式应为 MM/YY", "请输入 3-4 位安全码", "请输入持卡人姓名"):
+        assert text in ios_vm

@@ -64,13 +64,13 @@ enum PaymentError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .invalidCardNumber:
-            return "Invalid card number"
+            return "请输入有效的银行卡号"
         case .invalidExpiry:
-            return "Invalid expiry date (use MM/YY format)"
+            return "有效期格式应为 MM/YY"
         case .invalidCVV:
-            return "Invalid CVV (3 or 4 digits)"
+            return "请输入 3-4 位安全码"
         case .invalidCardHolder:
-            return "Invalid cardholder name"
+            return "请输入持卡人姓名"
         }
     }
 }

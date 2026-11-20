@@ -6,7 +6,7 @@ class PaymentMethodViewController: UIViewController {
     
     private let titleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Add Payment Method"
+        label.text = "绑定支付方式"
         label.font = .systemFont(ofSize: 24, weight: .bold)
         label.textAlignment = .center
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -15,7 +15,7 @@ class PaymentMethodViewController: UIViewController {
     
     private let descriptionLabel: UILabel = {
         let label = UILabel()
-        label.text = "Link your payment method to participate in betting plans"
+        label.text = "生产环境使用 Stripe 安全组件处理卡信息；演示环境只保存脱敏标识。"
         label.font = .systemFont(ofSize: 14)
         label.textColor = AppTheme.Colors.secondaryLabel
         label.textAlignment = .center
@@ -26,7 +26,7 @@ class PaymentMethodViewController: UIViewController {
     
     private let cardNumberTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Card Number"
+        textField.placeholder = "银行卡号"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .numberPad
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -35,7 +35,7 @@ class PaymentMethodViewController: UIViewController {
     
     private let expiryTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "MM/YY"
+        textField.placeholder = "有效期 MM/YY"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .numberPad
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -44,7 +44,7 @@ class PaymentMethodViewController: UIViewController {
     
     private let cvvTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "CVV"
+        textField.placeholder = "安全码"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .numberPad
         textField.isSecureTextEntry = true
@@ -54,7 +54,7 @@ class PaymentMethodViewController: UIViewController {
     
     private let cardHolderTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Cardholder Name"
+        textField.placeholder = "持卡人姓名"
         textField.borderStyle = .roundedRect
         textField.autocapitalizationType = .words
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -63,7 +63,7 @@ class PaymentMethodViewController: UIViewController {
     
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Save Payment Method", for: .normal)
+        button.setTitle("保存支付方式", for: .normal)
         button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
@@ -105,7 +105,7 @@ class PaymentMethodViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        title = "Payment Method"
+        title = "绑定支付方式"
         view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(titleLabel)

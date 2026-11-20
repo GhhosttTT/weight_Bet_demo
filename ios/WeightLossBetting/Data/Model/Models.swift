@@ -379,6 +379,18 @@ struct ChargeIntentResult: Codable {
     }
 }
 
+struct SetupIntentResult: Codable {
+    let setupIntentId: String
+    let clientSecret: String?
+    let status: String
+
+    enum CodingKeys: String, CodingKey {
+        case setupIntentId = "setup_intent_id"
+        case clientSecret = "client_secret"
+        case status
+    }
+}
+
 struct WithdrawResult: Codable {
     let transactionId: String
     let amount: Double

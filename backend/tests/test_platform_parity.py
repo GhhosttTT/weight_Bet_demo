@@ -24,6 +24,7 @@ ANDROID_PROFILE_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui
 IOS_API = ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift"
 IOS_PROFILE_VM = ROOT / "ios/WeightLossBetting/UI/Profile/ProfileViewModel.swift"
 ANDROID_MAIN = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/MainActivity.kt"
+ANDROID_NOTIFICATION_HELPER = ROOT / "android/app/src/main/java/com/weightloss/betting/util/NotificationPermissionHelper.kt"
 IOS_PENDING_ACTIONS = ROOT / "ios/WeightLossBetting/Data/Service/PendingActionsService.swift"
 
 
@@ -134,3 +135,15 @@ def test_pending_actions_refresh_when_both_platforms_return_to_foreground():
     assert "checkPendingActions()" in android
     assert "func checkAndHandlePendingActions()" in ios
     assert "waitForModalDismiss" in ios
+
+
+def test_notification_permission_is_requested_once_on_android_like_ios_login_flow():
+    android = ANDROID_MAIN.read_text(encoding="utf-8")
+    helper = ANDROID_NOTIFICATION_HELPER.read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")
+
+    assert "requestNotificationPermissionIfNeeded()" in android
+    assert "PREF_NOTIFICATION_PERMISSION_REQUESTED" in android
+    assert "hasNotificationPermission" in android
+    assert "requestNotificationPermission" in helper
+    assert "requestNotificationPermissionsIfNeeded" in ios

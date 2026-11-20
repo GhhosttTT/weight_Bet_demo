@@ -28,6 +28,7 @@ import com.weightloss.betting.ui.profile.ProfileActivity
 import com.weightloss.betting.ui.profile.ProfileFragment
 import com.weightloss.betting.ui.settlement.SettlementActivity
 import com.weightloss.betting.util.EdgeSwipeBackHelper
+import com.weightloss.betting.util.NotificationPermissionHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -39,6 +40,10 @@ import javax.inject.Inject
  */
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        private const val PREF_NOTIFICATION_PERMISSION_REQUESTED = "notification_permission_requested"
+    }
     
     @Inject
     lateinit var authRepository: AuthRepository
@@ -62,6 +67,7 @@ class MainActivity : AppCompatActivity() {
         
         // 初始化 SharedPreferences（用于记录已显示的弹窗）
         prefs = getSharedPreferences("main_activity_prefs", MODE_PRIVATE)
+        requestNotificationPermissionIfNeeded()
         
         setupBottomNavigation()
         registerCurrentPushToken()
@@ -76,6 +82,14 @@ class MainActivity : AppCompatActivity() {
         
         // 启用边缘滑动返回
         EdgeSwipeBackHelper.enableForFragmentActivity(this)
+    }
+
+    private fun requestNotificationPermissionIfNeeded() {
+        if (prefs.getBoolean(PREF_NOTIFICATION_PERMISSION_REQUESTED, false)) return
+        prefs.edit().putBoolean(PREF_NOTIFICATION_PERMISSION_REQUESTED, true).apply()
+        if (!NotificationPermissionHelper.hasNotificationPermission(this)) {
+            NotificationPermissionHelper.requestNotificationPermission(this)
+        }
     }
 
     override fun onResume() {

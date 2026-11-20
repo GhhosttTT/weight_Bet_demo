@@ -189,7 +189,7 @@ extension BalanceViewController: UITableViewDelegate, UITableViewDataSource {
         switch viewModel.transactionsState {
         case .success(let transactions):
             if transactions.count > 0 {
-                return "Transaction History"
+                return "交易历史"
             }
         default:
             break
@@ -209,17 +209,17 @@ class TransactionTableViewCell: UITableViewCell {
         // 处理 TransactionType
         switch transaction.type {
         case .charge:
-            transactionTypeLabel.text = "Charge"
+            transactionTypeLabel.text = "充值"
         case .freeze:
-            transactionTypeLabel.text = "Freeze"
+            transactionTypeLabel.text = "冻结"
         case .unfreeze:
-            transactionTypeLabel.text = "Unfreeze"
+            transactionTypeLabel.text = "解冻"
         case .transfer:
-            transactionTypeLabel.text = "Transfer"
+            transactionTypeLabel.text = "转账"
         case .withdraw:
-            transactionTypeLabel.text = "Withdraw"
+            transactionTypeLabel.text = "提现"
         case .refund:
-            transactionTypeLabel.text = "Refund"
+            transactionTypeLabel.text = "退款"
         }
         
         // 处理金额显示
@@ -233,13 +233,13 @@ class TransactionTableViewCell: UITableViewCell {
         // 处理 TransactionStatus
         switch transaction.status {
         case .pending:
-            transactionStatusLabel.text = "Processing"
+            transactionStatusLabel.text = "处理中"
             transactionStatusLabel.textColor = AppTheme.Colors.accent
         case .completed:
-            transactionStatusLabel.text = "Completed"
+            transactionStatusLabel.text = "已完成"
             transactionStatusLabel.textColor = AppTheme.Colors.success
         case .failed:
-            transactionStatusLabel.text = "Failed"
+            transactionStatusLabel.text = "失败"
             transactionStatusLabel.textColor = AppTheme.Colors.error
         }
     }

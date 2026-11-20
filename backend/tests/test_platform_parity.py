@@ -50,6 +50,8 @@ IOS_REGISTER = ROOT / "ios/WeightLossBetting/UI/Auth/RegisterViewController.swif
 IOS_EDIT_PROFILE = ROOT / "ios/WeightLossBetting/UI/Profile/EditProfileViewController.swift"
 ANDROID_PLAN_ADAPTER = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/PlanAdapter.kt"
 IOS_PLANS = ROOT / "ios/WeightLossBetting/UI/Plans/PlansViewController.swift"
+ANDROID_TRANSACTION_ADAPTER = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/TransactionAdapter.kt"
+IOS_BALANCE = ROOT / "ios/WeightLossBetting/UI/Payment/BalanceViewController.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -312,3 +314,15 @@ def test_plan_list_renders_expired_state_and_two_decimal_amount_on_both_platform
     assert 'String.format(Locale.getDefault(), "%.2f", plan.betAmount)' in android
     assert 'case .expired:' in ios
     assert 'String(format: "%.2f", plan.betAmount)' in ios
+
+
+def test_transaction_history_uses_matching_chinese_labels_and_safe_amount_format():
+    android = ANDROID_TRANSACTION_ADAPTER.read_text(encoding="utf-8")
+    ios = IOS_BALANCE.read_text(encoding="utf-8")
+    for text in ("充值", "冻结", "解冻", "转账", "提现", "退款", "处理中", "已完成", "失败"):
+        assert text in android
+        assert text in ios
+    assert 'abs(transaction.amount)' in android
+    assert 'String(format: "%.2f", abs(transaction.amount))' in ios
+    assert 'SimpleDateFormat("MM-dd HH:mm"' in android
+    assert 'formatter.dateFormat = "MM-dd HH:mm"' in ios

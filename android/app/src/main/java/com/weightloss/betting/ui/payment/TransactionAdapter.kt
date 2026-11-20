@@ -9,6 +9,7 @@ import com.weightloss.betting.data.model.Transaction
 import com.weightloss.betting.databinding.ItemTransactionBinding
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.abs
 
 class TransactionAdapter : ListAdapter<Transaction, TransactionAdapter.TransactionViewHolder>(TransactionDiffCallback()) {
     
@@ -29,7 +30,7 @@ class TransactionAdapter : ListAdapter<Transaction, TransactionAdapter.Transacti
         private val binding: ItemTransactionBinding
     ) : RecyclerView.ViewHolder(binding.root) {
         
-        private val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault())
+        private val dateFormat = SimpleDateFormat("MM-dd HH:mm", Locale.getDefault())
         
         fun bind(transaction: Transaction) {
             binding.tvType.text = when (transaction.type) {
@@ -52,9 +53,9 @@ class TransactionAdapter : ListAdapter<Transaction, TransactionAdapter.Transacti
             }
             
             val amountText = if (transaction.type in listOf("charge", "unfreeze", "refund")) {
-                "+¥${transaction.amount}"
+                "+¥${String.format(Locale.getDefault(), "%.2f", abs(transaction.amount))}"
             } else {
-                "-¥${transaction.amount}"
+                "-¥${String.format(Locale.getDefault(), "%.2f", abs(transaction.amount))}"
             }
             binding.tvAmount.text = amountText
         }

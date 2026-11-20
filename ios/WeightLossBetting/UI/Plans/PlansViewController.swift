@@ -337,11 +337,6 @@ class PlanCell: UITableViewCell {
         dateRangeLabel.text = "\(startDateStr) 至 \(endDateStr)"
         
         // Goal
-        if let initialWeight = plan.creatorInitialWeight,
-           let targetWeight = plan.creatorTargetWeight {
-            goalLabel.text = "目标: \(String(format: "%.1f", initialWeight))kg → \(String(format: "%.1f", targetWeight))kg"
-        } else {
-            goalLabel.text = "目标: 待设置"
-        }
+        goalLabel.text = "目标: \(String(format: "%.1f", plan.creatorInitialWeight))kg → \(String(format: "%.1f", plan.creatorTargetWeight))kg"
     }
 }

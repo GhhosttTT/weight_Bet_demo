@@ -323,7 +323,7 @@ def test_plan_list_renders_expired_state_and_two_decimal_amount_on_both_platform
     assert '赌金: ¥${String.format(Locale.getDefault(), "%.2f", plan.betAmount)}' in android
     assert 'betAmountLabel.text = "赌金: ¥\\(String(format: "%.2f", plan.betAmount))"' in ios
     assert 'goalText = if (plan.creatorInitialWeight != null && plan.creatorTargetWeight != null)' in android
-    assert 'goalLabel.text = "目标: \\(String(format: "%.1f", initialWeight))kg → \\(String(format: "%.1f", targetWeight))kg"' in ios
+    assert 'goalLabel.text = "目标: \\(String(format: "%.1f", plan.creatorInitialWeight))kg → \\(String(format: "%.1f", plan.creatorTargetWeight))kg"' in ios
     assert 'emptyStateLabel.text = "暂无计划"' in ios
 
 

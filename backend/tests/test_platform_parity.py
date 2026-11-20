@@ -56,6 +56,8 @@ ANDROID_LOGIN_LAYOUT = ROOT / "android/app/src/main/res/layout/activity_login.xm
 ANDROID_PROFILE_LAYOUT = ROOT / "android/app/src/main/res/layout/fragment_profile.xml"
 ANDROID_PROFILE_FRAGMENT = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/profile/ProfileFragment.kt"
 IOS_PROFILE = ROOT / "ios/WeightLossBetting/UI/Profile/ProfileViewController.swift"
+ANDROID_PLAN_DETAIL = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/PlanDetailActivity.kt"
+IOS_PLAN_DETAIL = ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewController.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -363,3 +365,18 @@ def test_profile_exposes_the_same_settings_entry_and_hides_legacy_payment_entry(
     # 绑定银行卡只保留在独立的 Stripe SetupIntent 页面，个人页不能再暴露旧入口。
     assert 'android:id="@+id/btnPaymentMethod"' not in android_layout
     assert "button.isHidden = true" in ios
+
+
+def test_active_plan_detail_exposes_matching_progress_history_and_comments_actions():
+    android = ANDROID_PLAN_DETAIL.read_text(encoding="utf-8")
+    ios = IOS_PLAN_DETAIL.read_text(encoding="utf-8")
+
+    for text in ("btnCheckIn", "btnProgress", "btnCheckInHistory", "btnComments", 'plan.status == "active"'):
+        assert text in android
+    for text in ("progressButton", "checkInHistoryButton", "commentsButton", "ProgressViewController", "CheckInHistoryViewController", "CommentsViewController"):
+        assert text in ios
+    for text in ("查看进度", "查看打卡历史", "查看评论"):
+        assert text in ios
+    assert "progressButton.isHidden = false" in ios
+    assert "checkInHistoryButton.isHidden = false" in ios
+    assert "commentsButton.isHidden = false" in ios

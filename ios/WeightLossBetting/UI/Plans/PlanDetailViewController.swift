@@ -34,6 +34,9 @@ class PlanDetailViewController: UIViewController {
     private var rejectButton: UIButton!      // 拒绝计划（待接受阶段）
     private var confirmButton: UIButton!     // 二次确认接受（待二次确认阶段）
     private var checkInButton: UIButton!     // 打卡（进行中阶段）
+    private var progressButton: UIButton!    // 查看进度（进行中阶段）
+    private var checkInHistoryButton: UIButton! // 查看打卡历史（进行中阶段）
+    private var commentsButton: UIButton!   // 查看评论（进行中阶段）
     private var giveUpButton: UIButton!      // 放弃计划（进行中阶段）
     private var usesRevokeAction = false
     
@@ -170,7 +173,7 @@ class PlanDetailViewController: UIViewController {
         
         // Check-in button (for active)
         checkInButton = UIButton(type: .system)
-        checkInButton.setTitle("打卡", for: .normal)
+        checkInButton.setTitle("打卡签到", for: .normal)
         checkInButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
         checkInButton.backgroundColor = AppTheme.Colors.primary
         checkInButton.setTitleColor(.white, for: .normal)
@@ -178,10 +181,19 @@ class PlanDetailViewController: UIViewController {
         checkInButton.addTarget(self, action: #selector(checkInTapped), for: .touchUpInside)
         checkInButton.translatesAutoresizingMaskIntoConstraints = false
         actionButtonsView.addSubview(checkInButton)
+
+        progressButton = makeSecondaryActionButton(title: "查看进度", action: #selector(progressTapped))
+        actionButtonsView.addSubview(progressButton)
+
+        checkInHistoryButton = makeSecondaryActionButton(title: "查看打卡历史", action: #selector(checkInHistoryTapped))
+        actionButtonsView.addSubview(checkInHistoryButton)
+
+        commentsButton = makeSecondaryActionButton(title: "查看评论", action: #selector(commentsTapped))
+        actionButtonsView.addSubview(commentsButton)
         
         // Give-up button (for active)
         giveUpButton = UIButton(type: .system)
-        giveUpButton.setTitle("放弃计划", for: .normal)
+        giveUpButton.setTitle("放弃计划 (失去赌金)", for: .normal)
         giveUpButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
         giveUpButton.backgroundColor = AppTheme.Colors.accent
         giveUpButton.setTitleColor(.white, for: .normal)
@@ -363,8 +375,23 @@ class PlanDetailViewController: UIViewController {
             checkInButton.leadingAnchor.constraint(equalTo: actionButtonsView.leadingAnchor, constant: 16),
             checkInButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
             checkInButton.heightAnchor.constraint(equalToConstant: 50),
+
+            progressButton.topAnchor.constraint(equalTo: checkInButton.bottomAnchor, constant: 10),
+            progressButton.leadingAnchor.constraint(equalTo: actionButtonsView.leadingAnchor, constant: 16),
+            progressButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
+            progressButton.heightAnchor.constraint(equalToConstant: 44),
+
+            checkInHistoryButton.topAnchor.constraint(equalTo: progressButton.bottomAnchor, constant: 10),
+            checkInHistoryButton.leadingAnchor.constraint(equalTo: actionButtonsView.leadingAnchor, constant: 16),
+            checkInHistoryButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
+            checkInHistoryButton.heightAnchor.constraint(equalToConstant: 44),
+
+            commentsButton.topAnchor.constraint(equalTo: checkInHistoryButton.bottomAnchor, constant: 10),
+            commentsButton.leadingAnchor.constraint(equalTo: actionButtonsView.leadingAnchor, constant: 16),
+            commentsButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
+            commentsButton.heightAnchor.constraint(equalToConstant: 44),
             
-            giveUpButton.topAnchor.constraint(equalTo: checkInButton.bottomAnchor, constant: 10),  // 打卡按钮下方 10px 间距
+            giveUpButton.topAnchor.constraint(equalTo: commentsButton.bottomAnchor, constant: 10),
             giveUpButton.leadingAnchor.constraint(equalTo: actionButtonsView.leadingAnchor, constant: 16),
             giveUpButton.trailingAnchor.constraint(equalTo: actionButtonsView.trailingAnchor, constant: -16),
             giveUpButton.heightAnchor.constraint(equalToConstant: 50),
@@ -407,6 +434,9 @@ class PlanDetailViewController: UIViewController {
                 self?.confirmButton.isEnabled = !isLoading
                 self?.cancelButton.isEnabled = !isLoading
                 self?.checkInButton.isEnabled = !isLoading
+                self?.progressButton.isEnabled = !isLoading
+                self?.checkInHistoryButton.isEnabled = !isLoading
+                self?.commentsButton.isEnabled = !isLoading
                 self?.giveUpButton.isEnabled = !isLoading
             }
         }
@@ -489,6 +519,20 @@ class PlanDetailViewController: UIViewController {
         textField.keyboardType = keyboardType
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
+    }
+
+    private func makeSecondaryActionButton(title: String, action: Selector) -> UIButton {
+        let button = UIButton(type: .system)
+        button.setTitle(title, for: .normal)
+        button.titleLabel?.font = .boldSystemFont(ofSize: 16)
+        button.backgroundColor = AppTheme.Colors.secondaryBackground
+        button.setTitleColor(AppTheme.Colors.primary, for: .normal)
+        button.layer.cornerRadius = 10
+        button.layer.borderWidth = 1
+        button.layer.borderColor = AppTheme.Colors.primary.cgColor
+        button.addTarget(self, action: action, for: .touchUpInside)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
     }
     
     private func displayPlanDetail(_ plan: BettingPlan) {
@@ -634,6 +678,9 @@ class PlanDetailViewController: UIViewController {
         acceptButton.isHidden = true
         confirmButton.isHidden = true
         checkInButton.isHidden = true
+        progressButton.isHidden = true
+        checkInHistoryButton.isHidden = true
+        commentsButton.isHidden = true
         giveUpButton.isHidden = true
     }
     
@@ -646,6 +693,9 @@ class PlanDetailViewController: UIViewController {
         acceptButton.isHidden = false
         confirmButton.isHidden = true
         checkInButton.isHidden = true
+        progressButton.isHidden = true
+        checkInHistoryButton.isHidden = true
+        commentsButton.isHidden = true
         giveUpButton.isHidden = true  // 待接受状态不显示放弃按钮
     }
     
@@ -659,6 +709,9 @@ class PlanDetailViewController: UIViewController {
         acceptButton.isHidden = true
         confirmButton.isHidden = false
         checkInButton.isHidden = true
+        progressButton.isHidden = true
+        checkInHistoryButton.isHidden = true
+        commentsButton.isHidden = true
         giveUpButton.isHidden = true
     }
     
@@ -676,6 +729,9 @@ class PlanDetailViewController: UIViewController {
         acceptButton.isHidden = true
         confirmButton.isHidden = true
         checkInButton.isHidden = false
+        progressButton.isHidden = false
+        checkInHistoryButton.isHidden = false
+        commentsButton.isHidden = false
         giveUpButton.isHidden = false
     }
     
@@ -797,6 +853,31 @@ class PlanDetailViewController: UIViewController {
         guard let planId = viewModel.plan?.id else { return }
         let checkInVC = CheckInViewController(planId: planId)
         navigationController?.pushViewController(checkInVC, animated: true)
+    }
+
+    @objc private func progressTapped() {
+        guard let planId = viewModel.plan?.id,
+              let userId = AuthRepository.shared.getCurrentUserId() else { return }
+        navigationController?.pushViewController(
+            ProgressViewController(planId: planId, userId: userId),
+            animated: true
+        )
+    }
+
+    @objc private func checkInHistoryTapped() {
+        guard let planId = viewModel.plan?.id else { return }
+        navigationController?.pushViewController(
+            CheckInHistoryViewController(planId: planId),
+            animated: true
+        )
+    }
+
+    @objc private func commentsTapped() {
+        guard let planId = viewModel.plan?.id else { return }
+        navigationController?.pushViewController(
+            CommentsViewController(planId: planId),
+            animated: true
+        )
     }
     
     @objc private func giveUpTapped() {

@@ -231,6 +231,9 @@ def test_admin_page_persists_refresh_token_and_revokes_it_on_logout(admin_contex
     assert "wb_admin_refresh_token" in response.text
     assert "fetch('/api/auth/logout'" in response.text
     assert "refresh_token:refreshToken" in response.text
+    assert "const PAGE_SIZE=50" in response.text
+    assert "pageState.users" in response.text
+    assert "pageState.finance" in response.text
     assert "/payouts/" in response.text
     assert "reconcilePayout" in response.text
     assert "/reconcile" in response.text

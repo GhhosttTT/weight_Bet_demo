@@ -203,7 +203,7 @@ open WeightLossBetting.xcworkspace
 - `PUT /api/users/{userId}` - 更新用户信息
 - `GET /api/users/{userId}/balance` - 获取账户余额
 - `GET /api/users/{userId}/transactions` - 获取交易历史
-- `POST /api/users/{userId}/payment-methods` - 绑定支付方式
+- `POST /api/payments/setup-intent` - Stripe 模式绑定支付方式；旧 `/api/users/{userId}/payment-methods` 仅保留 Demo 兼容用途
 
 ### 对赌计划
 - `POST /api/betting-plans` - 创建对赌计划（自动冻结资金）

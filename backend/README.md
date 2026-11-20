@@ -124,7 +124,7 @@ Stripe 模式下提现会先预留余额，再创建 Connect Transfer/Payout；�
 ### 用户
 - `GET /api/users/{userId}` - 获取用户信息
 - `PUT /api/users/{userId}` - 更新用户信息
-- `POST /api/users/{userId}/payment-methods` - 绑定支付方式
+- `POST /api/payments/setup-intent` - Stripe 模式绑定支付方式；旧 `/api/users/{userId}/payment-methods` 仅保留 Demo 兼容用途
 
 ### 对赌计划
 - `POST /api/betting-plans` - 创建对赌计划

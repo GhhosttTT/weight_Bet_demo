@@ -12,6 +12,7 @@ from app.services.user_service import UserService
 from app.services.friend_search_service import FriendSearchService
 from app.services.audit_service import AuditService
 from app.middleware.auth import get_current_user_id
+from app.config import settings
 from pydantic import BaseModel, Field
 
 router = APIRouter()
@@ -101,7 +102,15 @@ def bind_payment_method(
     
     - **user_id**: 用户 ID
     - **payment_method_id**: 支付方式 ID
+
+    该接口只保留给本地 Demo 兼容场景。Stripe 模式必须使用
+    `/api/payments/setup-intent`，由 Stripe PaymentSheet 完成支付方式确认。
     """
+    if settings.PAYMENT_PROVIDER.lower() == "stripe":
+        raise HTTPException(
+            status_code=status.HTTP_410_GONE,
+            detail="Stripe 模式请使用 /api/payments/setup-intent",
+        )
     return UserService.bind_payment_method(
         db, 
         user_id, 

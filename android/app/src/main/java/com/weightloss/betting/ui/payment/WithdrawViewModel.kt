@@ -29,6 +29,26 @@ class WithdrawViewModel @Inject constructor(
     private val _withdrawState = MutableLiveData<WithdrawState>(WithdrawState.Idle)
     val withdrawState: LiveData<WithdrawState> = _withdrawState
 
+    private val _availableBalance = MutableLiveData(0.0)
+    val availableBalance: LiveData<Double> = _availableBalance
+
+    fun loadAvailableBalance() {
+        viewModelScope.launch {
+            val userId = tokenManager.getUserId()
+            if (userId.isNullOrBlank()) {
+                _withdrawState.value = WithdrawState.Error("登录状态已失效，请重新登录")
+                return@launch
+            }
+            when (val result = paymentRepository.getBalance(userId)) {
+                is NetworkResult.Success -> _availableBalance.value = result.data.availableBalance
+                is NetworkResult.Error -> _withdrawState.value = WithdrawState.Error(
+                    result.exception.message ?: "无法加载可用余额"
+                )
+                is NetworkResult.Loading -> Unit
+            }
+        }
+    }
+
     fun startConnectOnboarding() {
         viewModelScope.launch {
             _withdrawState.value = WithdrawState.Loading
@@ -73,6 +93,7 @@ class WithdrawViewModel @Inject constructor(
             val request = WithdrawRequest(amount = amountDouble, paymentMethodId = "")
             when (val result = paymentRepository.withdraw(request)) {
                 is NetworkResult.Success -> {
+                    _availableBalance.value = (_availableBalance.value ?: 0.0) - amountDouble
                     _withdrawState.value = WithdrawState.Success
                 }
                 is NetworkResult.Error -> {

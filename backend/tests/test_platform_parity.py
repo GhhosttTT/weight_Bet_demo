@@ -57,6 +57,13 @@ def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
         assert text in android
         assert text in ios
 
+    # 两端提现页都要展示可用余额，并提供同一组快捷金额。
+    assert 'tvAvailableBalance' in android
+    assert 'availableBalanceLabel' in ios
+    for amount in ("50", "100", "200", "500"):
+        assert f'¥{amount}' in android
+        assert f'{amount}.0' in ios
+
     assert "请输入提现金额（元）" in ios
     assert "可用余额：¥" in ios
     assert 'amount <= 50000' in ios

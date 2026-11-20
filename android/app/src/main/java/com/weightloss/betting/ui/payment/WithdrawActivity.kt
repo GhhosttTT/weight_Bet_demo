@@ -24,6 +24,7 @@ class WithdrawActivity : BaseActivity() {
         setupToolbar()
         setupObservers()
         setupListeners()
+        viewModel.loadAvailableBalance()
     }
     
     private fun setupToolbar() {
@@ -59,12 +60,19 @@ class WithdrawActivity : BaseActivity() {
                 }
             }
         }
+        viewModel.availableBalance.observe(this) { balance ->
+            binding.tvAvailableBalance.text = "可用余额：¥${String.format(java.util.Locale.CHINA, "%.2f", balance)}"
+        }
     }
     
     private fun setupListeners() {
         binding.btnConnectOnboarding.setOnClickListener {
             viewModel.startConnectOnboarding()
         }
+        binding.btnQuick50.setOnClickListener { binding.etAmount.setText("50") }
+        binding.btnQuick100.setOnClickListener { binding.etAmount.setText("100") }
+        binding.btnQuick200.setOnClickListener { binding.etAmount.setText("200") }
+        binding.btnQuick500.setOnClickListener { binding.etAmount.setText("500") }
         binding.btnWithdraw.setOnClickListener {
             val amount = binding.etAmount.text.toString()
             

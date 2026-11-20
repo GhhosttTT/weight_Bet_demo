@@ -26,7 +26,7 @@ AppDelegate 会用它初始化 Stripe SDK。真实环境同时配置后端 `PAYM
 ios/
 ├── Podfile                          # CocoaPods 依赖配置
 ├── WeightLossBetting/
-│   ├── AppDelegate.swift            # 应用入口,配置 Firebase
+│   ├── AppDelegate.swift            # 应用入口,配置 Google Sign-In、Stripe 和 APNs
 │   ├── SceneDelegate.swift          # 场景管理,处理登录状态
 │   ├── Info.plist                   # 应用配置文件
 │   │
@@ -88,7 +88,7 @@ ios/
 - **KeychainAccess**: 安全存储 Token
 
 ### 第三方服务
-- **Firebase Cloud Messaging**: 推送通知
+- **Apple Push Notification service**: 推送通知
 - **Stripe SDK**: 支付集成
 - **Kingfisher**: 图片加载和缓存
 - **Charts**: 进度图表展示
@@ -157,8 +157,8 @@ View (ViewController) ←→ ViewModel ←→ Repository ←→ API/Database
 - ✅ Stripe Connect Express 提现（Webhook 更新状态）
 
 ### 5. 通知功能
-- ✅ Firebase Cloud Messaging 集成
-- ✅ 推送通知接收、点击跳转和服务端发送逻辑（需要配置 APNs/FCM 凭证）
+- ✅ APNs 注册、通知接收、点击跳转
+- ✅ 服务端 APNs Provider API 发送逻辑（需要配置 APNs 凭证）
 - ✅ 通知权限请求
 
 ## 安装和运行
@@ -333,7 +333,7 @@ private let baseURL = "https://your-api-domain.com/api"
 | 依赖注入 | Hilt | 手动注入 |
 | 图片加载 | Coil | Kingfisher |
 | 图表库 | MPAndroidChart | Charts |
-| 推送通知 | FCM | FCM + APNs |
+| 推送通知 | FCM | APNs |
 
 ## 常见问题
 
@@ -354,7 +354,7 @@ A: 离线时数据保存到 Core Data 的离线队列,网络恢复后自动调�
 - [Swift 官方文档](https://swift.org/documentation/)
 - [Alamofire 文档](https://github.com/Alamofire/Alamofire)
 - [Core Data 编程指南](https://developer.apple.com/documentation/coredata)
-- [Firebase iOS SDK](https://firebase.google.com/docs/ios/setup)
+- [Apple UserNotifications](https://developer.apple.com/documentation/usernotifications)
 - [Stripe iOS SDK](https://stripe.com/docs/mobile/ios)
 
 ## 联系方式

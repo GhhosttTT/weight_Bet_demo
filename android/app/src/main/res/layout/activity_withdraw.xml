@@ -43,6 +43,61 @@
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
 
+        <TextView
+            android:id="@+id/tvAvailableBalance"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="可用余额：¥0.00"
+            android:textSize="14sp"
+            android:textColor="@color/xui_config_color_text_content"
+            android:layout_marginBottom="20dp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="44dp"
+            android:orientation="horizontal"
+            android:weightSum="4"
+            android:layout_marginBottom="24dp">
+
+            <Button
+                android:id="@+id/btnQuick50"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="¥50"
+                android:minWidth="0dp"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btnQuick100"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="¥100"
+                android:minWidth="0dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btnQuick200"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="¥200"
+                android:minWidth="0dp"
+                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp" />
+
+            <Button
+                android:id="@+id/btnQuick500"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="¥500"
+                android:minWidth="0dp"
+                android:layout_marginStart="4dp" />
+        </LinearLayout>
+
         <!-- Info text -->
         <TextView
             android:layout_width="wrap_content"

@@ -20,7 +20,7 @@
 - **缓存**: Redis 7+
 - **支付**: Stripe SDK 7.7+
 - **认证**: JWT (python-jose) + bcrypt 哈希
-- **通知**: Firebase Cloud Messaging + APNs
+- **通知**: Android 使用 FCM HTTP v1，iOS 使用 APNs Provider API
 - **日志**: Loguru
 - **中间件**: 
   - 限流中间件（100 req/min）
@@ -35,7 +35,7 @@
 - **网络**: Retrofit + OkHttp
 - **本地存储**: Room Database
 - **依赖注入**: Hilt
-- **推送**: Firebase Cloud Messaging
+- **推送**: Firebase Cloud Messaging（由后端 FCM HTTP v1 发送）
 - **支付**: Stripe SDK
 
 ### iOS 客户端
@@ -70,10 +70,10 @@
 
 
 ### 4. 支付与资金管理
-- ✅ Stripe 支付集成
+- ✅ Stripe PaymentIntent 充值（客户端 PaymentSheet 确认，Webhook 入账）
 - ✅ 余额查询和交易历史
 - ✅ 资金冻结/解冻机制
-- ✅ 充值和提现功能
+- ✅ 充值和提现功能（Stripe Connect Express）
 - ✅ PCI DSS 合规
 
 
@@ -226,9 +226,13 @@ open WeightLossBetting.xcworkspace
 - `GET /api/betting-plans/{planId}/progress` - 获取进度统计
 
 ### 支付
-- `POST /api/payments/charge` - 充值（Stripe）
+- `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent（生产充值入口）
+- `POST /api/payments/stripe/webhook` - 接收 Stripe 支付与出款回调（签名校验）
 - `POST /api/payments/withdraw` - 提现
+- `POST /api/payments/connect/onboarding` - 创建 Stripe Connect 提现账户认证链接
 - `GET /api/users/{userId}/balance` - 获取余额
+
+`POST /api/payments/charge` 仅用于 `PAYMENT_PROVIDER=demo` 的本地演示；Stripe 模式会返回 410，客户端不得调用该接口。
 
 ### 结算
 - `GET /api/settlement-check` - 检查计划是否可结算

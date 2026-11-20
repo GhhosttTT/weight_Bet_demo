@@ -13,6 +13,10 @@ import javax.inject.Singleton
 class PaymentRepository @Inject constructor(
     private val apiService: ApiService
 ) : BaseRepository() {
+
+    suspend fun getBalance(userId: String): NetworkResult<Balance> {
+        return safeApiCall { apiService.getBalance(userId) }
+    }
     
     suspend fun createChargeIntent(request: ChargeIntentRequest): NetworkResult<ChargeIntentResult> {
         return safeApiCall { apiService.createChargeIntent(request) }

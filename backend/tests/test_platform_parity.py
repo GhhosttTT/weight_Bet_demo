@@ -34,6 +34,7 @@ IOS_INFO_PLIST = ROOT / "ios/WeightLossBetting/Info.plist"
 ANDROID_COACH_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/main/CoachViewModel.kt"
 IOS_COACH_VM = ROOT / "ios/WeightLossBetting/UI/Main/CoachViewModel.swift"
 ANDROID_COACH_FRAGMENT = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/main/CoachFragment.kt"
+ANDROID_COACH_LAYOUT = ROOT / "android/app/src/main/res/layout/fragment_coach.xml"
 ANDROID_PAYMENT_API = ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt"
 ANDROID_PAYMENT_REPOSITORY = ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/PaymentRepository.kt"
 IOS_PAYMENT_API = ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift"
@@ -200,6 +201,16 @@ def test_coach_error_state_uses_the_same_placeholder_copy_on_both_platforms():
 
     assert 'binding.tvEmptyMessage.text = "AI 推荐服务正在启动中\\n请稍后刷新页面"' in android
     assert 'createPlaceholderLabel(text: "AI 推荐服务正在启动中\\n请稍后刷新页面")' in ios
+
+
+def test_coach_semantic_colors_use_the_shared_brand_palette():
+    android = ANDROID_COACH_LAYOUT.read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Main/CoachViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:textColor="@color/brand_accent"' in android
+    assert 'android:textColor="@color/brand_primary"' in android
+    assert "textColor = AppTheme.Colors.accent" in ios
+    assert "textColor = AppTheme.Colors.primary" in ios
 
 
 def test_mobile_payment_data_layers_expose_only_payment_intent_for_charges():

@@ -44,6 +44,10 @@ IOS_MODELS = ROOT / "ios/WeightLossBetting/Data/Model/Models.swift"
 IOS_BALANCE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/BalanceViewController.swift"
 IOS_PAYMENT_METHOD_VC = ROOT / "ios/WeightLossBetting/UI/Profile/PaymentMethodViewController.swift"
 IOS_PAYMENT_METHOD_VM = ROOT / "ios/WeightLossBetting/UI/Profile/PaymentMethodViewModel.swift"
+ANDROID_REGISTER = ROOT / "android/app/src/main/res/layout/activity_register.xml"
+ANDROID_EDIT_PROFILE = ROOT / "android/app/src/main/res/layout/activity_edit_profile.xml"
+IOS_REGISTER = ROOT / "ios/WeightLossBetting/UI/Auth/RegisterViewController.swift"
+IOS_EDIT_PROFILE = ROOT / "ios/WeightLossBetting/UI/Profile/EditProfileViewController.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -275,3 +279,25 @@ def test_payment_method_page_uses_matching_stripe_secure_setup_on_both_platforms
     assert "etCardNumber" not in android
     assert "cardNumberTextField" not in ios
     assert "请输入有效的银行卡号" not in ios_vm
+
+
+def test_auth_and_profile_forms_use_matching_labels_and_validation_boundaries():
+    android_register = ANDROID_REGISTER.read_text(encoding="utf-8")
+    android_edit = ANDROID_EDIT_PROFILE.read_text(encoding="utf-8")
+    ios_register = IOS_REGISTER.read_text(encoding="utf-8")
+    ios_edit = IOS_EDIT_PROFILE.read_text(encoding="utf-8")
+
+    for text in ("邮箱", "昵称", "确认密码", "性别", "年龄", "身高", "当前体重", "注册"):
+        assert text in android_register
+        assert text in ios_register
+    for text in ("编辑个人信息", "昵称", "性别", "年龄", "身高", "当前体重", "目标体重", "保存"):
+        assert text in android_edit
+        assert text in ios_edit
+
+    # Android 与 iOS 都只能提交后端允许的注册边界，且性别选项一致。
+    assert 'age >= 13 && age <= 120' in ios_register
+    assert 'height >= 100 && height <= 250' in ios_register
+    assert 'weight >= 30 && weight <= 300' in ios_register
+    assert 'items = ["男", "女"]' in ios_register
+    assert 'items: ["男", "女"]' in ios_edit
+    assert '"Other"' not in ios_edit

@@ -18,21 +18,21 @@ class EditProfileViewController: UIViewController {
     
     private let nicknameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Nickname"
+        textField.placeholder = "昵称"
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
     private let genderSegmentedControl: UISegmentedControl = {
-        let control = UISegmentedControl(items: ["Male", "Female", "Other"])
+        let control = UISegmentedControl(items: ["男", "女"])
         control.translatesAutoresizingMaskIntoConstraints = false
         return control
     }()
     
     private let ageTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Age"
+        textField.placeholder = "年龄"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .numberPad
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -41,7 +41,7 @@ class EditProfileViewController: UIViewController {
     
     private let heightTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Height (cm)"
+        textField.placeholder = "身高（cm）"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .decimalPad
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -50,7 +50,7 @@ class EditProfileViewController: UIViewController {
     
     private let currentWeightTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Current Weight (kg)"
+        textField.placeholder = "当前体重（kg）"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .decimalPad
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -59,7 +59,7 @@ class EditProfileViewController: UIViewController {
     
     private let targetWeightTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Target Weight (kg)"
+        textField.placeholder = "目标体重（kg，可选）"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .decimalPad
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -68,7 +68,7 @@ class EditProfileViewController: UIViewController {
     
     private let saveButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Save Changes", for: .normal)
+        button.setTitle("保存", for: .normal)
         button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
@@ -111,23 +111,23 @@ class EditProfileViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        title = "Edit Profile"
+        title = "编辑个人信息"
         view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         
-        contentView.addSubview(createLabel(text: "Nickname"))
+        contentView.addSubview(createLabel(text: "昵称"))
         contentView.addSubview(nicknameTextField)
-        contentView.addSubview(createLabel(text: "Gender"))
+        contentView.addSubview(createLabel(text: "性别"))
         contentView.addSubview(genderSegmentedControl)
-        contentView.addSubview(createLabel(text: "Age"))
+        contentView.addSubview(createLabel(text: "年龄"))
         contentView.addSubview(ageTextField)
-        contentView.addSubview(createLabel(text: "Height"))
+        contentView.addSubview(createLabel(text: "身高"))
         contentView.addSubview(heightTextField)
-        contentView.addSubview(createLabel(text: "Current Weight"))
+        contentView.addSubview(createLabel(text: "当前体重"))
         contentView.addSubview(currentWeightTextField)
-        contentView.addSubview(createLabel(text: "Target Weight"))
+        contentView.addSubview(createLabel(text: "目标体重"))
         contentView.addSubview(targetWeightTextField)
         contentView.addSubview(saveButton)
         view.addSubview(activityIndicator)

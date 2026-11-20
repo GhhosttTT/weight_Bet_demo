@@ -6,7 +6,7 @@ class RegisterViewController: UIViewController {
     
     private let emailTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Email"
+        textField.placeholder = "邮箱"
         textField.borderStyle = .roundedRect
         textField.keyboardType = .emailAddress
         textField.autocapitalizationType = .none
@@ -16,7 +16,7 @@ class RegisterViewController: UIViewController {
     
     private let nicknameTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Nickname"
+        textField.placeholder = "昵称"
         textField.borderStyle = .roundedRect
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -24,7 +24,7 @@ class RegisterViewController: UIViewController {
     
     private let passwordTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Password"
+        textField.placeholder = "密码（至少8位）"
         textField.borderStyle = .roundedRect
         textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -33,7 +33,7 @@ class RegisterViewController: UIViewController {
     
     private let confirmPasswordTextField: UITextField = {
         let textField = UITextField()
-        textField.placeholder = "Confirm Password"
+        textField.placeholder = "确认密码"
         textField.borderStyle = .roundedRect
         textField.isSecureTextEntry = true
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -46,6 +46,15 @@ class RegisterViewController: UIViewController {
         segmentedControl.selectedSegmentIndex = 0
         segmentedControl.translatesAutoresizingMaskIntoConstraints = false
         return segmentedControl
+    }()
+
+    private let genderLabel: UILabel = {
+        let label = UILabel()
+        label.text = "性别"
+        label.font = .systemFont(ofSize: 14, weight: .medium)
+        label.textColor = AppTheme.Colors.secondaryLabel
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     private let heightTextField: UITextField = {
@@ -77,7 +86,7 @@ class RegisterViewController: UIViewController {
     
     private let registerButton: UIButton = {
         let button = UIButton(type: .system)
-        button.setTitle("Register", for: .normal)
+        button.setTitle("注册", for: .normal)
         button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = 8
@@ -107,13 +116,14 @@ class RegisterViewController: UIViewController {
     // MARK: - Setup
     
     private func setupUI() {
-        title = "Register"
+        title = "注册账号"
         view.backgroundColor = AppTheme.Colors.background
         
         view.addSubview(emailTextField)
         view.addSubview(nicknameTextField)
         view.addSubview(passwordTextField)
         view.addSubview(confirmPasswordTextField)
+        view.addSubview(genderLabel)
         view.addSubview(genderSegmentedControl)
         view.addSubview(heightTextField)
         view.addSubview(weightTextField)
@@ -142,7 +152,10 @@ class RegisterViewController: UIViewController {
             confirmPasswordTextField.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
             confirmPasswordTextField.heightAnchor.constraint(equalToConstant: 50),
             
-            genderSegmentedControl.topAnchor.constraint(equalTo: confirmPasswordTextField.bottomAnchor, constant: 16),
+            genderLabel.topAnchor.constraint(equalTo: confirmPasswordTextField.bottomAnchor, constant: 16),
+            genderLabel.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
+            genderLabel.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
+            genderSegmentedControl.topAnchor.constraint(equalTo: genderLabel.bottomAnchor, constant: 8),
             genderSegmentedControl.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
             genderSegmentedControl.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
             genderSegmentedControl.heightAnchor.constraint(equalToConstant: 44),
@@ -194,20 +207,20 @@ class RegisterViewController: UIViewController {
         
         // Validate height and weight
         guard let heightText = heightTextField.text, !heightText.isEmpty,
-              let height = Double(heightText), height > 0 && height < 300 else {
-            showAlert(message: "请输入有效的身高（50-250 cm）")
+              let height = Double(heightText), height >= 100 && height <= 250 else {
+            showAlert(message: "请输入有效的身高（100-250 cm）")
             return
         }
         
         guard let weightText = weightTextField.text, !weightText.isEmpty,
-              let weight = Double(weightText), weight > 0 && weight < 500 else {
-            showAlert(message: "请输入有效的体重（20-300 kg）")
+              let weight = Double(weightText), weight >= 30 && weight <= 300 else {
+            showAlert(message: "请输入有效的体重（30-300 kg）")
             return
         }
         
         guard let ageText = ageTextField.text, !ageText.isEmpty,
-              let age = Int(ageText), age >= 1 && age <= 150 else {
-            showAlert(message: "请输入有效的年龄（1-150 岁）")
+              let age = Int(ageText), age >= 13 && age <= 120 else {
+            showAlert(message: "请输入有效的年龄（13-120 岁）")
             return
         }
         

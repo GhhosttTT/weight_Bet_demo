@@ -89,6 +89,34 @@ def test_create_intent_reuses_client_idempotency_key(db_session, monkeypatch):
     assert create.call_args[1]["idempotency_key"] == "weight-bet-charge-request-key-123456"
 
 
+def test_create_intent_rejects_idempotency_key_used_by_another_user(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
+    monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test_realistic")
+    other_user = User(
+        id="stripe-user-002", email="stripe2@example.com", password_hash="hash",
+        nickname="Stripe User 2", gender=Gender.OTHER, age=30, height=170,
+        current_weight=70,
+    )
+    db_session.add(other_user)
+    db_session.add(Balance(user_id=other_user.id, available_balance=0, frozen_balance=0))
+    db_session.commit()
+    fake_intent = type("Intent", (), {
+        "id": "pi_first", "client_secret": "secret_first", "status": "requires_action"
+    })()
+    with patch("app.services.stripe_payment_service.stripe.PaymentIntent.create", return_value=fake_intent) as create:
+        StripePaymentService.create_charge_intent(
+            db_session, "stripe-user-001", 20, idempotency_key="request-key-shared"
+        )
+        with pytest.raises(HTTPException) as error:
+            StripePaymentService.create_charge_intent(
+                db_session, "stripe-user-002", 20, idempotency_key="request-key-shared"
+            )
+    assert error.value.status_code == 409
+    assert "其他用户" in error.value.detail
+    assert create.call_count == 1
+    assert db_session.query(Transaction).count() == 1
+
+
 def test_create_setup_intent_does_not_receive_raw_card_data(db_session, monkeypatch):
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
     monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test_realistic")

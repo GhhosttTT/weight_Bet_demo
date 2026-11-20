@@ -52,6 +52,14 @@ class StripePaymentService:
         amount_float = float(normalized)
         transaction = None
         if idempotency_key:
+            # 幂等键在 transactions 表中是全局唯一的。先做全局冲突检查，
+            # 避免第二个用户复用同一键时落到数据库 IntegrityError/500。
+            existing_key_transaction = db.query(Transaction).filter(
+                Transaction.type == TransactionType.CHARGE,
+                Transaction.idempotency_key == idempotency_key,
+            ).with_for_update().first()
+            if existing_key_transaction and existing_key_transaction.user_id != user_id:
+                raise HTTPException(status_code=409, detail="幂等键已被其他用户使用")
             transaction = db.query(Transaction).filter(
                 Transaction.user_id == user_id,
                 Transaction.type == TransactionType.CHARGE,

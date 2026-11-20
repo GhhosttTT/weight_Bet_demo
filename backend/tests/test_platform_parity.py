@@ -41,6 +41,7 @@ ANDROID_PAYMENT_REPOSITORY = ROOT / "android/app/src/main/java/com/weightloss/be
 IOS_PAYMENT_API = ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift"
 IOS_PAYMENT_REPOSITORY = ROOT / "ios/WeightLossBetting/Data/Repository/PaymentRepository.swift"
 IOS_MODELS = ROOT / "ios/WeightLossBetting/Data/Model/Models.swift"
+IOS_BALANCE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/BalanceViewController.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -248,5 +249,8 @@ def test_mobile_payment_data_layers_expose_only_payment_intent_for_charges():
 
 def test_ios_transaction_model_can_decode_backend_charge_records():
     ios_models = IOS_MODELS.read_text(encoding="utf-8")
+    ios_balance = IOS_BALANCE_VC.read_text(encoding="utf-8")
     assert "enum TransactionType: String, Codable" in ios_models
     assert "case charge" in ios_models
+    assert "case .charge:" in ios_balance
+    assert "transaction.type == .charge" in ios_balance

@@ -208,6 +208,8 @@ class TransactionTableViewCell: UITableViewCell {
     func configure(transaction: Transaction) {
         // 处理 TransactionType
         switch transaction.type {
+        case .charge:
+            transactionTypeLabel.text = "Charge"
         case .freeze:
             transactionTypeLabel.text = "Freeze"
         case .unfreeze:
@@ -221,9 +223,9 @@ class TransactionTableViewCell: UITableViewCell {
         }
         
         // 处理金额显示
-        let amountSign = transaction.type == .refund || transaction.type == .unfreeze ? "+" : "-"
+        let amountSign = transaction.type == .charge || transaction.type == .refund || transaction.type == .unfreeze ? "+" : "-"
         transactionAmountLabel.text = amountSign + "¥" + String(format: "%.2f", abs(transaction.amount))
-        transactionAmountLabel.textColor = (transaction.type == .refund || transaction.type == .unfreeze) ? AppTheme.Colors.success : AppTheme.Colors.error
+        transactionAmountLabel.textColor = (transaction.type == .charge || transaction.type == .refund || transaction.type == .unfreeze) ? AppTheme.Colors.success : AppTheme.Colors.error
         
         // 处理日期格式化
         transactionDateLabel.text = formatDate(date: transaction.createdAt)

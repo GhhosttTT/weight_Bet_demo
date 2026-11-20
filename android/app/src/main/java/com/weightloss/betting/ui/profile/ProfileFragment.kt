@@ -1,17 +1,23 @@
 package com.weightloss.betting.ui.profile
 
+import android.Manifest
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
+import android.os.Build
+import android.provider.Settings
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.databinding.FragmentProfileBinding
 import com.weightloss.betting.util.GenderMapper
+import com.weightloss.betting.util.NotificationPermissionHelper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -102,8 +108,8 @@ class ProfileFragment : Fragment() {
             startActivity(intent)
         }
 
-        binding.btnPaymentMethod.setOnClickListener {
-            startActivity(Intent(requireContext(), PaymentMethodActivity::class.java))
+        binding.btnNotificationSettings.setOnClickListener {
+            openNotificationSettings()
         }
         
         binding.btnLogout.setOnClickListener {
@@ -128,6 +134,45 @@ class ProfileFragment : Fragment() {
                 userId?.let { viewModel.deleteAccount(it) }
             }
             .show()
+    }
+
+    private fun openNotificationSettings() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            requestPermissions(
+                arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                NotificationPermissionHelper.NOTIFICATION_PERMISSION_REQUEST_CODE
+            )
+            return
+        }
+
+        val settingsIntent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+            putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
+        }
+        startActivity(settingsIntent)
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode != NotificationPermissionHelper.NOTIFICATION_PERMISSION_REQUEST_CODE) return
+
+        if (grantResults.firstOrNull() == PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(requireContext(), "通知权限已开启", Toast.LENGTH_SHORT).show()
+        } else {
+            Toast.makeText(requireContext(), "通知权限未开启，可在系统设置中修改", Toast.LENGTH_LONG).show()
+            val settingsIntent = Intent(Settings.ACTION_APP_NOTIFICATION_SETTINGS).apply {
+                putExtra(Settings.EXTRA_APP_PACKAGE, requireContext().packageName)
+            }
+            startActivity(settingsIntent)
+        }
     }
 
     private fun goToLogin() {

@@ -231,11 +231,11 @@
             android:textSize="16sp" />
 
         <Button
-            android:id="@+id/btnPaymentMethod"
+            android:id="@+id/btnNotificationSettings"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
-            android:text="绑定支付方式"
+            android:text="通知设置"
             android:textSize="16sp" />
 
         <!-- 退出登录按钮 -->

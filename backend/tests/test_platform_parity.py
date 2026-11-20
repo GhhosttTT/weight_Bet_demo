@@ -53,6 +53,9 @@ IOS_PLANS = ROOT / "ios/WeightLossBetting/UI/Plans/PlansViewController.swift"
 ANDROID_TRANSACTION_ADAPTER = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/TransactionAdapter.kt"
 IOS_BALANCE = ROOT / "ios/WeightLossBetting/UI/Payment/BalanceViewController.swift"
 ANDROID_LOGIN_LAYOUT = ROOT / "android/app/src/main/res/layout/activity_login.xml"
+ANDROID_PROFILE_LAYOUT = ROOT / "android/app/src/main/res/layout/fragment_profile.xml"
+ANDROID_PROFILE_FRAGMENT = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/profile/ProfileFragment.kt"
+IOS_PROFILE = ROOT / "ios/WeightLossBetting/UI/Profile/ProfileViewController.swift"
 
 
 def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
@@ -344,3 +347,19 @@ def test_login_google_separator_and_register_copy_match_between_platforms():
     assert 'label.text = "或者"' in ios
     assert 'android:text="还没有账号？立即注册"' in android
     assert 'button.setTitle("还没有账号？立即注册"' in ios
+
+
+def test_profile_exposes_the_same_settings_entry_and_hides_legacy_payment_entry():
+    android_layout = ANDROID_PROFILE_LAYOUT.read_text(encoding="utf-8")
+    android_fragment = ANDROID_PROFILE_FRAGMENT.read_text(encoding="utf-8")
+    ios = IOS_PROFILE.read_text(encoding="utf-8")
+
+    assert 'android:id="@+id/btnNotificationSettings"' in android_layout
+    assert 'android:text="通知设置"' in android_layout
+    assert "binding.btnNotificationSettings.setOnClickListener" in android_fragment
+    assert "ACTION_APP_NOTIFICATION_SETTINGS" in android_fragment
+    assert 'button.setTitle("通知设置"' in ios
+
+    # 绑定银行卡只保留在独立的 Stripe SetupIntent 页面，个人页不能再暴露旧入口。
+    assert 'android:id="@+id/btnPaymentMethod"' not in android_layout
+    assert "button.isHidden = true" in ios

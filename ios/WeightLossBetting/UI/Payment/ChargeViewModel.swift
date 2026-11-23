@@ -101,6 +101,10 @@ final class ChargeViewModel {
         Task {
             switch await paymentRepository.resumeChargeIntent(transactionId: transactionId) {
             case .success(let intent):
+                if ["canceled", "failed"].contains(intent.status.lowercased()) {
+                    paymentFailed("未完成充值订单已取消，请重新发起充值")
+                    return
+                }
                 guard let secret = intent.clientSecret, !secret.isEmpty else {
                     chargeState = .error("未完成订单缺少支付凭证")
                     return

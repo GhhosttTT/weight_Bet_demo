@@ -139,6 +139,11 @@ class ChargeViewModel @Inject constructor(
             val transactionId = tokenManager.getPendingCharge() ?: return@launch
             when (val result = paymentRepository.resumeChargeIntent(transactionId)) {
                 is NetworkResult.Success -> {
+                    if (result.data.status.equals("canceled", ignoreCase = true) ||
+                        result.data.status.equals("failed", ignoreCase = true)) {
+                        paymentFailed("未完成充值订单已取消，请重新发起充值")
+                        return@launch
+                    }
                     val secret = result.data.clientSecret
                     if (secret.isNullOrBlank()) {
                         _chargeState.value = ChargeState.Error("未完成订单缺少支付凭证")

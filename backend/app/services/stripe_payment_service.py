@@ -159,7 +159,7 @@ class StripePaymentService:
         intent_id = intent.get("id") if isinstance(intent, dict) else getattr(intent, "id", None)
         client_secret = intent.get("client_secret") if isinstance(intent, dict) else getattr(intent, "client_secret", None)
         intent_status = intent.get("status") if isinstance(intent, dict) else getattr(intent, "status", None)
-        if not intent_id or not client_secret or not intent_status:
+        if not intent_id or not intent_status:
             raise HTTPException(status_code=502, detail="Stripe 充值订单缺少恢复信息")
         actual_amount = intent.get("amount") if isinstance(intent, dict) else getattr(intent, "amount", None)
         raw_currency = intent.get("currency") if isinstance(intent, dict) else getattr(intent, "currency", None)
@@ -168,7 +168,21 @@ class StripePaymentService:
             raise HTTPException(status_code=400, detail="Stripe 充值金额与本地交易不匹配")
         if actual_currency != settings.STRIPE_CURRENCY.lower():
             raise HTTPException(status_code=400, detail="Stripe 充值币种与本地配置不匹配")
-        if intent_status in ("canceled", "requires_capture"):
+        if intent_status == "canceled":
+            # Stripe 已将 PaymentIntent 终止，本地订单不能继续保持 pending，
+            # 否则客户端每次启动都会重复恢复同一笔不可支付的订单。
+            transaction.status = TransactionStatus.FAILED
+            db.commit()
+            return {
+                "transaction_id": transaction.id,
+                "payment_intent_id": intent_id,
+                "client_secret": None,
+                "amount": float(transaction.amount),
+                "status": "canceled",
+            }
+        if not client_secret:
+            raise HTTPException(status_code=502, detail="Stripe 充值订单缺少恢复信息")
+        if intent_status == "requires_capture":
             raise HTTPException(status_code=409, detail="Stripe 充值订单已无法继续支付")
         return {
             "transaction_id": transaction.id,

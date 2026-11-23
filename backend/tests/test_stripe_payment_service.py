@@ -169,6 +169,27 @@ def test_resume_pending_charge_rejects_amount_or_currency_mismatch(db_session, m
     assert error.value.status_code == 400
 
 
+def test_resume_canceled_payment_intent_closes_local_transaction(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
+    monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test_realistic")
+    transaction = Transaction(
+        id="charge-resume-canceled", user_id="stripe-user-001", type=TransactionType.CHARGE,
+        amount=15, status=TransactionStatus.PENDING, external_payment_id="pi_canceled",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    intent = {
+        "id": "pi_canceled", "client_secret": None, "status": "canceled",
+        "amount": 1500, "currency": "cny",
+        "metadata": {"transaction_id": transaction.id, "user_id": "stripe-user-001"},
+    }
+    with patch("app.services.stripe_payment_service.stripe.PaymentIntent.retrieve", return_value=intent):
+        result = StripePaymentService.resume_charge_intent(db_session, "stripe-user-001", transaction.id)
+    assert result["status"] == "canceled"
+    assert result["client_secret"] is None
+    assert db_session.get(Transaction, transaction.id).status == TransactionStatus.FAILED
+
+
 def test_create_intent_rejects_idempotency_key_used_by_another_user(db_session, monkeypatch):
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
     monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test_realistic")

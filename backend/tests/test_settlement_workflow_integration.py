@@ -12,6 +12,7 @@ import uuid
 from app.main import app
 from app.database import Base, get_db
 from app.models.settlement import Settlement
+from app.models.platform_ledger import PlatformLedgerEntry
 from app.models.user import User
 from app.redis_client import get_redis
 
@@ -325,6 +326,13 @@ class TestSettlementWorkflow:
         assert abs(settlement["platform_fee"] - platform_fee) < 0.01
         assert abs(settlement["creator_amount"] - each_share) < 0.01
         assert abs(settlement["participant_amount"] - each_share) < 0.01
+        db = TestingSessionLocal()
+        fees = db.query(PlatformLedgerEntry).filter(
+            PlatformLedgerEntry.settlement_id == settlement["id"]
+        ).all()
+        assert len(fees) == 1
+        assert abs(fees[0].amount - platform_fee) < 0.01
+        db.close()
 
 
 if __name__ == "__main__":

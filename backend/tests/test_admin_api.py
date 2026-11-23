@@ -14,6 +14,7 @@ from app.models import (
     User, Gender, BettingPlan, PlanStatus, CheckIn, ReviewStatus,
     Settlement, Dispute, DisputeStatus,
     Transaction, TransactionType, TransactionStatus,
+    PlatformLedgerEntry,
 )
 from app.utils.security import create_access_token, create_refresh_token, hash_password
 from app.services.notification_service import NotificationService
@@ -93,6 +94,7 @@ def test_all_admin_reads_require_admin_role(admin_context):
         "/api/admin/payouts/pending",
         "/api/admin/balances",
         "/api/admin/audit-logs",
+        "/api/admin/platform-fees",
     ):
         response = client.get(path, headers=headers)
         assert response.status_code == 403, path
@@ -201,6 +203,7 @@ def test_admin_can_read_all_business_queues(admin_context):
     assert client.get("/api/admin/payouts/pending?limit=1", headers=headers).status_code == 200
     assert client.get("/api/admin/balances?limit=1", headers=headers).status_code == 200
     assert client.get("/api/admin/audit-logs?limit=1", headers=headers).status_code == 200
+    assert client.get("/api/admin/platform-fees?limit=1", headers=headers).status_code == 200
 
 
 def test_admin_sees_retryable_payout_queue(admin_context):

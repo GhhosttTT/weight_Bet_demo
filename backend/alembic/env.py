@@ -23,7 +23,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from app.database import Base
-from app.models import user, betting_plan, balance, transaction, check_in, settlement, badge, comment, dispute, audit_log, device_token, invitation, refresh_token
+from app.models import user, betting_plan, balance, transaction, check_in, settlement, badge, comment, dispute, audit_log, device_token, invitation, refresh_token, platform_ledger
 
 target_metadata = Base.metadata
 

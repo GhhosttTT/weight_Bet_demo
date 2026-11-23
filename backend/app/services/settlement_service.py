@@ -11,6 +11,7 @@ from typing import Optional, List
 from app.models.settlement import Settlement
 from app.models.betting_plan import BettingPlan, PlanStatus
 from app.models.settlement_choice import SettlementChoice
+from app.models.platform_ledger import PlatformLedgerEntry
 from app.schemas.settlement import (
     SettlementResponse,
     SettlementResult,
@@ -310,8 +311,19 @@ class SettlementService:
                     
             # 5. 保存结算记录
             db.add(settlement)
+            db.flush()
+
+            # 6. 将平台手续费写入独立账本，确保用户资金释放与平台收入
+            # 在同一个事务中完成，并可按 settlement_id 对账且天然幂等。
+            if platform_fee > 0:
+                db.add(PlatformLedgerEntry(
+                    id=str(uuid.uuid4()),
+                    settlement_id=settlement_id,
+                    amount=platform_fee,
+                    entry_type="settlement_fee",
+                ))
                     
-            # 6. 提交事务
+            # 7. 提交事务
             db.commit()
             db.refresh(settlement)
                     

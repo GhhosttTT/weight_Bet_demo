@@ -11,6 +11,7 @@ from app.models.audit_log import AuditLog, JSONText
 from app.models.invitation import Invitation, InvitationStatus
 from app.models.settlement_choice import SettlementChoice
 from app.models.dispute import Dispute, DisputeStatus
+from app.models.platform_ledger import PlatformLedgerEntry
 
 __all__ = [
     "User",

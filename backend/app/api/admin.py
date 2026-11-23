@@ -16,6 +16,7 @@ from app.models.settlement import Settlement
 from app.models.transaction import Transaction, TransactionStatus, TransactionType
 from app.models.balance import Balance
 from app.models.audit_log import AuditLog
+from app.models.platform_ledger import PlatformLedgerEntry
 from app.schemas.admin import AdminCheckInReview, AdminDisputeUpdate, AdminUserRow
 from app.services.stripe_payout_service import StripePayoutService
 
@@ -329,6 +330,29 @@ def list_audit_logs(
             "resource_type": item.resource_type,
             "resource_id": item.resource_id,
             "details": item.details,
+            "created_at": item.created_at,
+        }
+        for item in records
+    ]
+
+
+@router.get("/platform-fees")
+def list_platform_fees(
+    limit: int = Query(100, ge=1, le=200),
+    offset: int = Query(0, ge=0),
+    _: User = Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """列出平台手续费账本，供财务对账使用。"""
+    records = db.query(PlatformLedgerEntry).order_by(
+        PlatformLedgerEntry.created_at.desc()
+    ).offset(offset).limit(limit).all()
+    return [
+        {
+            "id": item.id,
+            "settlement_id": item.settlement_id,
+            "amount": item.amount,
+            "entry_type": item.entry_type,
             "created_at": item.created_at,
         }
         for item in records

@@ -541,7 +541,7 @@ FIREBASE_CREDENTIALS_PATH=path/to/serviceAccountKey.json
 FCM_PROJECT_ID=your-firebase-project-id
 
 # Google 登录（后端允许配置多个客户端 ID，逗号分隔）
-GOOGLE_CLIENT_IDS=your-web-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_IDS=your-web-client-id.apps.googleusercontent.com,your-android-client-id.apps.googleusercontent.com,your-ios-client-id.apps.googleusercontent.com
 
 # APNs Token Authentication
 APNS_KEY_ID=your-key-id

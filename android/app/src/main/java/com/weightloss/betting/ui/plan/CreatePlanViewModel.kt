@@ -48,8 +48,8 @@ class CreatePlanViewModel @Inject constructor(
     ) {
         // Validate inputs
         val betAmountDouble = betAmount.toDoubleOrNull()
-        if (betAmountDouble == null || betAmountDouble <= 0) {
-            _createPlanState.value = CreatePlanState.Error("赌金必须大于0")
+        if (betAmountDouble == null || !betAmountDouble.isFinite() || betAmountDouble < 0.01) {
+            _createPlanState.value = CreatePlanState.Error("赌金不能少于0.01元")
             return
         }
         

@@ -16,9 +16,29 @@ class RegisterViewModel {
             completion(.failure(ValidationError.nicknameTooShort))
             return
         }
+
+        guard nickname.count <= 20 else {
+            completion(.failure(ValidationError.custom("昵称长度应在 2-20 个字符之间")))
+            return
+        }
         
         guard password.count >= 8 else {
             completion(.failure(ValidationError.passwordTooShort))
+            return
+        }
+
+        guard age >= 13 && age <= 120 else {
+            completion(.failure(ValidationError.custom("年龄应在 13-120 之间")))
+            return
+        }
+
+        guard height.isFinite && height >= 100 && height <= 250 else {
+            completion(.failure(ValidationError.custom("身高应在 100-250 cm 之间")))
+            return
+        }
+
+        guard currentWeight.isFinite && currentWeight >= 30 && currentWeight <= 300 else {
+            completion(.failure(ValidationError.custom("体重应在 30-300 kg 之间")))
             return
         }
         

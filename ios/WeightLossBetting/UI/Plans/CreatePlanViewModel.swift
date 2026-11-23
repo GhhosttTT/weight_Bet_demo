@@ -39,9 +39,9 @@ class CreatePlanViewModel {
         }
         
         // Validate inputs
-        guard let betAmountValue = Double(betAmount), betAmountValue > 0 else {
+        guard let betAmountValue = Double(betAmount), betAmountValue.isFinite, betAmountValue >= 0.01 else {
             print("❌ [CreatePlanVM] 赌金金额无效")
-            onError?("请输入有效的赌金金额")
+            onError?("赌金不能少于0.01元")
             return
         }
         

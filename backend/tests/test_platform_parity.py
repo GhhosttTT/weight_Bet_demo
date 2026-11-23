@@ -420,6 +420,32 @@ def test_registration_password_minimum_matches_backend_and_android():
     assert "min_length=8" in backend_schema
 
 
+def test_registration_profile_validation_matches_between_mobile_platforms():
+    ios = (ROOT / "ios/WeightLossBetting/UI/Auth/RegisterViewModel.swift").read_text(encoding="utf-8")
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/auth/RegisterViewModel.kt").read_text(encoding="utf-8")
+
+    assert "nickname.count <= 20" in ios
+    assert "age >= 13 && age <= 120" in ios
+    assert "height.isFinite && height >= 100 && height <= 250" in ios
+    assert "currentWeight.isFinite && currentWeight >= 30 && currentWeight <= 300" in ios
+    assert "nickname.length > 20" in android
+    assert "age < 13 || age > 120" in android
+    assert "height < 100 || height > 250" in android
+    assert "currentWeight < 30 || currentWeight > 300" in android
+
+
+def test_plan_bet_minimum_validation_matches_between_mobile_platforms():
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/CreatePlanViewModel.kt").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Plans/CreatePlanViewModel.swift").read_text(encoding="utf-8")
+
+    assert "betAmountDouble < 0.01" in android
+    assert "betAmountDouble.isFinite()" in android
+    assert "betAmountValue >= 0.01" in ios
+    assert "betAmountValue.isFinite" in ios
+    assert "赌金不能少于0.01元" in android
+    assert "赌金不能少于0.01元" in ios
+
+
 def test_balance_transaction_history_default_page_size_matches_ios_and_backend():
     android_repo = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/UserRepository.kt").read_text(encoding="utf-8")
     android_activity = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/BalanceActivity.kt").read_text(encoding="utf-8")

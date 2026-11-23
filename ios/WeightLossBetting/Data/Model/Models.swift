@@ -531,6 +531,19 @@ struct SettlementChoiceResponse: Codable {
     }
 }
 
+struct DisputeResponse: Codable {
+    let id: String
+    let settlementId: String
+    let status: String
+    let adminNotes: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, status
+        case settlementId = "settlement_id"
+        case adminNotes = "admin_notes"
+    }
+}
+
 struct SettlementSelectionStatus: Codable {
     let planId: String
     let currentRound: Int

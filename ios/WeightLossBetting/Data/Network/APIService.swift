@@ -722,6 +722,22 @@ class APIService {
             }
     }
 
+    func submitDispute(
+        settlementId: String,
+        reason: String,
+        completion: @escaping (Result<DisputeResponse, Error>) -> Void
+    ) {
+        let parameters: [String: Any] = ["reason": reason]
+        session.request("\(baseURL)/settlements/\(settlementId)/dispute",
+                        method: .post,
+                        parameters: parameters,
+                        encoding: JSONEncoding.default)
+            .validate()
+            .responseDecodable(of: DisputeResponse.self, decoder: decoder) { response in
+                self.handleDirectResponse(response, completion: completion)
+            }
+    }
+
     func markInvitationSeen(invitationId: String, userId: String? = nil, completion: @escaping (Result<Void, Error>) -> Void) {
         var parameters: [String: Any] = [:]
         if let userId = userId {

@@ -561,3 +561,17 @@ def test_active_plan_detail_exposes_matching_progress_history_and_comments_actio
     assert "commentsButton.isHidden = false" in ios
     assert "showCancelOnly(showInvite: plan.participantId == nil)" in ios
     assert 'inviteButton.setTitle("邀请好友"' in ios
+
+
+def test_settlement_dispute_entry_matches_on_android_and_ios():
+    android_activity = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/settlement/SettlementActivity.kt").read_text(encoding="utf-8")
+    android_api = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt").read_text(encoding="utf-8")
+    ios_controller = (ROOT / "ios/WeightLossBetting/UI/Settlement/SettlementViewController.swift").read_text(encoding="utf-8")
+    ios_api = (ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift").read_text(encoding="utf-8")
+
+    for text in ("反馈结算问题", "争议状态", "至少10个字", "submitDispute"):
+        assert text in android_activity
+    for text in ("反馈结算问题", "争议状态", "至少填写10个字", "submitDispute"):
+        assert text in ios_controller
+    assert "submitDispute" in android_api
+    assert "submitDispute" in ios_api

@@ -16,6 +16,7 @@ class SettlementViewController: UIViewController {
 
     private var myAchievement: Bool?
     private var opponentAchievement: Bool?
+    private var latestStatus: SettlementSelectionStatus?
 
     // MARK: - UI Elements
     private let titleLabel: UILabel = {
@@ -91,6 +92,28 @@ class SettlementViewController: UIViewController {
         return label
     }()
 
+    private let disputeStatusLabel: UILabel = {
+        let label = UILabel()
+        label.font = .systemFont(ofSize: 14)
+        label.textColor = AppTheme.Colors.secondaryLabel
+        label.numberOfLines = 0
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.isHidden = true
+        return label
+    }()
+
+    private let disputeButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("反馈结算问题", for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
+        button.layer.cornerRadius = 8
+        button.layer.borderWidth = 1
+        button.layer.borderColor = AppTheme.Colors.primary.cgColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.isHidden = true
+        return button
+    }()
+
     // MARK: - Initialization
     init(planId: String, opponentName: String, planTitle: String) {
         self.planId = planId
@@ -124,6 +147,8 @@ class SettlementViewController: UIViewController {
                 guard let self = self else { return }
                 switch result {
                 case .success(let status):
+                    self.latestStatus = status
+                    self.updateDisputeUI(status)
                     if status.settlementCompleted {
                         self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 结算已完成"
                     } else if status.inArbitration {
@@ -149,6 +174,87 @@ class SettlementViewController: UIViewController {
         opponentAchievementSegment.isEnabled = enabled
     }
 
+    private func updateDisputeUI(_ status: SettlementSelectionStatus) {
+        guard status.settlementCompleted, let settlementId = status.settlementId, !settlementId.isEmpty else {
+            disputeStatusLabel.isHidden = true
+            disputeButton.isHidden = true
+            return
+        }
+
+        disputeStatusLabel.isHidden = false
+        disputeButton.isHidden = false
+        guard let disputeStatus = status.disputeStatus, !disputeStatus.isEmpty else {
+            disputeButton.isEnabled = true
+            disputeButton.setTitle("反馈结算问题", for: .normal)
+            disputeStatusLabel.text = "对结算结果有疑问？可提交争议，后台审核后会更新状态。"
+            return
+        }
+
+        disputeButton.isEnabled = false
+        disputeButton.setTitle("争议已提交", for: .normal)
+        let labels = [
+            "pending": "待处理",
+            "under_review": "审核中",
+            "resolved": "已解决",
+            "rejected": "已拒绝"
+        ]
+        let label = labels[disputeStatus] ?? disputeStatus
+        let notes = status.disputeAdminNotes?.isEmpty == false
+            ? "\n管理员备注：\(status.disputeAdminNotes!)"
+            : ""
+        disputeStatusLabel.text = "争议状态：\(label)\(notes)"
+    }
+
+    @objc private func disputeTapped() {
+        guard let settlementId = latestStatus?.settlementId else { return }
+        let alert = UIAlertController(
+            title: "反馈结算问题",
+            message: "请描述结算问题，至少填写10个字。",
+            preferredStyle: .alert
+        )
+        alert.addTextField { field in
+            field.placeholder = "结算问题描述（至少10个字）"
+            field.autocorrectionType = .yes
+        }
+        alert.addAction(UIAlertAction(title: "取消", style: .cancel))
+        alert.addAction(UIAlertAction(title: "提交", style: .default) { [weak self, weak alert] _ in
+            guard let self = self else { return }
+            let reason = alert?.textFields?.first?.text?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+            guard reason.count >= 10 else {
+                self.showDisputeValidationError()
+                return
+            }
+            self.disputeButton.isEnabled = false
+            self.disputeButton.setTitle("提交中...", for: .disabled)
+            APIService.shared.submitDispute(settlementId: settlementId, reason: reason) { [weak self] result in
+                DispatchQueue.main.async {
+                    guard let self = self else { return }
+                    switch result {
+                    case .success:
+                        self.loadSettlementStatus()
+                    case .failure(let error):
+                        self.disputeButton.isEnabled = true
+                        self.disputeButton.setTitle("反馈结算问题", for: .normal)
+                        self.showDisputeError(error.localizedDescription)
+                    }
+                }
+            }
+        })
+        present(alert, animated: true)
+    }
+
+    private func showDisputeValidationError() {
+        let alert = UIAlertController(title: "描述过短", message: "请至少填写10个字。", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "确定", style: .default))
+        present(alert, animated: true)
+    }
+
+    private func showDisputeError(_ message: String) {
+        let alert = UIAlertController(title: "提交失败", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "确定", style: .default))
+        present(alert, animated: true)
+    }
+
     // MARK: - Setup
     private func setupUI() {
         view.backgroundColor = AppTheme.Colors.background
@@ -162,6 +268,8 @@ class SettlementViewController: UIViewController {
         view.addSubview(opponentAchievementSegment)
         view.addSubview(submitButton)
         view.addSubview(noteLabel)
+        view.addSubview(disputeStatusLabel)
+        view.addSubview(disputeButton)
 
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
@@ -196,6 +304,15 @@ class SettlementViewController: UIViewController {
             noteLabel.topAnchor.constraint(equalTo: submitButton.bottomAnchor, constant: 20),
             noteLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             noteLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            disputeStatusLabel.topAnchor.constraint(equalTo: noteLabel.bottomAnchor, constant: 16),
+            disputeStatusLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            disputeStatusLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+
+            disputeButton.topAnchor.constraint(equalTo: disputeStatusLabel.bottomAnchor, constant: 12),
+            disputeButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            disputeButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            disputeButton.heightAnchor.constraint(equalToConstant: 48),
         ])
     }
 
@@ -203,6 +320,7 @@ class SettlementViewController: UIViewController {
         myAchievementSegment.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
         opponentAchievementSegment.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
         submitButton.addTarget(self, action: #selector(submitSettlement), for: .touchUpInside)
+        disputeButton.addTarget(self, action: #selector(disputeTapped), for: .touchUpInside)
     }
 
     // MARK: - Actions

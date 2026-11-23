@@ -140,6 +140,12 @@ interface ApiService {
     suspend fun getSettlementStatus(
         @Path("planId") planId: String
     ): Response<SettlementSelectionStatus>
+
+    @POST("api/settlements/{settlementId}/dispute")
+    suspend fun submitDispute(
+        @Path("settlementId") settlementId: String,
+        @Body request: DisputeCreateRequest
+    ): Response<DisputeResponse>
     
     // ==================== 支付 API ====================
     

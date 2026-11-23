@@ -18,12 +18,21 @@ sealed class SettlementState {
     data class Error(val message: String) : SettlementState()
 }
 
+sealed class DisputeState {
+    object Idle : DisputeState()
+    object Submitting : DisputeState()
+    data class Success(val dispute: com.weightloss.betting.data.model.DisputeResponse) : DisputeState()
+    data class Error(val message: String) : DisputeState()
+}
+
 @HiltViewModel
 class SettlementViewModel @Inject constructor(
     private val repository: SettlementRepository
 ) : ViewModel() {
     private val _state = MutableLiveData<SettlementState>()
     val state: LiveData<SettlementState> = _state
+    private val _disputeState = MutableLiveData<DisputeState>(DisputeState.Idle)
+    val disputeState: LiveData<DisputeState> = _disputeState
 
     fun load(planId: String) {
         viewModelScope.launch {
@@ -51,6 +60,19 @@ class SettlementViewModel @Inject constructor(
                 }
                 is NetworkResult.Error -> _state.value = SettlementState.Error(
                     result.exception.message ?: "提交结算选择失败"
+                )
+                is NetworkResult.Loading -> Unit
+            }
+        }
+    }
+
+    fun submitDispute(settlementId: String, reason: String) {
+        viewModelScope.launch {
+            _disputeState.value = DisputeState.Submitting
+            when (val result = repository.submitDispute(settlementId, reason)) {
+                is NetworkResult.Success -> _disputeState.value = DisputeState.Success(result.data)
+                is NetworkResult.Error -> _disputeState.value = DisputeState.Error(
+                    result.exception.message ?: "提交争议失败"
                 )
                 is NetworkResult.Loading -> Unit
             }

@@ -62,7 +62,7 @@ class AuthRepository {
         }
     }
     
-    func googleLogin(idToken: String, nonce: String? = nil, completion: @escaping (Result<AuthResponse, Error>) -> Void) {
+    func googleLogin(idToken: String, nonce: String, completion: @escaping (Result<AuthResponse, Error>) -> Void) {
         apiService.googleLogin(idToken: idToken, nonce: nonce) { [weak self] result in
             switch result {
             case .success(let authResponse):
@@ -96,23 +96,16 @@ class AuthRepository {
                 self?.keychainManager.saveAccessToken(authResponse.accessToken)
                 self?.keychainManager.saveRefreshToken(authResponse.refreshToken)
                 
-                // Update cached user data
-                let user = User(
-                    id: authResponse.userId,
-                    email: authResponse.email,
-                    nickname: authResponse.nickname,
-                    gender: .male,  // Default to male since backend only has male/female
-                    age: 0,
-                    height: 0,
-                    currentWeight: 0,
-                    targetWeight: nil,
-                    paymentMethod: nil,
-                    createdAt: Date(),
-                    updatedAt: Date()
-                )
-                self?.cacheManager.cacheUser(user)
-                
-                completion(.success(authResponse))
+                UserDefaults.standard.set(authResponse.userId, forKey: "currentUserId")
+                // Refresh the complete profile before caching; AuthResponse does not contain
+                // the user's health and payment fields.
+                UserRepository.shared.getUserProfile(userId: authResponse.userId, forceRefresh: true) { [weak self] profileResult in
+                    if case .success(let user) = profileResult {
+                        self?.cacheManager.cacheUser(user)
+                    }
+                    // A valid token remains usable when profile refresh is temporarily offline.
+                    completion(.success(authResponse))
+                }
                 
             case .failure(let error):
                 completion(.failure(error))

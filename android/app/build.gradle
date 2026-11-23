@@ -91,6 +91,8 @@ dependencies {
     
     // DataStore
     implementation 'androidx.datastore:datastore-preferences:1.0.0'
+    // Keystore-backed encrypted storage for authentication and payment recovery state
+    implementation 'androidx.security:security-crypto:1.1.0-alpha06'
     
     // Chart library for progress visualization
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'

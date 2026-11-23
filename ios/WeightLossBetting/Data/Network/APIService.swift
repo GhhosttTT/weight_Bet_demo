@@ -154,11 +154,8 @@ class APIService {
             }
     }
     
-    func googleLogin(idToken: String, nonce: String? = nil, completion: @escaping (Result<AuthResponse, Error>) -> Void) {
-        var parameters = ["id_token": idToken]
-        if let nonce, !nonce.isEmpty {
-            parameters["nonce"] = nonce
-        }
+    func googleLogin(idToken: String, nonce: String, completion: @escaping (Result<AuthResponse, Error>) -> Void) {
+        let parameters = ["id_token": idToken, "nonce": nonce]
         
         session.request("\(baseURL)/auth/google",
                        method: .post,

@@ -244,7 +244,7 @@ RetryInterceptor 实现了自动重试机制:
 
 ### 令牌管理
 
-TokenManager 使用 DataStore 安全存储令牌:
+TokenManager 使用 Android Keystore-backed EncryptedSharedPreferences 加密存储令牌，并在升级时迁移旧 DataStore:
 - 访问令牌 (Access Token)
 - 刷新令牌 (Refresh Token)
 

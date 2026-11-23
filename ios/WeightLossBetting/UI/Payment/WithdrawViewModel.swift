@@ -79,6 +79,18 @@ class WithdrawViewModel {
     }
     
     func withdraw(amount: Double) {
+        guard amount.isFinite, amount > 0 else {
+            withdrawState = .error("提现金额必须大于0")
+            return
+        }
+        guard amount >= 0.01 else {
+            withdrawState = .error("提现金额不能少于0.01元")
+            return
+        }
+        guard amount <= 50000 else {
+            withdrawState = .error("单次提现金额不能超过50000元")
+            return
+        }
         withdrawState = .loading
         
         Task {

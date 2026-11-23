@@ -256,6 +256,20 @@ def test_charge_amount_validation_matches_on_android_and_ios():
     assert "amountDouble <= 0" in android
 
 
+def test_withdraw_amount_validation_matches_on_android_and_ios():
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/WithdrawViewModel.kt").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewModel.swift").read_text(encoding="utf-8")
+
+    for content in (android, ios):
+        assert "0.01" in content
+        assert "50000" in content
+        assert "提现金额必须大于0" in content
+        assert "提现金额不能少于0.01元" in content
+        assert "单次提现金额不能超过50000元" in content
+    assert "amount.isFinite" in ios
+    assert "amountDouble <= 0" in android
+
+
 def test_google_login_configuration_state_matches_between_mobile_platforms():
     android = ANDROID_LOGIN.read_text(encoding="utf-8")
     android_strings = ANDROID_LOGIN_STRINGS.read_text(encoding="utf-8")

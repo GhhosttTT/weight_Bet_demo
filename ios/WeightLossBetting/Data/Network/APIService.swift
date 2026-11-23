@@ -566,6 +566,14 @@ class APIService {
                 self.handleDirectResponse(response, completion: completion)
             }
     }
+
+    func resumeChargeIntent(transactionId: String, completion: @escaping (Result<ChargeIntentResult, Error>) -> Void) {
+        session.request("\(baseURL)/payments/transactions/\(transactionId)/resume")
+            .validate()
+            .responseDecodable(of: ChargeIntentResult.self, decoder: decoder) { response in
+                self.handleDirectResponse(response, completion: completion)
+            }
+    }
     
     func createChargeIntent(amount: Double, idempotencyKey: String, completion: @escaping (Result<ChargeIntentResult, Error>) -> Void) {
         let parameters: [String: Any] = ["amount": amount, "idempotencyKey": idempotencyKey]

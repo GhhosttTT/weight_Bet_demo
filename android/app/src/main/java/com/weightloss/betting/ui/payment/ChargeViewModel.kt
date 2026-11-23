@@ -71,6 +71,7 @@ class ChargeViewModel @Inject constructor(
                     if (secret.isNullOrBlank()) {
                         _chargeState.value = ChargeState.Error("支付订单缺少确认凭证")
                     } else {
+                        tokenManager.savePendingCharge(result.data.transactionId)
                         _chargeState.value = ChargeState.AwaitingConfirmation(secret, result.data.transactionId)
                     }
                 }
@@ -93,11 +94,13 @@ class ChargeViewModel @Inject constructor(
                 when (val result = paymentRepository.getTransactionStatus(transactionId)) {
                     is NetworkResult.Success -> when (result.data.status.lowercase()) {
                         "completed" -> {
+                            tokenManager.clearPendingCharge()
                             chargeIdempotencyKey = null
                             _chargeState.value = ChargeState.Success
                             return@launch
                         }
                         "failed" -> {
+                            tokenManager.clearPendingCharge()
                             chargeIdempotencyKey = null
                             _chargeState.value = ChargeState.Error("支付已失败，请重新尝试")
                             return@launch
@@ -118,7 +121,6 @@ class ChargeViewModel @Inject constructor(
     }
 
     fun paymentCanceled() {
-        chargeIdempotencyKey = null
         _chargeState.value = ChargeState.Error("已取消支付")
     }
 
@@ -126,6 +128,29 @@ class ChargeViewModel @Inject constructor(
         // Stripe 已明确拒绝当前 PaymentIntent；下一次重试必须创建新的
         // 本地交易和 Stripe 幂等键，避免重复复用已失败的 PaymentIntent。
         chargeIdempotencyKey = null
+        viewModelScope.launch { tokenManager.clearPendingCharge() }
         _chargeState.value = ChargeState.Error(message)
+    }
+
+    fun restorePendingCharge() {
+        viewModelScope.launch {
+            val transactionId = tokenManager.getPendingCharge() ?: return@launch
+            when (val result = paymentRepository.resumeChargeIntent(transactionId)) {
+                is NetworkResult.Success -> {
+                    val secret = result.data.clientSecret
+                    if (secret.isNullOrBlank()) {
+                        _chargeState.value = ChargeState.Error("未完成订单缺少支付凭证")
+                    } else if (result.data.status.equals("succeeded", ignoreCase = true)) {
+                        paymentCompleted(transactionId)
+                    } else {
+                        _chargeState.value = ChargeState.AwaitingConfirmation(secret, transactionId)
+                    }
+                }
+                is NetworkResult.Error -> {
+                    _chargeState.value = ChargeState.Error("未完成充值订单恢复失败，请刷新交易记录")
+                }
+                is NetworkResult.Loading -> Unit
+            }
+        }
     }
 }

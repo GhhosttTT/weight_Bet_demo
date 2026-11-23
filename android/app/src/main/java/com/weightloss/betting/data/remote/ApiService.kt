@@ -64,6 +64,11 @@ interface ApiService {
     suspend fun getTransactionStatus(
         @Path("transactionId") transactionId: String
     ): Response<TransactionStatusResult>
+
+    @GET("api/payments/transactions/{transactionId}/resume")
+    suspend fun resumeChargeIntent(
+        @Path("transactionId") transactionId: String
+    ): Response<ChargeIntentResult>
     
     // ==================== 对赌计划 API ====================
     

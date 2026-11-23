@@ -131,6 +131,44 @@ class StripePaymentService:
             "status": intent.status,
         }
 
+    @classmethod
+    def resume_charge_intent(cls, db: Session, user_id: str, transaction_id: str) -> dict:
+        """恢复当前用户的待处理充值，避免应用中断后丢失 PaymentSheet。"""
+        cls._require_stripe_mode()
+        transaction = db.query(Transaction).filter(
+            Transaction.id == transaction_id,
+            Transaction.user_id == user_id,
+            Transaction.type == TransactionType.CHARGE,
+        ).first()
+        if not transaction:
+            raise HTTPException(status_code=404, detail="充值交易不存在")
+        if transaction.status != TransactionStatus.PENDING:
+            raise HTTPException(status_code=409, detail="充值交易已结束，不能恢复支付")
+        if not transaction.external_payment_id:
+            raise HTTPException(status_code=409, detail="充值交易尚未生成 Stripe PaymentIntent")
+
+        stripe.api_key = settings.STRIPE_SECRET_KEY
+        try:
+            intent = stripe.PaymentIntent.retrieve(transaction.external_payment_id)
+        except stripe.error.StripeError as error:
+            raise HTTPException(status_code=502, detail="Stripe 充值订单查询失败") from error
+
+        metadata = intent.get("metadata") if isinstance(intent, dict) else getattr(intent, "metadata", {})
+        if metadata.get("transaction_id") != transaction.id or metadata.get("user_id") != user_id:
+            raise HTTPException(status_code=400, detail="Stripe 充值订单与当前用户不匹配")
+        intent_id = intent.get("id") if isinstance(intent, dict) else getattr(intent, "id", None)
+        client_secret = intent.get("client_secret") if isinstance(intent, dict) else getattr(intent, "client_secret", None)
+        intent_status = intent.get("status") if isinstance(intent, dict) else getattr(intent, "status", None)
+        if not intent_id or not client_secret or not intent_status:
+            raise HTTPException(status_code=502, detail="Stripe 充值订单缺少恢复信息")
+        return {
+            "transaction_id": transaction.id,
+            "payment_intent_id": intent_id,
+            "client_secret": client_secret,
+            "amount": float(transaction.amount),
+            "status": intent_status,
+        }
+
     @staticmethod
     def handle_webhook(db: Session, payload: bytes, signature: str) -> dict:
         if stripe is None:

@@ -27,6 +27,7 @@ class TokenManager @Inject constructor(
         private val ACCESS_TOKEN_KEY = stringPreferencesKey("access_token")
         private val REFRESH_TOKEN_KEY = stringPreferencesKey("refresh_token")
         private val USER_ID_KEY = stringPreferencesKey("user_id")
+        private val PENDING_CHARGE_KEY = stringPreferencesKey("pending_charge_transaction_id")
     }
     
     suspend fun saveTokens(accessToken: String, refreshToken: String, userId: String? = null) {
@@ -73,5 +74,17 @@ class TokenManager @Inject constructor(
             preferences.remove(USER_ID_KEY)
         }
         Log.d(TAG, "Tokens cleared")
+    }
+
+    suspend fun savePendingCharge(transactionId: String) {
+        context.dataStore.edit { preferences -> preferences[PENDING_CHARGE_KEY] = transactionId }
+    }
+
+    suspend fun getPendingCharge(): String? {
+        return context.dataStore.data.map { preferences -> preferences[PENDING_CHARGE_KEY] }.first()
+    }
+
+    suspend fun clearPendingCharge() {
+        context.dataStore.edit { preferences -> preferences.remove(PENDING_CHARGE_KEY) }
     }
 }

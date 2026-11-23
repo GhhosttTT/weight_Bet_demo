@@ -93,6 +93,7 @@ class ChargeViewController: UIViewController {
         setupUI()
         setupBindings()
         setupKeyboardHandling()
+        viewModel.restorePendingCharge()
         
         // 如果有预填金额，在视图加载完成后设置
         if let amount = preFillAmountValue {

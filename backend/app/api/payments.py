@@ -11,6 +11,7 @@ from app.schemas.payment import (
     TransactionStatusResponse,
     ChargeRequest,
     ChargeIntentResponse,
+    ChargeResumeResponse,
     ChargeIntentRequest,
     SetupIntentResponse,
     WithdrawRequest
@@ -94,6 +95,16 @@ def get_transaction_status(
     if not transaction:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="交易不存在")
     return TransactionStatusResponse.model_validate(transaction)
+
+
+@router.get("/transactions/{transaction_id}/resume", response_model=ChargeResumeResponse)
+def resume_charge_intent(
+    transaction_id: str,
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """恢复当前用户被中断的 Stripe 充值订单。"""
+    return StripePaymentService.resume_charge_intent(db, current_user_id, transaction_id)
 
 
 @router.post("/charge")

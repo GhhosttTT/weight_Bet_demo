@@ -59,6 +59,10 @@ class ChargeIntentResponse(BaseModel):
     status: str
 
 
+class ChargeResumeResponse(ChargeIntentResponse):
+    """应用重启后恢复当前用户未完成的 PaymentIntent。"""
+
+
 class ChargeIntentRequest(BaseModel):
     """创建 PaymentIntent 的请求；卡信息由 Stripe 客户端组件收集。"""
     amount: float = Field(..., ge=0.01)

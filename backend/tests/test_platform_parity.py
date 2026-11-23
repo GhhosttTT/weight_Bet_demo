@@ -262,6 +262,32 @@ def test_payment_success_waits_for_webhook_status_on_both_mobile_platforms():
     assert "/payments/transactions/\\(transactionId)" in ios_api
 
 
+def test_interrupted_charge_can_request_a_resume_intent_on_both_mobile_platforms():
+    android_api = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt").read_text(encoding="utf-8")
+    android_repository = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/PaymentRepository.kt").read_text(encoding="utf-8")
+    ios_api = (ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift").read_text(encoding="utf-8")
+    ios_repository = (ROOT / "ios/WeightLossBetting/Data/Repository/PaymentRepository.swift").read_text(encoding="utf-8")
+
+    assert 'api/payments/transactions/{transactionId}/resume' in android_api
+    assert "resumeChargeIntent(transactionId: String)" in android_repository
+    assert "/payments/transactions/\\(transactionId)/resume" in ios_api
+    assert "resumeChargeIntent(transactionId: String)" in ios_repository
+
+
+def test_interrupted_charge_is_persisted_and_restored_on_both_mobile_platforms():
+    android_vm = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt").read_text(encoding="utf-8")
+    android_activity = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeActivity.kt").read_text(encoding="utf-8")
+    token_manager = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/TokenManager.kt").read_text(encoding="utf-8")
+    ios_vm = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift").read_text(encoding="utf-8")
+    ios_controller = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewController.swift").read_text(encoding="utf-8")
+
+    assert "savePendingCharge(result.data.transactionId)" in android_vm
+    assert "restorePendingCharge()" in android_activity
+    assert "pending_charge_transaction_id" in token_manager
+    assert "pendingChargeTransactionId" in ios_vm
+    assert "restorePendingCharge()" in ios_controller
+
+
 def test_withdraw_response_mapping_keeps_transaction_and_status_fields():
     android_models = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/model/Models.kt").read_text(encoding="utf-8")
     ios_models = (ROOT / "ios/WeightLossBetting/Data/Model/Models.swift").read_text(encoding="utf-8")

@@ -21,6 +21,10 @@ class PaymentRepository @Inject constructor(
     suspend fun getTransactionStatus(transactionId: String): NetworkResult<TransactionStatusResult> {
         return safeApiCall { apiService.getTransactionStatus(transactionId) }
     }
+
+    suspend fun resumeChargeIntent(transactionId: String): NetworkResult<ChargeIntentResult> {
+        return safeApiCall { apiService.resumeChargeIntent(transactionId) }
+    }
     
     suspend fun createChargeIntent(request: ChargeIntentRequest): NetworkResult<ChargeIntentResult> {
         return safeApiCall { apiService.createChargeIntent(request) }

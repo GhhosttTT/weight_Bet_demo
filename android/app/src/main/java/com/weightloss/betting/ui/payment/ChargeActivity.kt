@@ -27,6 +27,7 @@ class ChargeActivity : BaseActivity() {
         setupToolbar()
         setupObservers()
         setupListeners()
+        viewModel.restorePendingCharge()
         
         // 获取需要充值的金额
         val requiredAmount = intent.getDoubleExtra("required_amount", 0.0)

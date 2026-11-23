@@ -13,7 +13,7 @@ final class ChargeViewModel {
     private let paymentRepository = PaymentRepository()
     var onChargeStateChanged: ((ChargeState) -> Void)?
     private var chargeIdempotencyKey: String?
-    private var pendingTransactionId: String?
+    private var pendingTransactionId: String? = UserDefaults.standard.string(forKey: "pendingChargeTransactionId")
     private var chargeState: ChargeState = .idle {
         didSet { onChargeStateChanged?(chargeState) }
     }
@@ -34,6 +34,7 @@ final class ChargeViewModel {
                     return
                 }
                 pendingTransactionId = intent.transactionId
+                UserDefaults.standard.set(intent.transactionId, forKey: "pendingChargeTransactionId")
                 chargeState = .awaitingConfirmation(clientSecret, intent.transactionId)
             case .failure(let error):
                 chargeState = .error(parseError(error))
@@ -57,12 +58,14 @@ final class ChargeViewModel {
                     if status.status.lowercased() == "completed" {
                         chargeIdempotencyKey = nil
                         pendingTransactionId = nil
+                        UserDefaults.standard.removeObject(forKey: "pendingChargeTransactionId")
                         chargeState = .success
                         return
                     }
                     if status.status.lowercased() == "failed" {
                         chargeIdempotencyKey = nil
                         pendingTransactionId = nil
+                        UserDefaults.standard.removeObject(forKey: "pendingChargeTransactionId")
                         chargeState = .error("支付已失败，请重新尝试")
                         return
                     }
@@ -79,12 +82,36 @@ final class ChargeViewModel {
             chargeState = .error("支付已确认，入账处理中，请稍后刷新余额")
         }
     }
-    func paymentCanceled() { chargeIdempotencyKey = nil; chargeState = .error("已取消支付") }
+    func paymentCanceled() { chargeState = .error("已取消支付") }
     func paymentFailed(_ message: String) {
         // Stripe 已明确拒绝当前 PaymentIntent；下一次重试必须创建新的
         // 本地交易和 Stripe 幂等键，避免重复复用已失败的 PaymentIntent。
         chargeIdempotencyKey = nil
+        pendingTransactionId = nil
+        UserDefaults.standard.removeObject(forKey: "pendingChargeTransactionId")
         chargeState = .error(message)
+    }
+
+    func restorePendingCharge() {
+        guard let transactionId = pendingTransactionId else { return }
+        Task {
+            switch await paymentRepository.resumeChargeIntent(transactionId: transactionId) {
+            case .success(let intent):
+                guard let secret = intent.clientSecret, !secret.isEmpty else {
+                    chargeState = .error("未完成订单缺少支付凭证")
+                    return
+                }
+                if intent.status.lowercased() == "succeeded" {
+                    paymentCompleted()
+                } else {
+                    chargeState = .awaitingConfirmation(secret, transactionId)
+                }
+            case .failure:
+                chargeState = .error("未完成充值订单恢复失败，请刷新交易记录")
+            case .loading:
+                break
+            }
+        }
     }
 
     private func parseError(_ error: Error) -> String {

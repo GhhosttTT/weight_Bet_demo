@@ -28,7 +28,9 @@ python scripts/create_admin.py user@example.com
 | 资金结算 | 查看结算分配、交易流水、用户可用/冻结余额 | 只读，不能从后台直接改余额 |
 | 审计日志 | 查看后台审核和争议处理动作 | 日志只能由服务端写入 |
 
-后台还提供提现异常恢复入口：当 Stripe Transfer 已成功但 Payout 创建中断时，交易会进入“待重试出款”队列，管理员可以在资金页面直接重试；操作会写入审计日志，重复重试具有幂等保护。
+后台还提供提现异常恢复入口：当 Stripe Transfer 已成功但 Payout 创建中断时，交易会进入“待重试出款”队列，管理员可以在资金页面直接重试或对账；操作会写入审计日志，重复操作具有幂等保护。
+
+移动端也提供交易所有者级别的恢复接口：充值页面中断后调用 `GET /api/payments/transactions/{transaction_id}/resume`；提现异常时调用 `POST /api/payments/withdraw/{transaction_id}/retry` 或 `POST /api/payments/withdraw/{transaction_id}/reconcile`。这些接口会校验交易归属，只能处理当前用户自己的待恢复提现，不能替代 Webhook 的最终入账/出款状态确认。
 
 ### 状态边界
 

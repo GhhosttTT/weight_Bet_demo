@@ -228,13 +228,18 @@ open WeightLossBetting.xcworkspace
 
 ### 支付
 - `POST /api/payments/charge/intent` - 创建 Stripe PaymentIntent（生产充值入口）
+- `GET /api/payments/transactions/{transactionId}/resume` - 恢复当前用户被中断的充值订单
 - `POST /api/payments/setup-intent` - 创建 Stripe SetupIntent（生产绑定支付方式入口）
 - `POST /api/payments/stripe/webhook` - 接收 Stripe 支付与出款回调（签名校验）
 - `POST /api/payments/withdraw` - 提现
+- `POST /api/payments/withdraw/{transactionId}/retry` - 当前用户重试处于待恢复状态的提现
+- `POST /api/payments/withdraw/{transactionId}/reconcile` - 当前用户查询 Stripe 并对账中断的提现
 - `POST /api/payments/connect/onboarding` - 创建 Stripe Connect 提现账户认证链接
 - `GET /api/users/{userId}/balance` - 获取余额
 
 `POST /api/payments/charge` 仅用于 `PAYMENT_PROVIDER=demo` 的本地演示；Stripe 模式会返回 410，客户端不得调用该接口。
+
+充值页面在 PaymentSheet 被中断后，应保存交易 ID 并调用 `resume` 获取仍有效的客户端密钥；明确取消或失败后，客户端会清除旧幂等键，允许用户重新提交金额。提现恢复接口只接受交易所有者的请求，管理员使用后台专用的 retry/reconcile 接口。
 
 ### 结算
 - `GET /api/settlement-check` - 检查计划是否可结算

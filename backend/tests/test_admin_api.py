@@ -274,6 +274,8 @@ def test_admin_page_persists_refresh_token_and_revokes_it_on_logout(admin_contex
     assert "notifications" in response.text
     assert "/api/notifications/send" in response.text
     assert "notification-user-id" in response.text
+    assert "/platform-fees" in response.text
+    assert "platform-fees-table" in response.text
 
 
 def test_admin_update_endpoints_require_admin_role(admin_context):

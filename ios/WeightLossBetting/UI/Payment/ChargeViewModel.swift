@@ -19,6 +19,18 @@ final class ChargeViewModel {
     }
 
     func charge(amount: Double) {
+        guard amount.isFinite, amount > 0 else {
+            chargeState = .error("充值金额必须大于0")
+            return
+        }
+        guard amount >= 0.01 else {
+            chargeState = .error("充值金额不能少于0.01元")
+            return
+        }
+        guard amount <= 10000 else {
+            chargeState = .error("单次充值金额不能超过10000元")
+            return
+        }
         chargeState = .loading
         Task {
             let idempotencyKey = chargeIdempotencyKey ?? UUID().uuidString

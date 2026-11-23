@@ -242,6 +242,20 @@ def test_dispute_update_notifications_navigate_to_settlement_on_both_mobile_plat
     assert "getSettlementSelectionStatus(planId: planId)" in ios_settlement
 
 
+def test_charge_amount_validation_matches_on_android_and_ios():
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift").read_text(encoding="utf-8")
+
+    for content in (android, ios):
+        assert "0.01" in content
+        assert "10000" in content
+        assert "充值金额必须大于0" in content
+        assert "充值金额不能少于0.01元" in content
+        assert "单次充值金额不能超过10000元" in content
+    assert "amount.isFinite" in ios
+    assert "amountDouble <= 0" in android
+
+
 def test_google_login_configuration_state_matches_between_mobile_platforms():
     android = ANDROID_LOGIN.read_text(encoding="utf-8")
     android_strings = ANDROID_LOGIN_STRINGS.read_text(encoding="utf-8")

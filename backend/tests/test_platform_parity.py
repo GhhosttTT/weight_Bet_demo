@@ -57,6 +57,8 @@ ANDROID_PROFILE_LAYOUT = ROOT / "android/app/src/main/res/layout/fragment_profil
 ANDROID_PROFILE_FRAGMENT = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/profile/ProfileFragment.kt"
 IOS_PROFILE = ROOT / "ios/WeightLossBetting/UI/Profile/ProfileViewController.swift"
 ANDROID_PLAN_DETAIL = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/PlanDetailActivity.kt"
+ANDROID_BACKUP_RULES = ROOT / "android/app/src/main/res/xml/backup_rules.xml"
+ANDROID_DATA_EXTRACTION_RULES = ROOT / "android/app/src/main/res/xml/data_extraction_rules.xml"
 IOS_PLAN_DETAIL = ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewController.swift"
 
 
@@ -85,6 +87,16 @@ def test_withdrawal_copy_and_limits_match_between_mobile_platforms():
     assert "请输入提现金额（元）" in ios
     assert "可用余额：¥" in ios
     assert 'amount <= 50000' in ios
+
+
+def test_android_backup_rules_exclude_authentication_and_pending_payment_state():
+    backup = ANDROID_BACKUP_RULES.read_text(encoding="utf-8")
+    extraction = ANDROID_DATA_EXTRACTION_RULES.read_text(encoding="utf-8")
+    expected = 'domain="file" path="datastore/auth_prefs.preferences_pb"'
+
+    assert expected in backup
+    assert extraction.count(expected) == 2
+    assert "<device-transfer>" in extraction
 
 
 def test_charge_limits_match_between_mobile_platforms():

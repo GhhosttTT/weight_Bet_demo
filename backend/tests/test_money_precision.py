@@ -23,3 +23,11 @@ def test_money_columns_use_two_decimal_fixed_point_storage():
     assert all(column.type.precision == 12 for column in columns)
     assert all(column.type.scale == 2 for column in columns)
     assert all(column.type.asdecimal is False for column in columns)
+
+
+def test_alembic_online_migration_has_empty_database_bootstrap_path():
+    env = ("backend/alembic/env.py")
+    content = open(env, encoding="utf-8").read()
+    assert "if not inspect(connection).get_table_names()" in content
+    assert "Base.metadata.create_all(bind=connection)" in content
+    assert 'context.get_context().stamp(ScriptDirectory.from_config(config), "head")' in content

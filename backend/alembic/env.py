@@ -4,6 +4,8 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 
 from alembic import context
+from alembic.script import ScriptDirectory
+from sqlalchemy import inspect
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -75,6 +77,15 @@ def run_migrations_online() -> None:
     )
 
     with connectable.connect() as connection:
+        # 历史链从 001 开始时默认业务表已经存在，空库直接升级会在
+        # invitations 外键和 betting_plans 字段处失败。空库使用当前完整
+        # metadata 建立初始结构，再记录当前 head；已有库仍按历史迁移顺序升级。
+        if not inspect(connection).get_table_names():
+            Base.metadata.create_all(bind=connection)
+            context.configure(connection=connection, target_metadata=target_metadata)
+            with context.begin_transaction():
+                context.get_context().stamp(ScriptDirectory.from_config(config), "head")
+            return
         context.configure(
             connection=connection, target_metadata=target_metadata
         )

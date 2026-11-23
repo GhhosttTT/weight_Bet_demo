@@ -163,4 +163,10 @@ def test_settlement_calculation_and_dispute_require_participation(financial_cont
     assert client.get("/api/settlements/calculate/financial-plan", headers=other).status_code == 200
     assert client.post("/api/settlements/financial-settlement/dispute", json=dispute, headers=other).status_code == 200
     assert client.post("/api/settlements/financial-settlement/dispute", json=dispute, headers=owner).status_code == 200
+    owner_dispute = client.get("/api/settlements/financial-settlement/dispute", headers=owner)
+    other_dispute = client.get("/api/settlements/financial-settlement/dispute", headers=other)
+    assert owner_dispute.status_code == 200
+    assert other_dispute.status_code == 200
+    assert owner_dispute.json()["user_id"] == "finance-owner"
+    assert other_dispute.json()["user_id"] == "finance-other"
     assert client.post("/api/settlements/financial-settlement/dispute", json=dispute, headers=owner).status_code == 400

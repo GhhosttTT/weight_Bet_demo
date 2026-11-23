@@ -274,6 +274,30 @@ async def submit_dispute(
         )
 
 
+@router.get("/settlements/{settlement_id}/dispute", response_model=DisputeResponse)
+def get_my_dispute(
+    settlement_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """查询当前用户针对该结算提交的争议，避免暴露另一方的处理记录。"""
+    settlement = db.query(Settlement).filter(Settlement.id == settlement_id).first()
+    if not settlement:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="结算记录不存在")
+    plan = db.query(BettingPlan).filter(BettingPlan.id == settlement.plan_id).first()
+    if not plan:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="关联计划不存在")
+    if plan.creator_id != current_user.id and plan.participant_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="您不是该计划的参与者")
+    dispute = db.query(Dispute).filter(
+        Dispute.settlement_id == settlement_id,
+        Dispute.user_id == current_user.id,
+    ).first()
+    if not dispute:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="尚未提交争议")
+    return DisputeResponse.model_validate(dispute)
+
+
 @router.post("/settlements/scheduled-task")
 async def run_scheduled_settlement_task(
     db: Session = Depends(get_db),

@@ -165,6 +165,7 @@ def list_disputes(
             "description": item.description,
             "status": item.status.value,
             "admin_notes": item.admin_notes,
+            "resolved_by": item.resolved_by,
             "created_at": item.created_at,
             "resolved_at": item.resolved_at,
         }

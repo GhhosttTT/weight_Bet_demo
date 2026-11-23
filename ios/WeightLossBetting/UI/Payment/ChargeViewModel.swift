@@ -82,7 +82,11 @@ final class ChargeViewModel {
             chargeState = .error("支付已确认，入账处理中，请稍后刷新余额")
         }
     }
-    func paymentCanceled() { chargeState = .error("已取消支付") }
+    func paymentCanceled() {
+        // 保留服务端 pending 交易以便恢复，但下一次改金额必须使用新幂等键。
+        chargeIdempotencyKey = nil
+        chargeState = .error("已取消支付")
+    }
     func paymentFailed(_ message: String) {
         // Stripe 已明确拒绝当前 PaymentIntent；下一次重试必须创建新的
         // 本地交易和 Stripe 幂等键，避免重复复用已失败的 PaymentIntent。

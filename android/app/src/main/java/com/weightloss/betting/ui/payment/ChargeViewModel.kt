@@ -121,6 +121,8 @@ class ChargeViewModel @Inject constructor(
     }
 
     fun paymentCanceled() {
+        // 保留服务端 pending 交易以便下次恢复，但下一次改金额必须使用新幂等键。
+        chargeIdempotencyKey = null
         _chargeState.value = ChargeState.Error("已取消支付")
     }
 

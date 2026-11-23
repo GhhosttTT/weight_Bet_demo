@@ -248,6 +248,18 @@ def test_payment_failure_resets_idempotency_key_on_both_mobile_platforms():
     assert "chargeIdempotencyKey = nil" in ios_failure
 
 
+def test_payment_cancel_keeps_recovery_order_but_resets_new_charge_key():
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift").read_text(encoding="utf-8")
+
+    android_cancel = android.split("fun paymentCanceled", 1)[1].split("}", 1)[0]
+    ios_cancel = ios.split("func paymentCanceled", 1)[1].split("}", 1)[0]
+    assert "chargeIdempotencyKey = null" in android_cancel
+    assert "chargeIdempotencyKey = nil" in ios_cancel
+    assert "clearPendingCharge" not in android_cancel
+    assert "removeObject(forKey: \"pendingChargeTransactionId\")" not in ios_cancel
+
+
 def test_payment_success_waits_for_webhook_status_on_both_mobile_platforms():
     android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt").read_text(encoding="utf-8")
     android_api = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt").read_text(encoding="utf-8")

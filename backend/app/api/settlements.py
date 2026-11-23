@@ -206,7 +206,7 @@ async def submit_dispute(
         )
     
     # 检查是否已经提交过争议
-        existing_dispute = db.query(Dispute).filter(
+    existing_dispute = db.query(Dispute).filter(
         Dispute.settlement_id == settlement_id,
         Dispute.user_id == current_user.id
     ).first()

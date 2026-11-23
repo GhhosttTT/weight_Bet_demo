@@ -258,6 +258,13 @@ def test_withdraw_response_mapping_keeps_transaction_and_status_fields():
     assert 'case transactionId = "transaction_id"' in ios_models
 
 
+def test_ios_balance_uses_authenticated_user_id():
+    balance_vm = (ROOT / "ios/WeightLossBetting/UI/Payment/BalanceViewModel.swift").read_text(encoding="utf-8")
+
+    assert "AuthRepository.shared.getCurrentUserId()" in balance_vm
+    assert 'userId: "123"' not in balance_vm
+
+
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     android = ANDROID_COACH_VM.read_text(encoding="utf-8")
     ios = IOS_COACH_VM.read_text(encoding="utf-8")

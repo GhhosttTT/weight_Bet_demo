@@ -38,9 +38,14 @@ class BalanceViewModel {
     // MARK: - Public Methods
     
     func fetchData() {
-        // 加载余额和交易记录
-        loadBalance(userId: "123") // 临时使用固定用户ID，实际应该从用户信息中获取
-        loadTransactions(userId: "123") // 临时使用固定用户ID，实际应该从用户信息中获取
+        guard let userId = AuthRepository.shared.getCurrentUserId(), !userId.isEmpty else {
+            let message = "登录状态已失效，请重新登录"
+            balanceState = .error(message)
+            transactionsState = .error(message)
+            return
+        }
+        loadBalance(userId: userId)
+        loadTransactions(userId: userId)
     }
     
     func loadBalance(userId: String, forceRefresh: Bool = false) {

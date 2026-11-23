@@ -33,7 +33,7 @@ jobs:
 
       - name: Install pods
         working-directory: ios
-        run: pod install --no-repo-update --verbose
+        run: perl -e 'alarm 600; exec @ARGV' -- pod install --no-repo-update --verbose
 
       - name: Build iOS simulator target
         working-directory: ios

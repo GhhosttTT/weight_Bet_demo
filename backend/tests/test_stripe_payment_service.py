@@ -137,6 +137,7 @@ def test_resume_pending_charge_is_owner_scoped_and_returns_client_secret(db_sess
     db_session.commit()
     intent = {
         "id": "pi_resume", "client_secret": "pi_resume_secret", "status": "requires_payment_method",
+        "amount": 1500, "currency": "cny",
         "metadata": {"transaction_id": transaction.id, "user_id": "stripe-user-001"},
     }
     with patch("app.services.stripe_payment_service.stripe.PaymentIntent.retrieve", return_value=intent) as retrieve:
@@ -146,6 +147,26 @@ def test_resume_pending_charge_is_owner_scoped_and_returns_client_secret(db_sess
     with pytest.raises(HTTPException) as error:
         StripePaymentService.resume_charge_intent(db_session, "another-user", transaction.id)
     assert error.value.status_code == 404
+
+
+def test_resume_pending_charge_rejects_amount_or_currency_mismatch(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
+    monkeypatch.setattr(settings, "STRIPE_SECRET_KEY", "sk_test_realistic")
+    transaction = Transaction(
+        id="charge-resume-mismatch", user_id="stripe-user-001", type=TransactionType.CHARGE,
+        amount=15, status=TransactionStatus.PENDING, external_payment_id="pi_bad_resume",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    intent = {
+        "id": "pi_bad_resume", "client_secret": "secret", "status": "requires_payment_method",
+        "amount": 1400, "currency": "cny",
+        "metadata": {"transaction_id": transaction.id, "user_id": "stripe-user-001"},
+    }
+    with patch("app.services.stripe_payment_service.stripe.PaymentIntent.retrieve", return_value=intent):
+        with pytest.raises(HTTPException) as error:
+            StripePaymentService.resume_charge_intent(db_session, "stripe-user-001", transaction.id)
+    assert error.value.status_code == 400
 
 
 def test_create_intent_rejects_idempotency_key_used_by_another_user(db_session, monkeypatch):

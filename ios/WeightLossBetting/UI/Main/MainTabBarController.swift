@@ -31,7 +31,7 @@ class MainTabBarController: UITabBarController {
         print("   - 类型：\(type)")
         
         // 处理计划相关通知，跳转到计划详情
-        if ["invite", "double_check", "plan_active", "settlement", "dispute_updated"].contains(type) {
+        if ["invite", "double_check", "plan_active"].contains(type) {
             print("🚀 [MainTabBar] 开始导航到计划详情")
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }
@@ -58,6 +58,26 @@ class MainTabBarController: UITabBarController {
                 let nav = UINavigationController(rootViewController: detailVC)
                 self.present(nav, animated: true)
                 print("✅ [MainTabBar] 方案3导航成功")
+            }
+        }
+
+        // 结算和争议通知需要进入结算页，展示最新状态并允许查看处理结果。
+        if ["settlement", "dispute_updated"].contains(type) {
+            print("🚀 [MainTabBar] 开始导航到结算页面")
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self else { return }
+                self.selectedIndex = 2
+                let settlementVC = SettlementViewController(
+                    planId: planId,
+                    opponentName: "对手",
+                    planTitle: "结算详情"
+                )
+                if let plansNav = self.viewControllers?[2] as? UINavigationController {
+                    plansNav.popToRootViewController(animated: false)
+                    plansNav.pushViewController(settlementVC, animated: true)
+                } else {
+                    self.present(UINavigationController(rootViewController: settlementVC), animated: true)
+                }
             }
         }
     }

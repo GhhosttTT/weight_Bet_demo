@@ -231,12 +231,15 @@ def test_dispute_update_notifications_navigate_to_settlement_on_both_mobile_plat
     ios_service = (ROOT / "ios/WeightLossBetting/Data/Service/NotificationService.swift").read_text(encoding="utf-8")
     ios_coordinator = (ROOT / "ios/WeightLossBetting/UI/Common/NotificationNavigationCoordinator.swift").read_text(encoding="utf-8")
     ios_tab = (ROOT / "ios/WeightLossBetting/UI/Main/MainTabBarController.swift").read_text(encoding="utf-8")
+    ios_settlement = (ROOT / "ios/WeightLossBetting/UI/Settlement/SettlementViewController.swift").read_text(encoding="utf-8")
 
     assert '"settlement", "dispute_updated"' in android
     assert "related_id" in android_fcm
     assert 'case "settlement", "dispute_updated"' in ios_service
     assert 'case "settlement", "dispute_updated"' in ios_coordinator
     assert '"settlement", "dispute_updated"' in ios_tab
+    assert "SettlementViewController(" in ios_tab
+    assert "getSettlementSelectionStatus(planId: planId)" in ios_settlement
 
 
 def test_google_login_configuration_state_matches_between_mobile_platforms():

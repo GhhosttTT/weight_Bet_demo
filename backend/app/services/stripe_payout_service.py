@@ -18,6 +18,12 @@ class StripePayoutService:
     """Connect Express 账户与 Payout 状态编排。"""
 
     @staticmethod
+    def _to_minor_units(amount) -> int:
+        """把金额按人民币分转换为整数，避免 float 截断造成少出款。"""
+        normalized = Decimal(str(abs(amount))).quantize(Decimal("0.01"))
+        return int(normalized * 100)
+
+    @staticmethod
     def _require_stripe() -> None:
         StripePaymentService._require_stripe_mode()
 
@@ -104,7 +110,7 @@ class StripePayoutService:
         db.refresh(transaction)
 
         stripe.api_key = settings.STRIPE_SECRET_KEY
-        cents = int(normalized * 100)
+        cents = cls._to_minor_units(normalized)
         try:
             transfer = stripe.Transfer.create(
                 amount=cents,
@@ -162,8 +168,9 @@ class StripePayoutService:
         stripe.api_key = settings.STRIPE_SECRET_KEY
         try:
             if not transaction.external_transfer_id:
+                cents = cls._to_minor_units(transaction.amount)
                 transfer = stripe.Transfer.create(
-                    amount=int(abs(transaction.amount) * 100),
+                    amount=cents,
                     currency=settings.STRIPE_CURRENCY,
                     destination=user.stripe_account_id,
                     metadata={"transaction_id": transaction.id, "user_id": transaction.user_id},
@@ -171,8 +178,9 @@ class StripePayoutService:
                 )
                 transaction.external_transfer_id = transfer.id
                 db.commit()
+            cents = cls._to_minor_units(transaction.amount)
             payout = stripe.Payout.create(
-                amount=int(abs(transaction.amount) * 100),
+                amount=cents,
                 currency=settings.STRIPE_CURRENCY,
                 metadata={"transaction_id": transaction.id, "user_id": transaction.user_id},
                 idempotency_key=f"weight-bet-payout-{transaction.id}",
@@ -277,7 +285,7 @@ class StripePayoutService:
             raise HTTPException(status_code=400, detail="Stripe Connect 账户与本地提现不匹配")
         actual_amount = payout.get("amount")
         actual_currency = (payout.get("currency") or "").lower()
-        expected_amount = int(round(amount * 100))
+        expected_amount = StripePayoutService._to_minor_units(amount)
         if actual_amount is None or int(actual_amount) != expected_amount:
             raise HTTPException(status_code=400, detail="Stripe 出款金额与本地提现不匹配")
         if not actual_currency or actual_currency != settings.STRIPE_CURRENCY.lower():

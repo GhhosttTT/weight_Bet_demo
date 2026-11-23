@@ -211,6 +211,49 @@ def test_retry_pending_payout_recovers_missing_transfer(db_session, stripe_confi
     assert create_payout.call_args[1]["idempotency_key"] == "weight-bet-payout-recover-tx-001"
 
 
+@pytest.mark.parametrize("amount, expected_cents", [
+    (-0.01, 1),
+    (-0.29, 29),
+    (-10.29, 1029),
+    (-50000.00, 5000000),
+])
+def test_retry_pending_payout_uses_decimal_minor_units(db_session, stripe_config, amount, expected_cents):
+    user = db_session.query(User).one()
+    user.stripe_account_id = "acct_decimal"
+    transaction = Transaction(
+        id=f"retry-decimal-{str(abs(amount)).replace('.', '-')}", user_id=user.id,
+        type=TransactionType.WITHDRAW, amount=amount,
+        status=TransactionStatus.PENDING, external_transfer_id="tr_decimal",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    payout = SimpleNamespace(id="po_decimal")
+    with patch("app.services.stripe_payout_service.stripe.Payout.create", return_value=payout) as create:
+        StripePayoutService.retry_pending_payout(db_session, transaction.id)
+    assert create.call_args[1]["amount"] == expected_cents
+
+
+def test_payout_webhook_validates_decimal_minor_units(db_session, stripe_config):
+    user = db_session.query(User).one()
+    user.stripe_account_id = "acct_decimal_webhook"
+    transaction = Transaction(
+        id="webhook-decimal", user_id=user.id, type=TransactionType.WITHDRAW,
+        amount=-0.29, status=TransactionStatus.PENDING, external_payment_id="po_decimal_webhook",
+    )
+    balance = db_session.query(Balance).one()
+    balance.available_balance = 99.71
+    balance.frozen_balance = 0.29
+    db_session.add(transaction)
+    db_session.commit()
+    result = StripePayoutService.handle_payout_webhook(
+        db_session, "payout.paid",
+        {"id": "po_decimal_webhook", "amount": 29, "currency": "cny",
+         "metadata": {"transaction_id": transaction.id}},
+    )
+    assert result["status"] == "completed"
+    assert db_session.query(Balance).one().frozen_balance == 0
+
+
 def test_reconcile_pending_payout_applies_stripe_paid_status(db_session, stripe_config):
     user = db_session.query(User).one()
     user.stripe_account_id = "acct_reconcile"

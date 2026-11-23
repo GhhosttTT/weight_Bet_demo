@@ -242,6 +242,11 @@ class AuthService:
             HTTPException: Token 验证失败
         """
         try:
+            if not nonce:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Google 登录缺少 nonce",
+                )
             client_ids = settings.google_client_ids_list
             if not client_ids:
                 logger.error("Google login is not configured: GOOGLE_CLIENT_IDS is empty")
@@ -262,7 +267,7 @@ class AuthService:
                 raise ValueError("invalid issuer")
             if idinfo.get("email_verified") is not True:
                 raise ValueError("email is not verified")
-            if nonce is not None and idinfo.get("nonce") != nonce:
+            if idinfo.get("nonce") != nonce:
                 raise ValueError("invalid nonce")
             
             # 获取用户信息

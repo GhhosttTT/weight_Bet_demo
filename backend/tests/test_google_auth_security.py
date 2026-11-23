@@ -54,7 +54,7 @@ def test_google_login_rejects_unconfigured_provider(db_session, monkeypatch):
     monkeypatch.setattr(settings, "GOOGLE_CLIENT_IDS", "")
 
     with pytest.raises(HTTPException) as error:
-        AuthService.google_login(db_session, "token")
+        AuthService.google_login(db_session, "token", nonce="server-issued-nonce")
 
     assert error.value.status_code == 503
 
@@ -62,11 +62,12 @@ def test_google_login_rejects_unconfigured_provider(db_session, monkeypatch):
 def test_google_login_passes_all_configured_audiences_and_creates_user(
     db_session, google_config
 ):
+    nonce = "server-issued-nonce"
     with patch(
         "app.services.auth_service.id_token.verify_oauth2_token",
-        return_value=google_claims(),
+        return_value=google_claims(nonce=nonce),
     ) as verifier:
-        result = AuthService.google_login(db_session, "valid-token")
+        result = AuthService.google_login(db_session, "valid-token", nonce=nonce)
 
     verifier.assert_called_once()
     assert verifier.call_args[0][2] == ["web-client-id", "android-client-id"]
@@ -117,9 +118,9 @@ def test_google_login_binds_verified_email_to_existing_user(db_session, google_c
 
     with patch(
         "app.services.auth_service.id_token.verify_oauth2_token",
-        return_value=google_claims(),
+        return_value=google_claims(nonce="server-issued-nonce"),
     ):
-        result = AuthService.google_login(db_session, "token")
+        result = AuthService.google_login(db_session, "token", nonce="server-issued-nonce")
 
     db_session.refresh(user)
     assert result.user_id == user.id
@@ -146,12 +147,20 @@ def test_google_login_rejects_subject_mismatch_for_existing_email(
 
     with patch(
         "app.services.auth_service.id_token.verify_oauth2_token",
-        return_value=google_claims(),
+        return_value=google_claims(nonce="server-issued-nonce"),
     ):
         with pytest.raises(HTTPException) as error:
-            AuthService.google_login(db_session, "token")
+            AuthService.google_login(db_session, "token", nonce="server-issued-nonce")
 
     assert error.value.status_code == 409
+
+
+def test_google_login_rejects_missing_nonce(db_session, google_config):
+    with pytest.raises(HTTPException) as error:
+        AuthService.google_login(db_session, "token")
+
+    assert error.value.status_code == 400
+    assert "nonce" in error.value.detail
 
 
 def test_google_login_rejects_mismatched_nonce(db_session, google_config):

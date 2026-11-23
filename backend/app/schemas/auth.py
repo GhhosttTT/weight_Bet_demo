@@ -1,7 +1,6 @@
 """
 认证相关的 Pydantic 模式
 """
-from typing import Optional
 from pydantic import BaseModel, EmailStr, Field
 
 
@@ -47,5 +46,5 @@ class RefreshTokenRequest(BaseModel):
 class GoogleLoginRequest(BaseModel):
     """Google 登录请求"""
     id_token: str
-    # 新版客户端可提交随机 nonce；旧客户端省略时保持兼容。
-    nonce: Optional[str] = Field(None, min_length=16, max_length=255)
+    # 原生客户端必须提交与 Google 请求绑定的随机 nonce。
+    nonce: str = Field(..., min_length=16, max_length=255)

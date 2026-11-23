@@ -554,6 +554,15 @@ class APIService {
                 self.handleDirectResponse(response, completion: completion)
             }
     }
+
+    func getTransactionStatus(transactionId: String, completion: @escaping (Result<TransactionStatusResult, Error>) -> Void) {
+        session.request("\(baseURL)/payments/transactions/\(transactionId)",
+                       method: .get)
+            .validate()
+            .responseDecodable(of: TransactionStatusResult.self, decoder: decoder) { response in
+                self.handleDirectResponse(response, completion: completion)
+            }
+    }
     
     func createChargeIntent(amount: Double, idempotencyKey: String, completion: @escaping (Result<ChargeIntentResult, Error>) -> Void) {
         let parameters: [String: Any] = ["amount": amount, "idempotencyKey": idempotencyKey]

@@ -10,13 +10,15 @@ import com.weightloss.betting.data.remote.TokenManager
 import com.weightloss.betting.data.repository.PaymentRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.delay
 import java.util.UUID
 import javax.inject.Inject
 
 sealed class ChargeState {
     object Idle : ChargeState()
     object Loading : ChargeState()
-    data class AwaitingConfirmation(val clientSecret: String) : ChargeState()
+    data class AwaitingConfirmation(val clientSecret: String, val transactionId: String) : ChargeState()
+    object AwaitingWebhook : ChargeState()
     object Success : ChargeState()
     data class Error(val message: String) : ChargeState()
 }
@@ -69,7 +71,7 @@ class ChargeViewModel @Inject constructor(
                     if (secret.isNullOrBlank()) {
                         _chargeState.value = ChargeState.Error("支付订单缺少确认凭证")
                     } else {
-                        _chargeState.value = ChargeState.AwaitingConfirmation(secret)
+                        _chargeState.value = ChargeState.AwaitingConfirmation(secret, result.data.transactionId)
                     }
                 }
                 is NetworkResult.Error -> {
@@ -84,9 +86,35 @@ class ChargeViewModel @Inject constructor(
         }
     }
 
-    fun paymentCompleted() {
-        chargeIdempotencyKey = null
-        _chargeState.value = ChargeState.Success
+    fun paymentCompleted(transactionId: String) {
+        _chargeState.value = ChargeState.AwaitingWebhook
+        viewModelScope.launch {
+            repeat(12) { attempt ->
+                when (val result = paymentRepository.getTransactionStatus(transactionId)) {
+                    is NetworkResult.Success -> when (result.data.status.lowercase()) {
+                        "completed" -> {
+                            chargeIdempotencyKey = null
+                            _chargeState.value = ChargeState.Success
+                            return@launch
+                        }
+                        "failed" -> {
+                            chargeIdempotencyKey = null
+                            _chargeState.value = ChargeState.Error("支付已失败，请重新尝试")
+                            return@launch
+                        }
+                    }
+                    is NetworkResult.Error -> {
+                        if (attempt == 11) {
+                            _chargeState.value = ChargeState.Error("支付已确认，入账处理中，请稍后刷新余额")
+                            return@launch
+                        }
+                    }
+                    is NetworkResult.Loading -> Unit
+                }
+                delay(1000)
+            }
+            _chargeState.value = ChargeState.Error("支付已确认，入账处理中，请稍后刷新余额")
+        }
     }
 
     fun paymentCanceled() {

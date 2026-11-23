@@ -241,6 +241,13 @@ data class ChargeIntentResult(
     val status: String
 )
 
+data class TransactionStatusResult(
+    val id: String,
+    val amount: Double,
+    val status: String,
+    @SerializedName("completed_at") val completedAt: Date?
+)
+
 data class SetupIntentResult(
     @SerializedName("setup_intent_id") val setupIntentId: String,
     @SerializedName("client_secret") val clientSecret: String?,

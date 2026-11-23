@@ -307,7 +307,7 @@ class ChargeViewController: UIViewController {
             chargeButton.isEnabled = false
             chargeButton.setTitle("", for: .normal)
             
-        case .awaitingConfirmation(let clientSecret):
+        case .awaitingConfirmation(let clientSecret, _):
             loadingIndicator.stopAnimating()
             var configuration = PaymentSheet.Configuration()
             configuration.merchantDisplayName = "BetFit"
@@ -325,6 +325,11 @@ class ChargeViewController: UIViewController {
                     self?.viewModel.paymentFailed(error.localizedDescription)
                 }
             }
+
+        case .awaitingWebhook:
+            loadingIndicator.startAnimating()
+            chargeButton.isEnabled = false
+            chargeButton.setTitle("等待到账确认", for: .normal)
 
         case .success:
             print("✅ [ChargeVC] Stripe 支付完成，等待 Webhook 入账")

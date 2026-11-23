@@ -32,6 +32,16 @@ class TransactionResponse(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
 
+class TransactionStatusResponse(BaseModel):
+    """客户端等待支付 Webhook 时使用的最小交易状态。"""
+    id: str
+    amount: float
+    status: TransactionStatus
+    completed_at: Optional[datetime]
+
+    model_config = ConfigDict(from_attributes=True)
+
+
 class ChargeRequest(BaseModel):
     """充值请求"""
     amount: float = Field(..., ge=0.01)

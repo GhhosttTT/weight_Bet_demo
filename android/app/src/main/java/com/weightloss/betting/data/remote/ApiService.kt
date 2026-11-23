@@ -59,6 +59,11 @@ interface ApiService {
         @Query("offset") offset: Int = 0,
         @Query("limit") limit: Int = 20
     ): Response<List<Transaction>>
+
+    @GET("api/payments/transactions/{transactionId}")
+    suspend fun getTransactionStatus(
+        @Path("transactionId") transactionId: String
+    ): Response<TransactionStatusResult>
     
     // ==================== 对赌计划 API ====================
     

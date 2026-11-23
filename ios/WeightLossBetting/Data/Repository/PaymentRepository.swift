@@ -46,6 +46,12 @@ class PaymentRepository: BaseRepository {
         
         return result
     }
+
+    func getTransactionStatus(transactionId: String) async -> NetworkResult<TransactionStatusResult> {
+        await safeApiCall { completion in
+            self.apiService.getTransactionStatus(transactionId: transactionId, completion: completion)
+        }
+    }
     
     func createChargeIntent(amount: Double, idempotencyKey: String) async -> NetworkResult<ChargeIntentResult> {
         await safeApiCall { completion in

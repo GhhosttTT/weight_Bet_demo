@@ -65,6 +65,10 @@ class ChargeActivity : BaseActivity() {
                         PaymentSheet.Configuration("BetFit")
                     )
                 }
+                is ChargeState.AwaitingWebhook -> {
+                    binding.progressBar.visibility = View.VISIBLE
+                    binding.btnCharge.isEnabled = false
+                }
                 is ChargeState.Success -> {
                     binding.progressBar.visibility = View.GONE
                     Toast.makeText(this, "支付已完成，余额将在确认后更新", Toast.LENGTH_LONG).show()
@@ -83,7 +87,12 @@ class ChargeActivity : BaseActivity() {
     private fun onPaymentSheetResult(result: PaymentSheetResult) {
         when (result) {
             is PaymentSheetResult.Completed -> {
-                viewModel.paymentCompleted()
+                val state = viewModel.chargeState.value
+                if (state is ChargeState.AwaitingConfirmation) {
+                    viewModel.paymentCompleted(state.transactionId)
+                } else {
+                    viewModel.paymentFailed("支付订单状态已变化，请刷新后重试")
+                }
             }
             is PaymentSheetResult.Canceled -> {
                 viewModel.paymentCanceled()

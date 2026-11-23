@@ -8,6 +8,7 @@ from app.database import get_db
 from app.schemas.payment import (
     BalanceResponse,
     TransactionResponse,
+    TransactionStatusResponse,
     ChargeRequest,
     ChargeIntentResponse,
     ChargeIntentRequest,
@@ -80,6 +81,19 @@ def get_transaction_history(
     
     transactions = PaymentService.get_transaction_history(db, user_id, limit, offset)
     return [TransactionResponse.model_validate(t) for t in transactions]
+
+
+@router.get("/transactions/{transaction_id}", response_model=TransactionStatusResponse)
+def get_transaction_status(
+    transaction_id: str,
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """查询当前用户单笔交易状态，避免客户端把 PaymentSheet 成功误当成已入账。"""
+    transaction = PaymentService.get_transaction(db, current_user_id, transaction_id)
+    if not transaction:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="交易不存在")
+    return TransactionStatusResponse.model_validate(transaction)
 
 
 @router.post("/charge")

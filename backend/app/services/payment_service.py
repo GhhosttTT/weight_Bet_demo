@@ -563,3 +563,11 @@ class PaymentService:
         ).limit(limit).offset(offset).all()
         
         return transactions
+
+    @staticmethod
+    def get_transaction(db: Session, user_id: str, transaction_id: str):
+        """按用户隔离读取单笔交易，供支付确认页查询最终状态。"""
+        return db.query(Transaction).filter(
+            Transaction.id == transaction_id,
+            Transaction.user_id == user_id,
+        ).first()

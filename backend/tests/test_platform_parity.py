@@ -111,8 +111,10 @@ def test_charge_flow_uses_stripe_payment_sheet_and_webhook_entrypoint_on_both_pl
     assert "paymentIntentClientSecret" in ios_controller
 
     # 客户端完成支付后只能等待服务端 webhook 入账，不能调用旧的 demo 充值接口。
-    assert "paymentCompleted()" in android_activity
+    assert "paymentCompleted(state.transactionId)" in android_activity
     assert "paymentCompleted()" in ios_controller
+    assert "AwaitingWebhook" in android_vm
+    assert ".awaitingWebhook" in ios_vm
     assert "api/payments/charge" not in android_vm
     assert "api/payments/charge" not in ios_vm
     assert "charge_funds" not in android_vm + ios_vm
@@ -231,6 +233,20 @@ def test_payment_failure_resets_idempotency_key_on_both_mobile_platforms():
     ios_failure = ios.split("func paymentFailed", 1)[1].split("}", 1)[0]
     assert "chargeIdempotencyKey = null" in android_failure
     assert "chargeIdempotencyKey = nil" in ios_failure
+
+
+def test_payment_success_waits_for_webhook_status_on_both_mobile_platforms():
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt").read_text(encoding="utf-8")
+    android_api = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/remote/ApiService.kt").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift").read_text(encoding="utf-8")
+    ios_api = (ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift").read_text(encoding="utf-8")
+
+    assert "AwaitingWebhook" in android
+    assert "getTransactionStatus(transactionId)" in android
+    assert 'api/payments/transactions/{transactionId}' in android_api
+    assert ".awaitingWebhook" in ios
+    assert "getTransactionStatus(transactionId: transactionId)" in ios
+    assert "/payments/transactions/\\(transactionId)" in ios_api
 
 
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():

@@ -384,6 +384,34 @@ class NotificationService:
             data={"dispute_id": dispute_id, "settlement_id": settlement_id},
         )
         return NotificationService.send_notification(db, request)
+
+    @staticmethod
+    def send_dispute_status_notification(
+        db: Session,
+        user_id: str,
+        dispute_id: str,
+        settlement_id: str,
+        dispute_status: str,
+        admin_notes: Optional[str] = None,
+    ):
+        status_copy = {
+            "under_review": "结算争议已进入审核",
+            "resolved": "结算争议已处理",
+            "rejected": "结算争议未通过",
+        }.get(dispute_status, "结算争议状态已更新")
+        request = SendNotificationRequest(
+            user_id=user_id,
+            notification_type=NotificationType.DISPUTE_UPDATED,
+            title=status_copy,
+            body=admin_notes.strip() if admin_notes and admin_notes.strip() else "请打开应用查看最新处理结果。",
+            data={
+                "dispute_id": dispute_id,
+                "settlement_id": settlement_id,
+                "status": dispute_status,
+                "admin_notes": admin_notes or "",
+            },
+        )
+        return NotificationService.send_notification(db, request)
     
     @staticmethod
     def send_settlement_notification(

@@ -19,8 +19,11 @@ from app.models.audit_log import AuditLog
 from app.models.platform_ledger import PlatformLedgerEntry
 from app.schemas.admin import AdminCheckInReview, AdminDisputeUpdate, AdminUserRow
 from app.services.stripe_payout_service import StripePayoutService
+from app.services.notification_service import NotificationService
+from app.logger import get_logger
 
 router = APIRouter()
+logger = get_logger()
 
 
 @router.get("/dashboard")
@@ -208,6 +211,17 @@ def update_dispute(
     ))
     db.commit()
     db.refresh(dispute)
+    try:
+        NotificationService.send_dispute_status_notification(
+            db,
+            dispute.user_id,
+            dispute.id,
+            dispute.settlement_id,
+            dispute.status.value,
+            dispute.admin_notes,
+        )
+    except Exception as error:
+        logger.error("Failed to notify user after dispute update {}: {}", dispute.id, error)
     return {"id": dispute.id, "status": dispute.status.value, "resolved_by": dispute.resolved_by}
 
 

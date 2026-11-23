@@ -103,3 +103,27 @@ def test_dispute_notification_targets_admin_with_related_ids(monkeypatch):
     assert captured[0].user_id == "admin-1"
     assert captured[0].notification_type == NotificationType.DISPUTE_SUBMITTED
     assert captured[0].data == {"dispute_id": "dispute-1", "settlement_id": "settlement-1"}
+
+
+def test_dispute_status_notification_targets_user_with_status_and_notes(monkeypatch):
+    captured = []
+
+    def capture(db, request):
+        captured.append(request)
+        return SimpleNamespace(success=True)
+
+    monkeypatch.setattr(NotificationService, "send_notification", capture)
+    NotificationService.send_dispute_status_notification(
+        object(), "user-1", "dispute-1", "settlement-1", "resolved", "已核实并完成处理"
+    )
+
+    assert captured[0].user_id == "user-1"
+    assert captured[0].notification_type == NotificationType.DISPUTE_UPDATED
+    assert captured[0].title == "结算争议已处理"
+    assert captured[0].body == "已核实并完成处理"
+    assert captured[0].data == {
+        "dispute_id": "dispute-1",
+        "settlement_id": "settlement-1",
+        "status": "resolved",
+        "admin_notes": "已核实并完成处理",
+    }

@@ -274,6 +274,7 @@ def test_admin_page_persists_refresh_token_and_revokes_it_on_logout(admin_contex
     assert "notifications" in response.text
     assert "/api/notifications/send" in response.text
     assert "notification-user-id" in response.text
+    assert "value=\"dispute_updated\"" in response.text
     assert "/platform-fees" in response.text
     assert "platform-fees-table" in response.text
 
@@ -288,7 +289,7 @@ def test_admin_update_endpoints_require_admin_role(admin_context):
     assert response.status_code == 403
 
 
-def test_admin_review_and_dispute_state_boundaries(admin_context):
+def test_admin_review_and_dispute_state_boundaries(admin_context, monkeypatch):
     db = Session()
     plan_id = str(uuid.uuid4())
     settlement_id = str(uuid.uuid4())
@@ -342,6 +343,14 @@ def test_admin_review_and_dispute_state_boundaries(admin_context):
 
     client = admin_context["client"]
     headers = admin_context["admin"]
+    def fail_notification(*args, **kwargs):
+        raise RuntimeError("push provider unavailable")
+
+    monkeypatch.setattr(
+        NotificationService,
+        "send_dispute_status_notification",
+        fail_notification,
+    )
     assert client.patch(
         f"/api/admin/check-ins/{check_in_id}/review",
         json={"review_status": "rejected"},

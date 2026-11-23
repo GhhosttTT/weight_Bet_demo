@@ -27,6 +27,23 @@ class SettlementChoiceService:
     """结算选择服务类"""
 
     @staticmethod
+    def _choices_are_matched(creator_choice: SettlementChoice, participant_choice: SettlementChoice) -> bool:
+        """只读取当前轮次的选择，判断是否已经形成可结算的共识。"""
+        return (
+            (creator_choice.self_achieved and creator_choice.opponent_achieved and
+             participant_choice.self_achieved and participant_choice.opponent_achieved)
+            or
+            (not creator_choice.self_achieved and not creator_choice.opponent_achieved and
+             not participant_choice.self_achieved and not participant_choice.opponent_achieved)
+            or
+            (creator_choice.self_achieved and not creator_choice.opponent_achieved and
+             not participant_choice.self_achieved and participant_choice.opponent_achieved)
+            or
+            (not creator_choice.self_achieved and creator_choice.opponent_achieved and
+             participant_choice.self_achieved and not participant_choice.opponent_achieved)
+        )
+
+    @staticmethod
     def _validate_settlement_window(plan: BettingPlan) -> None:
         """确保计划已经进入可结算窗口。"""
         if plan.status != PlanStatus.ACTIVE:
@@ -221,6 +238,10 @@ class SettlementChoiceService:
         current_user_choice = (
             creator_choice if user_id == plan.creator_id else participant_choice
         )
+        choices_matched = bool(
+            creator_choice and participant_choice and
+            SettlementChoiceService._choices_are_matched(creator_choice, participant_choice)
+        )
         
         # 检查是否已结算
         return SettlementSelectionStatus(
@@ -231,7 +252,7 @@ class SettlementChoiceService:
             current_user_submitted=current_user_choice is not None,
             creator_choice=SettlementChoiceResponse.model_validate(creator_choice) if creator_choice else None,
             participant_choice=SettlementChoiceResponse.model_validate(participant_choice) if participant_choice else None,
-            matched=False,  # 将在比对接口中设置
+            matched=choices_matched,
             settlement_completed=settlement is not None,
             in_arbitration=bool(settlement and settlement.in_arbitration)
         )

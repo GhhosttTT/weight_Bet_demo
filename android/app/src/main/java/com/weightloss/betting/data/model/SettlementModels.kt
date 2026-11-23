@@ -22,6 +22,7 @@ data class SettlementSelectionStatus(
     @SerializedName("creator_submitted") val creatorSubmitted: Boolean,
     @SerializedName("participant_submitted") val participantSubmitted: Boolean,
     @SerializedName("current_user_submitted") val currentUserSubmitted: Boolean,
+    @SerializedName("matched") val matched: Boolean = false,
     @SerializedName("settlement_completed") val settlementCompleted: Boolean,
     @SerializedName("in_arbitration") val inArbitration: Boolean
 )

@@ -87,10 +87,10 @@ class SettlementActivity : BaseActivity() {
 
     private fun updateStatus(status: SettlementSelectionStatus) {
         binding.tvRound.text = "第 ${status.currentRound} 轮"
-        // 服务端只返回双方提交标记；按钮在提交后由当前页面锁定，状态文案仍以双方标记为准。
         binding.tvStatus.text = when {
             status.settlementCompleted -> "结算已完成"
             status.inArbitration -> "双方多轮选择不一致，已进入仲裁"
+            status.matched -> "双方选择已匹配，等待系统结算"
             status.creatorSubmitted && status.participantSubmitted -> "双方已提交，系统正在匹配结果"
             status.creatorSubmitted || status.participantSubmitted -> "一方已提交，等待另一方提交"
             else -> "请选择双方成果后提交"

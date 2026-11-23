@@ -392,6 +392,7 @@ class TestSettlementChoiceAPI:
         assert data["participant_submitted"] is False
         assert data["current_user_submitted"] is True
         assert data["creator_choice"] is not None
+        assert data["matched"] is False
     
     def test_match_choices(self, client, test_plan_with_participant):
         """测试匹配选择"""
@@ -414,6 +415,13 @@ class TestSettlementChoiceAPI:
         
         client.post(f"/api/settlement-choices/{plan_id}", json=creator_choice, headers=headers_creator)
         client.post(f"/api/settlement-choices/{plan_id}", json=participant_choice, headers=headers_participant)
+
+        status_response = client.get(
+            f"/api/settlement-choices/{plan_id}/status",
+            headers=headers_creator
+        )
+        assert status_response.status_code == 200
+        assert status_response.json()["matched"] is True
         
         # 执行匹配
         response = client.post(

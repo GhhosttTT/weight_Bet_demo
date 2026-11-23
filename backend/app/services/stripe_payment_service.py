@@ -239,6 +239,8 @@ class StripePaymentService:
             raise HTTPException(status_code=400, detail="Stripe 用户与本地交易不匹配")
         if transaction.external_payment_id and payment_intent_id != transaction.external_payment_id:
             raise HTTPException(status_code=400, detail="Stripe PaymentIntent 与本地交易不匹配")
+        if transaction.type != TransactionType.CHARGE:
+            raise HTTPException(status_code=400, detail="Stripe PaymentIntent 不能处理非充值交易")
         if event_type == "payment_intent.succeeded":
             actual_amount = intent.get("amount_received", intent.get("amount"))
             actual_currency = (intent.get("currency") or "").lower()
@@ -250,6 +252,10 @@ class StripePaymentService:
 
         if transaction.status == TransactionStatus.COMPLETED:
             return {"received": True, "handled": True, "idempotent": True}
+        if transaction.status == TransactionStatus.FAILED:
+            return {"received": True, "handled": True, "idempotent": True}
+        if transaction.status != TransactionStatus.PENDING:
+            raise HTTPException(status_code=409, detail="充值交易当前状态不允许处理 Stripe 回调")
         if event_type == "payment_intent.payment_failed":
             transaction.status = TransactionStatus.FAILED
             db.commit()

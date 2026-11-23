@@ -24,8 +24,10 @@ class BettingPlanService:
     @staticmethod
     def create_plan(db: Session, creator_id: str, request: CreatePlanRequest) -> PlanResponse:
         # validate input
-        if request.bet_amount < 0.01:
+        normalized_bet_amount = PaymentService._normalize_amount(request.bet_amount)
+        if normalized_bet_amount is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="赌金金额最低为 0.01 元")
+        bet_amount = float(normalized_bet_amount)
         if request.end_date <= request.start_date:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="结束日期必须晚于开始日期")
         duration = (request.end_date - request.start_date).days
@@ -42,7 +44,7 @@ class BettingPlanService:
             creator_id=creator_id,
             participant_id=None,
             status=PlanStatus.PENDING,
-            bet_amount=request.bet_amount,
+            bet_amount=bet_amount,
             start_date=request.start_date,
             end_date=request.end_date,
             description=request.description,
@@ -53,11 +55,11 @@ class BettingPlanService:
         )
 
         # freeze creator funds
-        freeze_result = PaymentService.freeze_funds(db, creator_id, plan_id, request.bet_amount)
+        freeze_result = PaymentService.freeze_funds(db, creator_id, plan_id, bet_amount)
         if not freeze_result.success:
             logger.warning("Failed to freeze funds for user %s: %s", creator_id, freeze_result.error)
             if "余额不足" in (freeze_result.error or ""):
-                raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=f"余额不足，需要充值 {request.bet_amount} 元")
+                raise HTTPException(status_code=status.HTTP_402_PAYMENT_REQUIRED, detail=f"余额不足，需要充值 {bet_amount} 元")
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"资金冻结失败: {freeze_result.error}")
 
         try:

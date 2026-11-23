@@ -334,6 +334,31 @@ def test_webhook_failure_does_not_credit(db_session, monkeypatch):
     assert db_session.query(Balance).one().available_balance == 0
 
 
+def test_webhook_rejects_non_charge_transaction_without_changing_balance(db_session, monkeypatch):
+    monkeypatch.setattr(settings, "STRIPE_WEBHOOK_SECRET", "whsec_realistic")
+    transaction = Transaction(
+        id="withdraw-as-charge", user_id="stripe-user-001", type=TransactionType.WITHDRAW,
+        amount=-20.0, status=TransactionStatus.PENDING, external_payment_id="pi_wrong_type",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    event = {
+        "type": "payment_intent.succeeded",
+        "data": {"object": {
+            "id": "pi_wrong_type",
+            "metadata": {"transaction_id": transaction.id, "user_id": transaction.user_id},
+            "amount_received": 2000,
+            "currency": "cny",
+        }},
+    }
+    with patch("app.services.stripe_payment_service.stripe.Webhook.construct_event", return_value=event):
+        with pytest.raises(HTTPException) as error:
+            StripePaymentService.handle_webhook(db_session, b"payload", "signature")
+    assert error.value.status_code == 400
+    assert db_session.query(Balance).one().available_balance == 0
+    assert db_session.query(Transaction).one().status == TransactionStatus.PENDING
+
+
 def test_stripe_mode_blocks_legacy_direct_money_endpoints(db_session, monkeypatch):
     monkeypatch.setattr(settings, "PAYMENT_PROVIDER", "stripe")
     with pytest.raises(HTTPException) as withdraw_error:

@@ -252,8 +252,12 @@ class StripePayoutService:
             transaction = query.filter(Transaction.id == transaction_id).with_for_update().first()
         if not transaction:
             raise HTTPException(status_code=404, detail="本地提现交易不存在")
+        if transaction.type != TransactionType.WITHDRAW:
+            raise HTTPException(status_code=400, detail="Stripe 出款回调不能处理非提现交易")
         if transaction.status in (TransactionStatus.COMPLETED, TransactionStatus.FAILED):
             return {"received": True, "handled": True, "idempotent": True}
+        if transaction.status != TransactionStatus.PENDING:
+            raise HTTPException(status_code=409, detail="提现交易当前状态不允许处理 Stripe 回调")
         payout_id = payout.get("id")
         if not payout_id:
             raise HTTPException(status_code=400, detail="Stripe 出款回调缺少 payout ID")

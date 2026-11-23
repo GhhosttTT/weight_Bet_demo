@@ -5,6 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+from sqlalchemy.pool import StaticPool
 from datetime import datetime, timedelta
 import uuid
 import json
@@ -17,8 +18,12 @@ from app.redis_client import get_redis
 
 
 # 测试数据库配置
-SQLALCHEMY_DATABASE_URL = "sqlite:///./test_api.db"
-engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+SQLALCHEMY_DATABASE_URL = "sqlite://"
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
@@ -173,6 +178,28 @@ def test_plan_with_participant(client, test_user):
 
 class TestSettlementChoiceAPI:
     """结算选择 API 测试类"""
+
+    def test_plan_amount_is_normalized_to_cents(self, client, test_user):
+        headers = {"Authorization": f"Bearer {test_user['token']}"}
+        charge = client.post(
+            "/api/payments/charge",
+            json={"amount": 10.0, "payment_method_id": "test_pm_creator"},
+            headers=headers,
+        )
+        assert charge.status_code == 200
+        response = client.post(
+            "/api/betting-plans",
+            json={
+                "bet_amount": 1.005,
+                "start_date": (datetime.utcnow() + timedelta(days=1)).isoformat(),
+                "end_date": (datetime.utcnow() + timedelta(days=2)).isoformat(),
+                "initial_weight": 80.0,
+                "target_weight": 75.0,
+            },
+            headers=headers,
+        )
+        assert response.status_code == 201
+        assert response.json()["bet_amount"] == 1.01
 
     def test_admin_dashboard_rejects_regular_user(self, client, test_user):
         response = client.get(

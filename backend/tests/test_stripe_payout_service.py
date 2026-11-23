@@ -150,6 +150,28 @@ def test_payout_webhook_rejects_id_mismatch(db_session, stripe_config):
     assert balance.frozen_balance == 30
 
 
+def test_payout_webhook_rejects_non_withdraw_transaction_without_changing_balance(db_session, stripe_config):
+    transaction = Transaction(
+        id="charge-as-payout", user_id="payout-user-001", type=TransactionType.CHARGE,
+        amount=30, status=TransactionStatus.PENDING, external_payment_id="po_wrong_type",
+    )
+    db_session.add(transaction)
+    db_session.commit()
+    with pytest.raises(HTTPException) as error:
+        StripePayoutService.handle_payout_webhook(
+            db_session,
+            "payout.paid",
+            {"id": "po_wrong_type", "amount": 3000, "currency": "cny",
+             "metadata": {"transaction_id": transaction.id}},
+        )
+    assert error.value.status_code == 400
+    db_session.refresh(transaction)
+    assert transaction.status == TransactionStatus.PENDING
+    balance = db_session.query(Balance).one()
+    assert balance.available_balance == 100
+    assert balance.frozen_balance == 0
+
+
 def test_retry_pending_payout_uses_same_idempotency_key(db_session, stripe_config):
     user = db_session.query(User).one()
     user.stripe_account_id = "acct_retry"

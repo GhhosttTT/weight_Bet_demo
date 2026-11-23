@@ -71,6 +71,18 @@ class CoreDataManager {
             return []
         }
     }
+
+    func getCachedBettingPlan(id: String) -> BettingPlan? {
+        let fetchRequest: NSFetchRequest<BettingPlanEntity> = BettingPlanEntity.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "id == %@", id)
+        fetchRequest.fetchLimit = 1
+        do {
+            return try context.fetch(fetchRequest).first?.toBettingPlan()
+        } catch {
+            print("Error fetching cached betting plan: \(error)")
+            return nil
+        }
+    }
     
     // MARK: - Offline Check-In Queue
     

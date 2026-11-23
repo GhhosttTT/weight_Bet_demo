@@ -304,6 +304,15 @@ def test_ios_balance_uses_authenticated_user_id():
     assert 'userId: "123"' not in balance_vm
 
 
+def test_ios_cached_plan_lookup_uses_plan_id_without_empty_user_scope():
+    cache = (ROOT / "ios/WeightLossBetting/Data/Local/CacheManager.swift").read_text(encoding="utf-8")
+    core_data = (ROOT / "ios/WeightLossBetting/Data/Local/CoreDataManager.swift").read_text(encoding="utf-8")
+
+    assert "coreDataManager.getCachedBettingPlan(id: id)" in cache
+    assert "func getCachedBettingPlan(id: String) -> BettingPlan?" in core_data
+    assert 'getCachedBettingPlans(userId: "")' not in cache
+
+
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     android = ANDROID_COACH_VM.read_text(encoding="utf-8")
     ios = IOS_COACH_VM.read_text(encoding="utf-8")

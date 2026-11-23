@@ -43,8 +43,7 @@ class CacheManager {
         guard isCacheValid(for: "plan_\(id)", expiration: planCacheExpiration) else {
             return nil
         }
-        let plans = coreDataManager.getCachedBettingPlans(userId: "")
-        return plans.first { $0.id == id }
+        return coreDataManager.getCachedBettingPlan(id: id)
     }
     
     func getCachedBettingPlans(userId: String) -> [BettingPlan]? {

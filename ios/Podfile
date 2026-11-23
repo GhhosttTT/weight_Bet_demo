@@ -30,7 +30,8 @@ target 'WeightLossBetting' do
   pod 'Toast-Swift', '~> 5.0'
   
   # Google Sign In - 谷歌登录
-  pod 'GoogleSignIn', '~> 7.0'
+  # 9.x 支持把自定义 nonce 传给 Google OIDC，和 Android/后端保持一致。
+  pod 'GoogleSignIn', '~> 9.0'
   pod 'StripePaymentSheet', '~> 23.5'
 
   target 'WeightLossBettingTests' do

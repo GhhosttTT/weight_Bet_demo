@@ -62,8 +62,8 @@ class AuthRepository {
         }
     }
     
-    func googleLogin(idToken: String, completion: @escaping (Result<AuthResponse, Error>) -> Void) {
-        apiService.googleLogin(idToken: idToken) { [weak self] result in
+    func googleLogin(idToken: String, nonce: String? = nil, completion: @escaping (Result<AuthResponse, Error>) -> Void) {
+        apiService.googleLogin(idToken: idToken, nonce: nonce) { [weak self] result in
             switch result {
             case .success(let authResponse):
                 // Save tokens to Keychain

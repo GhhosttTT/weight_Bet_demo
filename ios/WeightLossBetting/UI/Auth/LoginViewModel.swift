@@ -36,7 +36,13 @@ class LoginViewModel {
             completion(.failure(configurationError))
             return
         }
-        GIDSignIn.sharedInstance.signIn(withPresenting: presentingViewController) { [weak self] result, error in
+        let nonce = UUID().uuidString
+        GIDSignIn.sharedInstance.signIn(
+            withPresenting: presentingViewController,
+            hint: nil,
+            additionalScopes: [],
+            nonce: nonce
+        ) { [weak self] result, error in
             if let error = error {
                 completion(.failure(error))
                 return
@@ -50,7 +56,7 @@ class LoginViewModel {
                 completion(.failure(tokenError))
                 return
             }
-            self?.authRepository.googleLogin(idToken: idToken) { authResult in
+            self?.authRepository.googleLogin(idToken: idToken, nonce: nonce) { authResult in
                 switch authResult {
                 case .success:
                     self?.preloadRecommendation()

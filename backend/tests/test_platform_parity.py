@@ -225,6 +225,19 @@ def test_android_google_login_uses_credential_manager_nonce_and_snake_case_paylo
     assert "googleLogin(idToken: String, nonce: String? = null)" in repository
 
 
+def test_ios_google_login_sends_custom_nonce_to_backend():
+    login_vm = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewModel.swift").read_text(encoding="utf-8")
+    repository = (ROOT / "ios/WeightLossBetting/Data/Repository/AuthRepository.swift").read_text(encoding="utf-8")
+    api = (ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift").read_text(encoding="utf-8")
+    podfile = (ROOT / "ios/Podfile").read_text(encoding="utf-8")
+
+    assert "nonce: nonce" in login_vm
+    assert "googleLogin(idToken: idToken, nonce: nonce)" in login_vm
+    assert "func googleLogin(idToken: String, nonce: String? = nil" in repository
+    assert 'parameters["nonce"] = nonce' in api
+    assert "pod 'GoogleSignIn', '~> 9.0'" in podfile
+
+
 def test_payment_failure_resets_idempotency_key_on_both_mobile_platforms():
     android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt").read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift").read_text(encoding="utf-8")

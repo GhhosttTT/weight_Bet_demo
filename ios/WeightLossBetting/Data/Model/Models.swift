@@ -550,7 +550,14 @@ struct SettlementSelectionStatus: Codable {
         case matched
         case settlementCompleted = "settlement_completed"
         case inArbitration = "in_arbitration"
+        case settlementId = "settlement_id"
+        case disputeStatus = "dispute_status"
+        case disputeAdminNotes = "dispute_admin_notes"
     }
+
+    let settlementId: String?
+    let disputeStatus: String?
+    let disputeAdminNotes: String?
 }
 
 // Lightweight model for user search results (invite preview)

@@ -5,6 +5,7 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator
 from typing import Optional
 from datetime import datetime
 from enum import Enum
+from app.models.dispute import DisputeStatus
 
 
 class SettlementChoiceEnum(str, Enum):
@@ -60,6 +61,9 @@ class SettlementSelectionStatus(BaseModel):
     matched: bool = False
     settlement_completed: bool = False
     in_arbitration: bool = False
+    settlement_id: Optional[str] = None
+    dispute_status: Optional[DisputeStatus] = None
+    dispute_admin_notes: Optional[str] = None
 
 
 class SettlementMatchingResult(BaseModel):

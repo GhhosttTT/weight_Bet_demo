@@ -11,6 +11,7 @@ from typing import Optional, Tuple
 from app.models.settlement_choice import SettlementChoice
 from app.models.betting_plan import BettingPlan, PlanStatus
 from app.models.settlement import Settlement
+from app.models.dispute import Dispute
 from app.schemas.settlement_choice import (
     SettlementChoiceRequest,
     SettlementChoiceResponse,
@@ -238,6 +239,12 @@ class SettlementChoiceService:
         current_user_choice = (
             creator_choice if user_id == plan.creator_id else participant_choice
         )
+        current_user_dispute = None
+        if settlement:
+            current_user_dispute = db.query(Dispute).filter(
+                Dispute.settlement_id == settlement.id,
+                Dispute.user_id == user_id,
+            ).first()
         choices_matched = bool(
             creator_choice and participant_choice and
             SettlementChoiceService._choices_are_matched(creator_choice, participant_choice)
@@ -254,7 +261,10 @@ class SettlementChoiceService:
             participant_choice=SettlementChoiceResponse.model_validate(participant_choice) if participant_choice else None,
             matched=choices_matched,
             settlement_completed=settlement is not None,
-            in_arbitration=bool(settlement and settlement.in_arbitration)
+            in_arbitration=bool(settlement and settlement.in_arbitration),
+            settlement_id=settlement.id if settlement else None,
+            dispute_status=current_user_dispute.status if current_user_dispute else None,
+            dispute_admin_notes=current_user_dispute.admin_notes if current_user_dispute else None,
         )
     
     @staticmethod

@@ -76,7 +76,7 @@ class LoginViewModel @Inject constructor(
         }
     }
     
-    fun googleLogin(idToken: String, nonce: String? = null) {
+    fun googleLogin(idToken: String, nonce: String) {
         Log.d("LoginViewModel", "googleLogin() called")
         _loginState.value = LoginState.Loading
             

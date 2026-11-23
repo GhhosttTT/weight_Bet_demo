@@ -248,8 +248,8 @@ def test_android_google_login_uses_credential_manager_nonce_and_snake_case_paylo
     assert ".setNonce(nonce)" in android
     assert "GoogleIdTokenCredential.createFrom" in android
     assert '@SerializedName("id_token")' in models
-    assert "val nonce: String? = null" in models
-    assert "googleLogin(idToken: String, nonce: String? = null)" in repository
+    assert "val nonce: String" in models
+    assert "googleLogin(idToken: String, nonce: String)" in repository
 
 
 def test_ios_google_login_sends_custom_nonce_to_backend():
@@ -260,8 +260,9 @@ def test_ios_google_login_sends_custom_nonce_to_backend():
 
     assert "nonce: nonce" in login_vm
     assert "googleLogin(idToken: idToken, nonce: nonce)" in login_vm
-    assert "func googleLogin(idToken: String, nonce: String? = nil" in repository
-    assert 'parameters["nonce"] = nonce' in api
+    assert "func googleLogin(idToken: String, nonce: String," in repository
+    assert "func googleLogin(idToken: String, nonce: String," in api
+    assert '"nonce": nonce' in api
     assert "pod 'GoogleSignIn', '~> 9.0'" in podfile
 
 

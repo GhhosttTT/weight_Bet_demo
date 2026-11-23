@@ -62,7 +62,7 @@ class AuthRepository @Inject constructor(
     /**
      * Google 登录
      */
-    suspend fun googleLogin(idToken: String, nonce: String? = null): NetworkResult<AuthResult> {
+    suspend fun googleLogin(idToken: String, nonce: String): NetworkResult<AuthResult> {
         val request = GoogleLoginRequest(idToken = idToken, nonce = nonce)
         val result = safeApiCall { apiService.googleLogin(request) }
         

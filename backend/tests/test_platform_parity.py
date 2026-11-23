@@ -249,6 +249,15 @@ def test_payment_success_waits_for_webhook_status_on_both_mobile_platforms():
     assert "/payments/transactions/\\(transactionId)" in ios_api
 
 
+def test_withdraw_response_mapping_keeps_transaction_and_status_fields():
+    android_models = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/model/Models.kt").read_text(encoding="utf-8")
+    ios_models = (ROOT / "ios/WeightLossBetting/Data/Model/Models.swift").read_text(encoding="utf-8")
+
+    assert '@SerializedName("transaction_id") val transactionId' in android_models
+    assert "val status: String? = null" in android_models
+    assert 'case transactionId = "transaction_id"' in ios_models
+
+
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     android = ANDROID_COACH_VM.read_text(encoding="utf-8")
     ios = IOS_COACH_VM.read_text(encoding="utf-8")

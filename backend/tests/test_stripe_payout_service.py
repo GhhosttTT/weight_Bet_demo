@@ -59,7 +59,9 @@ def test_withdraw_reserves_balance_until_payout_paid(db_session, stripe_config):
     db_session.commit()
     transfer = SimpleNamespace(id="tr_123")
     payout = SimpleNamespace(id="po_123")
-    with patch("app.services.stripe_payout_service.stripe.Transfer.create", return_value=transfer), \
+    account = SimpleNamespace(details_submitted=True, payouts_enabled=True)
+    with patch("app.services.stripe_payout_service.stripe.Account.retrieve", return_value=account), \
+         patch("app.services.stripe_payout_service.stripe.Transfer.create", return_value=transfer), \
          patch("app.services.stripe_payout_service.stripe.Payout.create", return_value=payout):
         result = StripePayoutService.create_withdrawal(db_session, "payout-user-001", 20)
     balance = db_session.query(Balance).one()
@@ -77,6 +79,21 @@ def test_withdraw_reserves_balance_until_payout_paid(db_session, stripe_config):
     assert balance.available_balance == 80
     assert balance.frozen_balance == 0
     assert db_session.query(Transaction).one().status == TransactionStatus.COMPLETED
+
+
+def test_withdraw_rejects_connect_account_without_payout_capability(db_session, stripe_config):
+    user = db_session.query(User).one()
+    user.stripe_account_id = "acct_incomplete"
+    db_session.commit()
+    account = SimpleNamespace(details_submitted=True, payouts_enabled=False)
+    with patch("app.services.stripe_payout_service.stripe.Account.retrieve", return_value=account), \
+         pytest.raises(HTTPException) as error:
+        StripePayoutService.create_withdrawal(db_session, user.id, 20)
+    assert error.value.status_code == 409
+    assert "出款资格" in error.value.detail
+    balance = db_session.query(Balance).one()
+    assert balance.available_balance == 100
+    assert balance.frozen_balance == 0
 
 
 def test_failed_payout_releases_reserved_balance(db_session, stripe_config):

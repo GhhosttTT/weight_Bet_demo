@@ -21,6 +21,20 @@ class StripePayoutService:
     def _require_stripe() -> None:
         StripePaymentService._require_stripe_mode()
 
+    @staticmethod
+    def _require_payouts_enabled(account_id: str) -> None:
+        """提现前确认 Connect 账户已提交资料且具备出款能力。"""
+        try:
+            account = stripe.Account.retrieve(account_id)
+        except stripe.error.StripeError as error:
+            raise HTTPException(status_code=502, detail="Stripe 提现账户状态查询失败") from error
+        details_submitted = account.get("details_submitted") if isinstance(account, dict) else getattr(account, "details_submitted", False)
+        payouts_enabled = account.get("payouts_enabled") if isinstance(account, dict) else getattr(account, "payouts_enabled", False)
+        if not details_submitted:
+            raise HTTPException(status_code=409, detail="请先完成 Stripe Connect 提现账户认证")
+        if not payouts_enabled:
+            raise HTTPException(status_code=409, detail="Stripe 提现账户尚未具备出款资格，请补充认证资料")
+
     @classmethod
     def create_onboarding_link(cls, db: Session, user_id: str) -> dict:
         cls._require_stripe()
@@ -61,6 +75,7 @@ class StripePayoutService:
         user = db.query(User).filter(User.id == user_id).first()
         if not user or not user.stripe_account_id:
             raise HTTPException(status_code=409, detail="请先完成 Stripe Connect 提现账户认证")
+        cls._require_payouts_enabled(user.stripe_account_id)
         balance = db.query(Balance).filter(Balance.user_id == user_id).with_for_update().first()
         if not balance:
             raise HTTPException(status_code=404, detail="账户不存在")

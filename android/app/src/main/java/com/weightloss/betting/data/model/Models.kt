@@ -262,8 +262,10 @@ data class WithdrawRequest(
 
 data class WithdrawResult(
     val success: Boolean,
-    val transactionId: String?,
-    val message: String?
+    @SerializedName("transaction_id") val transactionId: String?,
+    val amount: Double? = null,
+    val status: String? = null,
+    val message: String? = null
 )
 
 data class ConnectOnboardingResult(

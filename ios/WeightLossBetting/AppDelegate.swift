@@ -13,14 +13,22 @@ enum GoogleSignInConfiguration {
         return trimmed
     }
 
+    static var expectedReversedClientID: String? {
+        guard let clientID = clientID,
+              let suffixRange = clientID.range(of: ".apps.googleusercontent.com") else { return nil }
+        let numericClientID = String(clientID[..<suffixRange.lowerBound])
+        return "com.googleusercontent.apps.\(numericClientID)"
+    }
+
     static var hasCallbackScheme: Bool {
+        guard let expectedScheme = expectedReversedClientID else { return false }
         guard let types = Bundle.main.object(forInfoDictionaryKey: "CFBundleURLTypes") as? [[String: Any]] else { return false }
         return types
             .compactMap { $0["CFBundleURLSchemes"] as? [String] }
             .flatMap { $0 }
             .contains { scheme in
                 let value = scheme.trimmingCharacters(in: .whitespacesAndNewlines)
-                return !value.isEmpty && !value.contains("$(") && !value.hasPrefix("YOUR_")
+                return value == expectedScheme
             }
     }
 

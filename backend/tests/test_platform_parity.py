@@ -243,6 +243,8 @@ def test_google_login_configuration_state_matches_between_mobile_platforms():
     assert "GIDConfiguration(clientID: clientID)" in ios_delegate
     assert "GIDClientID" in ios_plist
     assert "hasCallbackScheme" in ios_delegate
+    assert "expectedReversedClientID" in ios_delegate
+    assert "value == expectedScheme" in ios_delegate
     assert "GoogleSignInConfiguration.isConfigured" in ios
 
 

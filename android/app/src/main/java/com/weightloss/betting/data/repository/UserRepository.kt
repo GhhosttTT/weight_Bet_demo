@@ -95,7 +95,7 @@ class UserRepository @Inject constructor(
     suspend fun getTransactions(
         userId: String,
         page: Int = 1,
-        limit: Int = 20
+        limit: Int = 50
     ): NetworkResult<List<Transaction>> {
         val offset = (page - 1).coerceAtLeast(0) * limit
         return safeApiCall { apiService.getTransactions(userId, offset, limit) }

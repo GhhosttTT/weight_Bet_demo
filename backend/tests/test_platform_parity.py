@@ -325,6 +325,16 @@ def test_registration_password_minimum_matches_backend_and_android():
     assert "min_length=8" in backend_schema
 
 
+def test_balance_transaction_history_default_page_size_matches_ios_and_backend():
+    android_repo = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/UserRepository.kt").read_text(encoding="utf-8")
+    android_activity = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/BalanceActivity.kt").read_text(encoding="utf-8")
+    payments_api = (ROOT / "backend/app/api/payments.py").read_text(encoding="utf-8")
+
+    assert "limit: Int = 50" in android_repo
+    assert "viewModel.loadTransactions(userId!!" in android_activity
+    assert "limit: int = Query(default=50" in payments_api
+
+
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     android = ANDROID_COACH_VM.read_text(encoding="utf-8")
     ios = IOS_COACH_VM.read_text(encoding="utf-8")

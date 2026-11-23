@@ -23,7 +23,7 @@ def test_postgres_accepts_complete_secure_configuration():
         SECRET_KEY="x" * 48,
         ALLOWED_ORIGINS="https://app.example.com",
         ALLOWED_HOSTS="api.example.com",
-        GOOGLE_CLIENT_IDS="web-client.apps.googleusercontent.com",
+        GOOGLE_CLIENT_IDS="1234567890-web.apps.googleusercontent.com",
         PAYMENT_PROVIDER="stripe",
         STRIPE_SECRET_KEY="sk_live_realistic",
         STRIPE_WEBHOOK_SECRET="whsec_live_realistic",
@@ -80,7 +80,7 @@ def _secure_stripe_runtime(**overrides):
         SECRET_KEY="x" * 48,
         ALLOWED_ORIGINS="https://app.example.com",
         ALLOWED_HOSTS="api.example.com",
-        GOOGLE_CLIENT_IDS="web-client.apps.googleusercontent.com",
+        GOOGLE_CLIENT_IDS="1234567890-web.apps.googleusercontent.com",
         PAYMENT_PROVIDER="stripe",
         STRIPE_SECRET_KEY="sk_live_realistic",
         STRIPE_WEBHOOK_SECRET="whsec_live_realistic",
@@ -127,4 +127,14 @@ def test_production_rejects_default_local_redis():
     runtime = _secure_stripe_runtime(REDIS_URL="redis://localhost:6379/0")
     runtime.ENVIRONMENT = "production"
     with pytest.raises(RuntimeError, match="Redis"):
+        validate_runtime_configuration(runtime)
+
+
+def test_production_rejects_google_client_id_placeholder():
+    runtime = _secure_stripe_runtime(
+        ENVIRONMENT="production",
+        ALLOW_LEGACY_ACCESS_TOKENS=False,
+        GOOGLE_CLIENT_IDS="YOUR_WEB_CLIENT_ID.apps.googleusercontent.com",
+    )
+    with pytest.raises(RuntimeError, match="真实 Google OAuth Client ID"):
         validate_runtime_configuration(runtime)

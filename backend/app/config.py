@@ -17,6 +17,7 @@ STRIPE_ZERO_DECIMAL_CURRENCIES = {
     "rwf", "ugx", "vnd", "vuv", "xaf", "xof", "xpf",
 }
 STRIPE_SPECIAL_PAYOUT_CURRENCIES = {"huf", "twd"}
+GOOGLE_CLIENT_ID_PATTERN = re.compile(r"^[0-9]+-[a-z0-9-]+\.apps\.googleusercontent\.com$")
 
 
 class Settings(BaseSettings):
@@ -124,6 +125,11 @@ def validate_runtime_configuration(current: Settings = None) -> None:
         errors.append("ALLOWED_HOSTS 必须配置正式域名")
     if not runtime.google_client_ids_list:
         errors.append("GOOGLE_CLIENT_IDS 必须配置，避免生产环境出现不可用的 Google 登录按钮")
+    elif is_production and any(
+        not GOOGLE_CLIENT_ID_PATTERN.fullmatch(client_id)
+        for client_id in runtime.google_client_ids_list
+    ):
+        errors.append("生产环境 GOOGLE_CLIENT_IDS 必须使用真实 Google OAuth Client ID，不能使用占位值")
     redis_url = (runtime.REDIS_URL or "").strip().lower()
     if is_production and (not redis_url or redis_url == "redis://localhost:6379/0"):
         errors.append("生产环境必须配置独立的 Redis 地址，不能使用默认本地 Redis")

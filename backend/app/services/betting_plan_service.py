@@ -146,7 +146,7 @@ class BettingPlanService:
                     raise e
                 raise HTTPException(
                     status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                    detail=f"创建邀请失败: {str(e)}"
+                    detail="创建邀请失败，请稍后重试"
                 )
 
         logger.info("Betting plan created: {} by user {}", plan_id, creator_id)

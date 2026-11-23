@@ -137,11 +137,13 @@ class RecommendationService:
                 status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
                 detail="无法连接到推荐服务"
             )
+        except HTTPException:
+            raise
         except Exception as e:
             logger.error("Error calling model service: {}", e)
             raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"获取推荐失败: {str(e)}"
+                status_code=status.HTTP_502_BAD_GATEWAY,
+                detail="推荐服务返回了无效响应"
             )
     
     def _get_cached_recommendation(self, user_id: str) -> Optional[RecommendationResponse]:

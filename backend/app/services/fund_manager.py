@@ -142,7 +142,7 @@ class FundManager:
             return FreezeResult(
                 success=False,
                 transaction_id=None,
-                error=f"冻结资金失败: {str(e)}"
+                error="冻结资金失败，请稍后重试"
             )
 
     @staticmethod
@@ -273,7 +273,7 @@ class FundManager:
             return FreezeResult(
                 success=False,
                 transaction_id=None,
-                error=f"解冻资金失败: {str(e)}"
+                error="解冻资金失败，请联系客服处理"
             )
     
     @staticmethod
@@ -400,7 +400,7 @@ class FundManager:
             return TransferResult(
                 success=False,
                 transaction_id=None,
-                error=f"转账失败: {str(e)}"
+                error="转账失败，请稍后重试"
             )
     
     @staticmethod
@@ -540,5 +540,5 @@ class FundManager:
             return AbandonResult(
                 success=False,
                 plan_id=plan.id,
-                message=f"处理退款失败: {str(e)}"
+                message="处理退款失败，请联系客服处理"
             )

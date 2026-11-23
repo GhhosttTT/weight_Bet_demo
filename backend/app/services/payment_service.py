@@ -252,7 +252,7 @@ class PaymentService:
         try:
             return PaymentService._retry_with_exponential_backoff(_freeze)
         except Exception as e:
-            return FreezeResult(success=False, transaction_id=None, error="冻结资金失败: {}".format(str(e)))
+            return FreezeResult(success=False, transaction_id=None, error="冻结资金失败，请稍后重试")
     
     @staticmethod
     def unfreeze_funds(
@@ -510,7 +510,7 @@ class PaymentService:
         try:
             return PaymentService._retry_with_exponential_backoff(_transfer)
         except Exception as e:
-            return TransferResult(success=False, transaction_id=None, error="转账失败: {}".format(str(e)))
+            return TransferResult(success=False, transaction_id=None, error="转账失败，请稍后重试")
     
     @staticmethod
     def get_balance(db: Session, user_id: str) -> Balance:

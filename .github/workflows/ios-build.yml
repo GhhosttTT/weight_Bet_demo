@@ -38,7 +38,7 @@ jobs:
       - name: Build iOS simulator target
         working-directory: ios
         run: |
-          xcodebuild \
+          perl -e 'alarm 900; exec @ARGV' -- xcodebuild \
             -workspace WeightLossBetting.xcworkspace \
             -scheme WeightLossBetting \
             -sdk iphonesimulator \

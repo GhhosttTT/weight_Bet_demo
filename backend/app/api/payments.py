@@ -184,3 +184,33 @@ def withdraw(
         code = status.HTTP_404_NOT_FOUND if result.error == "账户不存在" else status.HTTP_400_BAD_REQUEST
         raise HTTPException(status_code=code, detail=result.error)
     return {"success": True, "message": "提现成功", "amount": request.amount, "transaction_id": result.transaction_id}
+
+
+def _get_owned_withdrawal(db: Session, current_user_id: str, transaction_id: str):
+    """只允许交易所有者触发提现恢复操作。"""
+    transaction = PaymentService.get_transaction(db, current_user_id, transaction_id)
+    if not transaction or transaction.type.value != "withdraw":
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="提现交易不存在")
+    return transaction
+
+
+@router.post("/withdraw/{transaction_id}/retry")
+def retry_withdrawal(
+    transaction_id: str,
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """恢复 Transfer 已成功但 Payout 尚未落库的提现。"""
+    _get_owned_withdrawal(db, current_user_id, transaction_id)
+    return StripePayoutService.retry_pending_payout(db, transaction_id)
+
+
+@router.post("/withdraw/{transaction_id}/reconcile")
+def reconcile_withdrawal(
+    transaction_id: str,
+    current_user_id: str = Depends(get_current_user_id),
+    db: Session = Depends(get_db),
+):
+    """在 Webhook 丢失时查询 Stripe 并同步提现状态。"""
+    _get_owned_withdrawal(db, current_user_id, transaction_id)
+    return StripePayoutService.reconcile_pending_payout(db, transaction_id)

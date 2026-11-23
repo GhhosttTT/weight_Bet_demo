@@ -19,7 +19,7 @@ from app.models.transaction import Transaction, TransactionStatus, TransactionTy
 from app.models.user import Gender, User
 from app.services.stripe_payment_service import StripePaymentService
 from app.services.payment_service import PaymentService
-from app.api.payments import withdraw, charge
+from app.api.payments import withdraw, charge, _get_owned_withdrawal
 from app.schemas.payment import ChargeRequest, WithdrawRequest
 from app.schemas.payment import ChargeIntentRequest
 
@@ -65,6 +65,23 @@ def test_transaction_status_is_isolated_to_owner(db_session):
 
     assert PaymentService.get_transaction(db_session, "stripe-user-001", transaction.id) is not None
     assert PaymentService.get_transaction(db_session, "another-user", transaction.id) is None
+
+
+def test_withdrawal_recovery_operations_are_owner_scoped(db_session):
+    transaction = Transaction(
+        id="withdraw-owner-scope-001",
+        user_id="stripe-user-001",
+        type=TransactionType.WITHDRAW,
+        amount=-10,
+        status=TransactionStatus.PENDING,
+    )
+    db_session.add(transaction)
+    db_session.commit()
+
+    assert _get_owned_withdrawal(db_session, "stripe-user-001", transaction.id).id == transaction.id
+    with pytest.raises(HTTPException) as error:
+        _get_owned_withdrawal(db_session, "another-user", transaction.id)
+    assert error.value.status_code == 404
 
 
 def test_charge_intent_requires_client_idempotency_key():

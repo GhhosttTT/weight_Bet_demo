@@ -15,6 +15,8 @@ IOS_CHARGE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewController.sw
 IOS_CHARGE_VM = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift"
 IOS_WITHDRAW = ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewController.swift"
 IOS_PLAN_DETAIL = ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewController.swift"
+IOS_PODFILE = ROOT / "ios/Podfile"
+IOS_PODFILE_LOCK = ROOT / "ios/Podfile.lock"
 IOS_NETWORK_FILES = (
     ROOT / "ios/WeightLossBetting/Data/Network/APIService.swift",
     ROOT / "ios/WeightLossBetting/Data/Network/ErrorInterceptor.swift",
@@ -97,6 +99,19 @@ def test_android_backup_rules_exclude_authentication_and_pending_payment_state()
     assert expected in backup
     assert extraction.count(expected) == 2
     assert "<device-transfer>" in extraction
+
+
+def test_ios_pod_lock_matches_google_and_stripe_dependencies():
+    podfile = IOS_PODFILE.read_text(encoding="utf-8")
+    lock = IOS_PODFILE_LOCK.read_text(encoding="utf-8")
+
+    assert "pod 'GoogleSignIn', '~> 9.0'" in podfile
+    assert "GoogleSignIn (~> 9.0)" in lock
+    assert "GoogleSignIn (9.2.0)" in lock
+    assert "pod 'StripePaymentSheet', '~> 23.5'" in podfile
+    assert "StripePaymentSheet (~> 23.5)" in lock
+    assert "StripePaymentSheet (23.32.0)" in lock
+    assert "COCOAPODS: 1.17.0" in lock
 
 
 def test_charge_limits_match_between_mobile_platforms():

@@ -6,6 +6,7 @@ import pytest
 from hypothesis import given, strategies as st, settings, assume, HealthCheck
 from sqlalchemy.orm import Session
 from app.services.fund_manager import FundManager
+from app.services.payment_service import PaymentService
 from app.models.balance import Balance
 from app.models.user import User
 import uuid
@@ -238,9 +239,10 @@ def test_property_freeze_requires_sufficient_balance(
     
     # 执行冻结操作
     result = FundManager.freeze_funds(db_session, user.id, plan_id, bet_amount)
+    normalized_bet_amount = float(PaymentService._normalize_amount(bet_amount))
     
     # 验证结果
-    if initial_balance < bet_amount:
+    if initial_balance < normalized_bet_amount:
         # 余额不足，应该失败
         assert result.success is False
         assert result.error == "余额不足"

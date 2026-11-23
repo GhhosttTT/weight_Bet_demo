@@ -8,6 +8,7 @@ from datetime import datetime, timezone
 from app.models.balance import Balance
 from app.models.transaction import Transaction, TransactionType, TransactionStatus
 from app.schemas.payment import FreezeResult, TransferResult, AbandonResult
+from app.services.payment_service import PaymentService
 from app.logger import get_logger
 
 logger = get_logger()
@@ -40,12 +41,14 @@ class FundManager:
         Validates: Requirements 7.1, 7.2, 7.3, 12.4
         """
         try:
-            if amount < 0.01:
+            normalized_amount = PaymentService._normalize_amount(amount)
+            if normalized_amount is None:
                 return FreezeResult(
                     success=False,
                     transaction_id=None,
                     error="冻结金额必须至少为 0.01"
                 )
+            amount = float(normalized_amount)
 
             # 与 PaymentService 保持一致：重试不能重复冻结同一计划资金。
             existing_freeze = db.query(Transaction).filter(
@@ -92,8 +95,12 @@ class FundManager:
                 )
             
             # 步骤 3: 执行原子性冻结操作 (Requirement 7.1, 7.2)
-            balance.available_balance -= amount
-            balance.frozen_balance += amount
+            balance.available_balance = PaymentService._subtract_money(
+                balance.available_balance, amount
+            )
+            balance.frozen_balance = PaymentService._add_money(
+                balance.frozen_balance, amount
+            )
             
             # 步骤 4: 创建交易记录 (Requirement 7.3)
             transaction_id = str(uuid.uuid4())
@@ -219,8 +226,12 @@ class FundManager:
                 )
             
             # 步骤 4: 执行原子性解冻操作 (Requirement 7.1, 7.2)
-            balance.frozen_balance -= amount
-            balance.available_balance += amount
+            balance.frozen_balance = PaymentService._subtract_money(
+                balance.frozen_balance, amount
+            )
+            balance.available_balance = PaymentService._add_money(
+                balance.available_balance, amount
+            )
             
             # 步骤 5: 创建交易记录 (Requirement 7.3)
             transaction_id = str(uuid.uuid4())
@@ -291,8 +302,19 @@ class FundManager:
         Validates: Requirements 6.3, 6.4, 7.1, 7.2, 7.3
         """
         try:
+            normalized_amount = PaymentService._normalize_amount(amount)
+            if normalized_amount is None:
+                return TransferResult(
+                    success=False,
+                    transaction_id=None,
+                    error="转账金额必须至少为 0.01"
+                )
+            amount = float(normalized_amount)
+
             # 步骤 1: 获取转入用户余额
-            to_balance = db.query(Balance).filter(Balance.user_id == to_user_id).first()
+            to_balance = db.query(Balance).filter(
+                Balance.user_id == to_user_id
+            ).with_for_update().first()
             if not to_balance:
                 logger.warning("Balance not found for recipient: {}", to_user_id)
                 return TransferResult(
@@ -303,7 +325,9 @@ class FundManager:
             
             # 步骤 2: 如果不是平台转账，验证转出用户余额
             if from_user_id != "platform":
-                from_balance = db.query(Balance).filter(Balance.user_id == from_user_id).first()
+                from_balance = db.query(Balance).filter(
+                    Balance.user_id == from_user_id
+                ).with_for_update().first()
                 if not from_balance:
                     logger.warning("Balance not found for sender: {}", from_user_id)
                     return TransferResult(
@@ -326,10 +350,14 @@ class FundManager:
                     )
                 
                 # 扣除转出用户余额
-                from_balance.available_balance -= amount
+                from_balance.available_balance = PaymentService._subtract_money(
+                    from_balance.available_balance, amount
+                )
             
             # 步骤 3: 执行原子性转账操作 (Requirement 7.1, 7.2)
-            to_balance.available_balance += amount
+            to_balance.available_balance = PaymentService._add_money(
+                to_balance.available_balance, amount
+            )
             
             # 步骤 4: 创建交易记录 (Requirement 7.3)
             transaction_id = str(uuid.uuid4())
@@ -455,10 +483,14 @@ class FundManager:
                 # 从失败方账户扣除冻结资金（不解冻，直接扣除）
                 loser_balance = db.query(Balance).filter(Balance.user_id == loser_id).first()
                 if loser_balance and loser_balance.frozen_balance >= plan.bet_amount:
-                    loser_balance.frozen_balance -= plan.bet_amount
+                    loser_balance.frozen_balance = PaymentService._subtract_money(
+                        loser_balance.frozen_balance, plan.bet_amount
+                    )
                 
                 # 转账给获胜方（双倍赌金）
-                total_amount = plan.bet_amount * 2
+                total_amount = PaymentService._add_money(
+                    plan.bet_amount, plan.bet_amount
+                )
                 transfer_result = FundManager.transfer_funds(
                     db,
                     "platform",

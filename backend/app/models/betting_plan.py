@@ -1,7 +1,7 @@
 """
 对赌计划数据模型
 """
-from sqlalchemy import Column, String, Float, DateTime, Enum as SQLEnum, ForeignKey, Text, Boolean, Integer
+from sqlalchemy import Column, String, Float, Numeric, DateTime, Enum as SQLEnum, ForeignKey, Text, Boolean, Integer
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from datetime import datetime
@@ -35,7 +35,7 @@ class BettingPlan(Base):
     status = Column(SQLEnum(PlanStatus), default=PlanStatus.PENDING, nullable=False, index=True)
     
     # 赌金
-    bet_amount = Column(Float, nullable=False)
+    bet_amount = Column(Numeric(12, 2, asdecimal=False), nullable=False)
     
     # 时间
     start_date = Column(DateTime(timezone=True), nullable=False)

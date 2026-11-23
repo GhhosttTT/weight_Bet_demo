@@ -1,7 +1,7 @@
 """
 结算记录数据模型
 """
-from sqlalchemy import Column, String, Float, DateTime, Boolean, ForeignKey, Text, false
+from sqlalchemy import Column, String, Float, Numeric, DateTime, Boolean, ForeignKey, Text, false
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -23,9 +23,9 @@ class Settlement(Base):
     participant_weight_loss = Column(Float, nullable=False)
     
     # 金额分配
-    creator_amount = Column(Float, nullable=False)
-    participant_amount = Column(Float, nullable=False)
-    platform_fee = Column(Float, nullable=False)
+    creator_amount = Column(Numeric(12, 2, asdecimal=False), nullable=False)
+    participant_amount = Column(Numeric(12, 2, asdecimal=False), nullable=False)
+    platform_fee = Column(Numeric(12, 2, asdecimal=False), nullable=False)
     
     # 备注
     notes = Column(Text, nullable=True)
@@ -34,7 +34,7 @@ class Settlement(Base):
     # 使用数据库布尔表达式，避免 SQLite 生成 DEFAULT 'false' 字符串，
     # 该字符串无法通过 Boolean 的 0/1 CHECK 约束。
     in_arbitration = Column(Boolean, server_default=false(), nullable=False)
-    arbitration_fee = Column(Float, nullable=True)  # 仲裁费用（15%）
+    arbitration_fee = Column(Numeric(12, 2, asdecimal=False), nullable=True)  # 仲裁费用（15%）
     
     # 时间戳
     settlement_date = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)

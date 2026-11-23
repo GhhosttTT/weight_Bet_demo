@@ -1,7 +1,7 @@
 """
 交易记录数据模型
 """
-from sqlalchemy import Column, String, Float, DateTime, Enum as SQLEnum, ForeignKey, Index
+from sqlalchemy import Column, String, DateTime, Enum as SQLEnum, ForeignKey, Index, Numeric
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import enum
@@ -32,7 +32,7 @@ class Transaction(Base):
     id = Column(String(36), primary_key=True, index=True)
     user_id = Column(String(36), ForeignKey("users.id"), nullable=False, index=True)
     type = Column(SQLEnum(TransactionType), nullable=False)
-    amount = Column(Float, nullable=False)
+    amount = Column(Numeric(12, 2, asdecimal=False), nullable=False)
     status = Column(SQLEnum(TransactionStatus), default=TransactionStatus.PENDING, nullable=False)
     related_plan_id = Column(String(36), ForeignKey("betting_plans.id"), nullable=True)
     related_settlement_id = Column(String(36), ForeignKey("settlements.id"), nullable=True)

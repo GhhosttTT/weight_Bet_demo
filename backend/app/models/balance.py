@@ -1,7 +1,7 @@
 """
 账户余额数据模型
 """
-from sqlalchemy import Column, String, Float, DateTime, ForeignKey, CheckConstraint
+from sqlalchemy import Column, String, DateTime, ForeignKey, CheckConstraint, Numeric
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 from app.database import Base
@@ -12,8 +12,9 @@ class Balance(Base):
     __tablename__ = "balances"
     
     user_id = Column(String(36), ForeignKey("users.id"), primary_key=True, index=True)
-    available_balance = Column(Float, default=0.0, nullable=False)
-    frozen_balance = Column(Float, default=0.0, nullable=False)
+    # 金额使用定点数存储；asdecimal=False 保持现有服务和移动端的数字响应契约。
+    available_balance = Column(Numeric(12, 2, asdecimal=False), default=0.0, nullable=False)
+    frozen_balance = Column(Numeric(12, 2, asdecimal=False), default=0.0, nullable=False)
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now(), nullable=False)
     
     # 约束: 余额不能为负

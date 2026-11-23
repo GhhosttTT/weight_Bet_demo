@@ -1,5 +1,5 @@
 """平台收入账本。"""
-from sqlalchemy import Column, DateTime, Float, ForeignKey, String
+from sqlalchemy import Column, DateTime, ForeignKey, String, Numeric
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 
@@ -15,7 +15,7 @@ class PlatformLedgerEntry(Base):
     settlement_id = Column(
         String(36), ForeignKey("settlements.id"), unique=True, nullable=False, index=True
     )
-    amount = Column(Float, nullable=False)
+    amount = Column(Numeric(12, 2, asdecimal=False), nullable=False)
     entry_type = Column(String(40), nullable=False, default="settlement_fee")
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 

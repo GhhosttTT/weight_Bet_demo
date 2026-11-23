@@ -113,6 +113,16 @@ def test_production_rejects_legacy_access_token_compatibility():
         validate_runtime_configuration(runtime)
 
 
+def test_production_rejects_long_access_token_lifetime():
+    runtime = _secure_stripe_runtime(
+        ENVIRONMENT="production",
+        ALLOW_LEGACY_ACCESS_TOKENS=False,
+        ACCESS_TOKEN_EXPIRE_MINUTES=61,
+    )
+    with pytest.raises(RuntimeError, match="ACCESS_TOKEN_EXPIRE_MINUTES"):
+        validate_runtime_configuration(runtime)
+
+
 def test_production_rejects_default_local_redis():
     runtime = _secure_stripe_runtime(REDIS_URL="redis://localhost:6379/0")
     runtime.ENVIRONMENT = "production"

@@ -12,7 +12,7 @@ enum ValidationError: Error {
         case .invalidEmail:
             return "请输入有效的邮箱地址"
         case .passwordTooShort:
-            return "密码至少需要6个字符"
+            return "密码至少需要8个字符"
         case .passwordsDoNotMatch:
             return "密码不匹配"
         case .nicknameTooShort:

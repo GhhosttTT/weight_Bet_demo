@@ -313,6 +313,18 @@ def test_ios_cached_plan_lookup_uses_plan_id_without_empty_user_scope():
     assert 'getCachedBettingPlans(userId: "")' not in cache
 
 
+def test_registration_password_minimum_matches_backend_and_android():
+    ios_vm = (ROOT / "ios/WeightLossBetting/UI/Auth/RegisterViewModel.swift").read_text(encoding="utf-8")
+    ios_error = (ROOT / "ios/WeightLossBetting/Data/Model/ValidationError.swift").read_text(encoding="utf-8")
+    android_vm = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/auth/RegisterViewModel.kt").read_text(encoding="utf-8")
+    backend_schema = (ROOT / "backend/app/schemas/user.py").read_text(encoding="utf-8")
+
+    assert "password.count >= 8" in ios_vm
+    assert "密码至少需要8个字符" in ios_error
+    assert "password.length < 8" in android_vm
+    assert "min_length=8" in backend_schema
+
+
 def test_coach_initial_load_can_fetch_when_mobile_cache_is_empty():
     android = ANDROID_COACH_VM.read_text(encoding="utf-8")
     ios = IOS_COACH_VM.read_text(encoding="utf-8")

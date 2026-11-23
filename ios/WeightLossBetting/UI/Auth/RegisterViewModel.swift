@@ -17,7 +17,7 @@ class RegisterViewModel {
             return
         }
         
-        guard password.count >= 6 else {
+        guard password.count >= 8 else {
             completion(.failure(ValidationError.passwordTooShort))
             return
         }

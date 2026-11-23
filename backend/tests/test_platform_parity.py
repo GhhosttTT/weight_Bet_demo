@@ -575,3 +575,12 @@ def test_settlement_dispute_entry_matches_on_android_and_ios():
         assert text in ios_controller
     assert "submitDispute" in android_api
     assert "submitDispute" in ios_api
+
+
+def test_admin_dispute_console_exposes_full_review_state_flow():
+    admin = (ROOT / "backend/admin/index.html").read_text(encoding="utf-8")
+    assert "接手审核" in admin
+    assert "under_review" in admin
+    assert "x.description" in admin
+    assert "x.admin_notes" in admin
+    assert "updateDispute" in admin

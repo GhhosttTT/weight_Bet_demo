@@ -393,6 +393,7 @@ class NotificationService:
         settlement_id: str,
         dispute_status: str,
         admin_notes: Optional[str] = None,
+        plan_id: Optional[str] = None,
     ):
         status_copy = {
             "under_review": "结算争议已进入审核",
@@ -409,6 +410,7 @@ class NotificationService:
                 "settlement_id": settlement_id,
                 "status": dispute_status,
                 "admin_notes": admin_notes or "",
+                "plan_id": plan_id or "",
             },
         )
         return NotificationService.send_notification(db, request)

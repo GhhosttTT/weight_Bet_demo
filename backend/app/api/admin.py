@@ -219,6 +219,7 @@ def update_dispute(
             dispute.settlement_id,
             dispute.status.value,
             dispute.admin_notes,
+            dispute.settlement.plan_id if dispute.settlement else None,
         )
     except Exception as error:
         logger.error("Failed to notify user after dispute update {}: {}", dispute.id, error)

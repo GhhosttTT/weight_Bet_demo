@@ -31,7 +31,7 @@ class MainTabBarController: UITabBarController {
         print("   - 类型：\(type)")
         
         // 处理计划相关通知，跳转到计划详情
-        if ["invite", "double_check", "plan_active", "settlement"].contains(type) {
+        if ["invite", "double_check", "plan_active", "settlement", "dispute_updated"].contains(type) {
             print("🚀 [MainTabBar] 开始导航到计划详情")
             DispatchQueue.main.async { [weak self] in
                 guard let self = self else { return }

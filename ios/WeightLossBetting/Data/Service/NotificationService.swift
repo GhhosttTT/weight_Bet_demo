@@ -141,7 +141,7 @@ class NotificationService {
             if let planId = relatedId {
                 print("📍 Navigate to active plan")
             }
-        case "settlement":
+        case "settlement", "dispute_updated":
             if let settlementId = relatedId {
                 print("📍 Navigate to settlement: \(settlementId)")
             }

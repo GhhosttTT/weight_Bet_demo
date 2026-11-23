@@ -47,10 +47,12 @@ class Tasks25To27Test {
     fun test_25_2_notification_types_handled() {
         val fcmService = File(androidRoot, "app/src/main/java/com/weightloss/betting/service/FCMService.kt")
         val content = fcmService.readText()
+        val mainActivity = File(androidRoot, "app/src/main/java/com/weightloss/betting/ui/MainActivity.kt").readText()
         
         assertTrue("应该处理 invite 通知", content.contains("invite"))
         assertTrue("应该处理 plan_active 通知", content.contains("plan_active"))
         assertTrue("应该处理 settlement 通知", content.contains("settlement"))
+        assertTrue("应该处理 dispute_updated 通知", mainActivity.contains("dispute_updated"))
         assertTrue("应该处理 check_in_reminder 通知", content.contains("check_in_reminder"))
     }
 

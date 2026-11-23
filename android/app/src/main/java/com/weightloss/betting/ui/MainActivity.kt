@@ -151,7 +151,7 @@ class MainActivity : AppCompatActivity() {
                         })
                     }
                 }
-                "settlement" -> {
+                "settlement", "dispute_updated" -> {
                     if (!relatedId.isNullOrBlank()) {
                         startActivity(Intent(this, SettlementActivity::class.java).apply {
                             putExtra("PLAN_ID", relatedId)

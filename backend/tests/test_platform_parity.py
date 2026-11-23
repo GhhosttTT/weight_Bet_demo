@@ -225,6 +225,20 @@ def test_notification_permission_is_requested_once_on_android_like_ios_login_flo
     assert "requestNotificationPermissionsIfNeeded" in ios
 
 
+def test_dispute_update_notifications_navigate_to_settlement_on_both_mobile_platforms():
+    android = ANDROID_MAIN.read_text(encoding="utf-8")
+    android_fcm = (ROOT / "android/app/src/main/java/com/weightloss/betting/service/FCMService.kt").read_text(encoding="utf-8")
+    ios_service = (ROOT / "ios/WeightLossBetting/Data/Service/NotificationService.swift").read_text(encoding="utf-8")
+    ios_coordinator = (ROOT / "ios/WeightLossBetting/UI/Common/NotificationNavigationCoordinator.swift").read_text(encoding="utf-8")
+    ios_tab = (ROOT / "ios/WeightLossBetting/UI/Main/MainTabBarController.swift").read_text(encoding="utf-8")
+
+    assert '"settlement", "dispute_updated"' in android
+    assert "related_id" in android_fcm
+    assert 'case "settlement", "dispute_updated"' in ios_service
+    assert 'case "settlement", "dispute_updated"' in ios_coordinator
+    assert '"settlement", "dispute_updated"' in ios_tab
+
+
 def test_google_login_configuration_state_matches_between_mobile_platforms():
     android = ANDROID_LOGIN.read_text(encoding="utf-8")
     android_strings = ANDROID_LOGIN_STRINGS.read_text(encoding="utf-8")

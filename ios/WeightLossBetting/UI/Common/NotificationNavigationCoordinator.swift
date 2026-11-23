@@ -90,7 +90,7 @@ final class NotificationNavigationCoordinator {
             return 1 // Plans tab
         case "check_in_reminder":
             return 2 // CheckIn tab
-        case "settlement":
+        case "settlement", "dispute_updated":
             return 3 // Profile / Settlement tab
         default:
             return nil

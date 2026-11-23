@@ -114,7 +114,7 @@ def test_dispute_status_notification_targets_user_with_status_and_notes(monkeypa
 
     monkeypatch.setattr(NotificationService, "send_notification", capture)
     NotificationService.send_dispute_status_notification(
-        object(), "user-1", "dispute-1", "settlement-1", "resolved", "已核实并完成处理"
+        object(), "user-1", "dispute-1", "settlement-1", "resolved", "已核实并完成处理", "plan-1"
     )
 
     assert captured[0].user_id == "user-1"
@@ -126,4 +126,8 @@ def test_dispute_status_notification_targets_user_with_status_and_notes(monkeypa
         "settlement_id": "settlement-1",
         "status": "resolved",
         "admin_notes": "已核实并完成处理",
+        "plan_id": "plan-1",
     }
+    normalized = NotificationService._normalized_data(captured[0])
+    assert normalized["type"] == "dispute_updated"
+    assert normalized["relatedId"] == "plan-1"

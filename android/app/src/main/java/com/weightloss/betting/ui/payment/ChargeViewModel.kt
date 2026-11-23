@@ -36,7 +36,7 @@ class ChargeViewModel @Inject constructor(
     fun createCharge(amount: String) {
         // Validate amount
         val amountDouble = amount.toDoubleOrNull()
-        if (amountDouble == null || amountDouble <= 0) {
+        if (amountDouble == null || !amountDouble.isFinite() || amountDouble <= 0) {
             _chargeState.value = ChargeState.Error("充值金额必须大于0")
             return
         }

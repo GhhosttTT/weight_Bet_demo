@@ -446,6 +446,28 @@ def test_plan_bet_minimum_validation_matches_between_mobile_platforms():
     assert "赌金不能少于0.01元" in ios
 
 
+def test_numeric_input_validation_rejects_non_finite_values_on_both_platforms():
+    android_files = [
+        ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/ChargeViewModel.kt",
+        ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/WithdrawViewModel.kt",
+        ROOT / "android/app/src/main/java/com/weightloss/betting/ui/checkin/CheckInViewModel.kt",
+        ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/PlanDetailViewModel.kt",
+        ROOT / "android/app/src/main/java/com/weightloss/betting/ui/profile/EditProfileViewModel.kt",
+    ]
+    ios_files = [
+        ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift",
+        ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewModel.swift",
+        ROOT / "ios/WeightLossBetting/UI/CheckIn/CheckInViewModel.swift",
+        ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewModel.swift",
+        ROOT / "ios/WeightLossBetting/UI/Profile/EditProfileViewModel.swift",
+    ]
+
+    for path in android_files:
+        assert ".isFinite()" in path.read_text(encoding="utf-8"), path
+    for path in ios_files:
+        assert ".isFinite" in path.read_text(encoding="utf-8"), path
+
+
 def test_balance_transaction_history_default_page_size_matches_ios_and_backend():
     android_repo = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/UserRepository.kt").read_text(encoding="utf-8")
     android_activity = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/BalanceActivity.kt").read_text(encoding="utf-8")

@@ -91,13 +91,13 @@ class PlanDetailViewModel @Inject constructor(
     ) {
         // Validate inputs
         val initialWeightDouble = initialWeight.toDoubleOrNull()
-        if (initialWeightDouble == null || initialWeightDouble < 30 || initialWeightDouble > 300) {
+        if (initialWeightDouble == null || !initialWeightDouble.isFinite() || initialWeightDouble < 30 || initialWeightDouble > 300) {
             _acceptPlanState.value = AcceptPlanState.Error("初始体重必须在30-300kg之间")
             return
         }
         
         val targetWeightDouble = targetWeight.toDoubleOrNull()
-        if (targetWeightDouble == null || targetWeightDouble < 30 || targetWeightDouble > 300) {
+        if (targetWeightDouble == null || !targetWeightDouble.isFinite() || targetWeightDouble < 30 || targetWeightDouble > 300) {
             _acceptPlanState.value = AcceptPlanState.Error("目标体重必须在30-300kg之间")
             return
         }

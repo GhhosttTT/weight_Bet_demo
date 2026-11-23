@@ -55,7 +55,7 @@ class CheckInViewModel @Inject constructor(
         photoPath: String? = null
     ) {
         val weightDouble = weight.toDoubleOrNull()
-        if (weightDouble == null || weightDouble < 30 || weightDouble > 300) {
+        if (weightDouble == null || !weightDouble.isFinite() || weightDouble < 30 || weightDouble > 300) {
             _checkInState.value = CheckInState.Error("体重必须在 30-300kg 之间")
             return
         }
@@ -120,7 +120,7 @@ class CheckInViewModel @Inject constructor(
         photoPath: String? = null
     ) {
         val weightDouble = weight.toDoubleOrNull()
-        if (weightDouble == null || weightDouble < 30 || weightDouble > 300) {
+        if (weightDouble == null || !weightDouble.isFinite() || weightDouble < 30 || weightDouble > 300) {
             _checkInState.value = CheckInState.Error("体重必须在 30-300kg 之间")
             return
         }

@@ -65,7 +65,7 @@ class WithdrawViewModel @Inject constructor(
     fun createWithdraw(amount: String) {
         // Validate amount
         val amountDouble = amount.toDoubleOrNull()
-        if (amountDouble == null || amountDouble <= 0) {
+        if (amountDouble == null || !amountDouble.isFinite() || amountDouble <= 0) {
             _withdrawState.value = WithdrawState.Error("提现金额必须大于0")
             return
         }

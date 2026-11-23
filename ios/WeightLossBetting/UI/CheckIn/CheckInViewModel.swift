@@ -111,7 +111,7 @@ class CheckInViewModel {
     
     func createCheckIn(planId: String, weight: Double, note: String?) {
         // Validate weight
-        guard weight >= 30 && weight <= 300 else {
+        guard weight.isFinite && weight >= 30 && weight <= 300 else {
             checkInState = .error("体重必须在30-300kg之间")
             return
         }

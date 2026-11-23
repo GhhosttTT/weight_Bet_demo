@@ -75,20 +75,20 @@ class EditProfileViewModel @Inject constructor(
         }
         
         val heightDouble = height.toDoubleOrNull()
-        if (heightDouble == null || heightDouble < 100 || heightDouble > 250) {
+        if (heightDouble == null || !heightDouble.isFinite() || heightDouble < 100 || heightDouble > 250) {
             _editProfileState.value = EditProfileState.Error("身高必须在100-250cm之间")
             return
         }
         
         val currentWeightDouble = currentWeight.toDoubleOrNull()
-        if (currentWeightDouble == null || currentWeightDouble < 30 || currentWeightDouble > 300) {
+        if (currentWeightDouble == null || !currentWeightDouble.isFinite() || currentWeightDouble < 30 || currentWeightDouble > 300) {
             _editProfileState.value = EditProfileState.Error("体重必须在30-300kg之间")
             return
         }
         
         val targetWeightDouble = if (!targetWeight.isNullOrBlank()) {
             val tw = targetWeight.toDoubleOrNull()
-            if (tw == null || tw < 30 || tw > 300) {
+            if (tw == null || !tw.isFinite() || tw < 30 || tw > 300) {
                 _editProfileState.value = EditProfileState.Error("目标体重必须在30-300kg之间")
                 return
             }

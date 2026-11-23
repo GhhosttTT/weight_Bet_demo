@@ -53,12 +53,12 @@ class PlanDetailViewModel {
     
     func acceptPlan(initialWeight: String, targetWeight: String) {
         // Validate inputs
-        guard let initialWeightValue = Double(initialWeight), initialWeightValue >= 30, initialWeightValue <= 300 else {
+        guard let initialWeightValue = Double(initialWeight), initialWeightValue.isFinite, initialWeightValue >= 30, initialWeightValue <= 300 else {
             onError?("初始体重必须在 30-300 kg 之间")
             return
         }
         
-        guard let targetWeightValue = Double(targetWeight), targetWeightValue >= 30, targetWeightValue <= 300 else {
+        guard let targetWeightValue = Double(targetWeight), targetWeightValue.isFinite, targetWeightValue >= 30, targetWeightValue <= 300 else {
             onError?("目标体重必须在 30-300 kg 之间")
             return
         }

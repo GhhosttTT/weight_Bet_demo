@@ -26,18 +26,18 @@ class EditProfileViewModel {
             return
         }
         
-        guard height >= 100 && height <= 250 else {
+        guard height.isFinite && height >= 100 && height <= 250 else {
             completion(.failure(ValidationError.invalidHeight))
             return
         }
         
-        guard currentWeight >= 30 && currentWeight <= 300 else {
+        guard currentWeight.isFinite && currentWeight >= 30 && currentWeight <= 300 else {
             completion(.failure(ValidationError.invalidWeight))
             return
         }
         
         if let targetWeight = targetWeight {
-            guard targetWeight >= 30 && targetWeight <= 300 else {
+            guard targetWeight.isFinite && targetWeight >= 30 && targetWeight <= 300 else {
                 completion(.failure(ValidationError.invalidWeight))
                 return
             }

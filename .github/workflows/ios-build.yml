@@ -45,6 +45,7 @@ jobs:
             -destination 'generic/platform=iOS Simulator' \
             -configuration Debug \
             CODE_SIGNING_ALLOWED=NO \
+            COMPILER_INDEX_STORE_ENABLE=NO \
             -resultBundlePath build/WeightLossBetting.xcresult \
             -showBuildTimingSummary \
             build

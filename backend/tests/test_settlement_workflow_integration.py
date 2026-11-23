@@ -13,6 +13,7 @@ from app.main import app
 from app.database import Base, get_db
 from app.models.settlement import Settlement
 from app.models.platform_ledger import PlatformLedgerEntry
+from app.models.betting_plan import BettingPlan, PlanStatus
 from app.models.user import User
 from app.redis_client import get_redis
 
@@ -148,6 +149,12 @@ class TestSettlementWorkflow:
                    headers={"Authorization": f"Bearer {creator_token}"})
         client.post(f"/api/settlement-choices/{plan_id}", json=participant_choice, 
                    headers={"Authorization": f"Bearer {participant_token}"})
+
+        # 第二位参与者提交后，后端应自动匹配并完成资金结算。
+        db = TestingSessionLocal()
+        assert db.query(BettingPlan).filter(BettingPlan.id == plan_id).one().status == PlanStatus.COMPLETED
+        assert db.query(Settlement).filter(Settlement.plan_id == plan_id).count() == 1
+        db.close()
         
         # 执行匹配
         match_response = client.post(f"/api/settlement-choices/{plan_id}/match",

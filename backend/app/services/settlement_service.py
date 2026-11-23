@@ -176,6 +176,13 @@ class SettlementService:
                 detail="计划不存在"
             )
 
+        existing_settlement = db.query(Settlement).filter(
+            Settlement.plan_id == plan_id
+        ).first()
+        if existing_settlement:
+            # 客户端重试或自动结算后再次调用时返回已有结果，保证结算接口幂等。
+            return SettlementResponse.model_validate(existing_settlement)
+
         if plan.status != PlanStatus.ACTIVE:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
@@ -196,15 +203,6 @@ class SettlementService:
             )
             
         # 检查是否已结算
-        existing_settlement = db.query(Settlement).filter(
-            Settlement.plan_id == plan_id
-        ).first()
-        if existing_settlement:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="计划已结算"
-            )
-            
         # 如果没有提供匹配结果，从数据库获取双方选择并比对
         if not matching_result:
             from app.services.settlement_choice_service import SettlementChoiceService

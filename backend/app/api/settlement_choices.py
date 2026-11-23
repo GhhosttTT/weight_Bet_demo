@@ -45,9 +45,33 @@ async def submit_settlement_choice(
     Returns:
         SettlementChoiceResponse: 选择响应
     """
-    return SettlementChoiceService.submit_choice(
+    choice = SettlementChoiceService.submit_choice(
         db, plan_id, current_user.id, request
     )
+
+    # 第二位参与者提交后立即推进匹配和结算，避免必须依赖客户端再次调用
+    # /match 或后台调度器才能释放冻结资金。匹配失败时服务会自动推进轮次；
+    # 资金结算异常只记录日志，保留已落库的选择，后续调度任务仍可补偿执行。
+    try:
+        matching_result = SettlementChoiceService.match_choices(
+            db, plan_id, requesting_user_id=current_user.id
+        )
+        if matching_result.matched or matching_result.go_to_arbitration:
+            SettlementService.execute_settlement(
+                db,
+                plan_id,
+                matching_result={
+                    "matched": matching_result.matched,
+                    "creator_won": matching_result.creator_won,
+                    "both_achieved": matching_result.both_achieved,
+                    "both_failed": matching_result.both_failed,
+                    "go_to_arbitration": matching_result.go_to_arbitration,
+                },
+            )
+    except Exception:
+        logger.exception("Automatic settlement progression failed for plan {}", plan_id)
+
+    return choice
 
 
 @router.get("/settlement-choices/{plan_id}/status", response_model=SettlementSelectionStatus)

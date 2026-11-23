@@ -288,10 +288,35 @@ class SettlementChoiceService:
                 detail="您不是该计划的参与者"
             )
 
-        if db.query(Settlement).filter(Settlement.plan_id == plan_id).first():
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="计划已结算"
+        existing_settlement = db.query(Settlement).filter(
+            Settlement.plan_id == plan_id
+        ).first()
+        if existing_settlement:
+            if existing_settlement.in_arbitration:
+                return SettlementMatchingResult(
+                    matched=False,
+                    go_to_arbitration=True,
+                    message="计划已进入仲裁流程",
+                )
+            both_achieved = bool(
+                existing_settlement.creator_achieved and
+                existing_settlement.participant_achieved
+            )
+            both_failed = bool(
+                not existing_settlement.creator_achieved and
+                not existing_settlement.participant_achieved
+            )
+            creator_won = (
+                True if existing_settlement.creator_achieved and not existing_settlement.participant_achieved
+                else False if not existing_settlement.creator_achieved and existing_settlement.participant_achieved
+                else None
+            )
+            return SettlementMatchingResult(
+                matched=True,
+                creator_won=creator_won,
+                both_achieved=both_achieved,
+                both_failed=both_failed,
+                message="计划已完成结算",
             )
 
         SettlementChoiceService._validate_settlement_window(plan)
@@ -313,6 +338,30 @@ class SettlementChoiceService:
         
         # 检查双方是否都已提交
         if not creator_choice or not participant_choice:
+            # 新流程会在第二位用户提交后自动推进轮次；兼容旧客户端随后
+            # 立即调用 /match 的行为，返回上一轮已经发生的不匹配结果。
+            if not creator_choice and not participant_choice and current_round > 1:
+                previous_creator_choice = db.query(SettlementChoice).filter(
+                    SettlementChoice.plan_id == plan_id,
+                    SettlementChoice.user_id == plan.creator_id,
+                    SettlementChoice.round == current_round - 1
+                ).first()
+                previous_participant_choice = db.query(SettlementChoice).filter(
+                    SettlementChoice.plan_id == plan_id,
+                    SettlementChoice.user_id == plan.participant_id,
+                    SettlementChoice.round == current_round - 1
+                ).first()
+                if (
+                    previous_creator_choice and previous_participant_choice and
+                    not SettlementChoiceService._choices_are_matched(
+                        previous_creator_choice, previous_participant_choice
+                    )
+                ):
+                    return SettlementMatchingResult(
+                        matched=False,
+                        go_to_next_round=True,
+                        message="上一轮选择不匹配，已进入下一轮",
+                    )
             return SettlementMatchingResult(
                 matched=False,
                 go_to_next_round=False,

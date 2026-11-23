@@ -584,3 +584,13 @@ def test_admin_dispute_console_exposes_full_review_state_flow():
     assert "x.description" in admin
     assert "x.admin_notes" in admin
     assert "updateDispute" in admin
+
+
+def test_settlement_pages_refresh_dispute_status_after_returning_to_foreground():
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/settlement/SettlementActivity.kt").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Settlement/SettlementViewController.swift").read_text(encoding="utf-8")
+    assert "override fun onResume()" in android
+    assert "hasLeftScreen" in android
+    assert "viewWillAppear" in ios
+    assert "hasAppeared" in ios
+    assert "loadSettlementStatus()" in ios

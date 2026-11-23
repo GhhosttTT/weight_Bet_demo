@@ -17,6 +17,7 @@ class SettlementViewController: UIViewController {
     private var myAchievement: Bool?
     private var opponentAchievement: Bool?
     private var latestStatus: SettlementSelectionStatus?
+    private var hasAppeared = false
 
     // MARK: - UI Elements
     private let titleLabel: UILabel = {
@@ -137,6 +138,14 @@ class SettlementViewController: UIViewController {
             action: #selector(closeTapped)
         )
         loadSettlementStatus()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        if hasAppeared {
+            loadSettlementStatus()
+        }
+        hasAppeared = true
     }
 
     private func loadSettlementStatus() {

@@ -19,6 +19,7 @@ class SettlementActivity : BaseActivity() {
     private val viewModel: SettlementViewModel by viewModels()
     private var planId: String? = null
     private var latestStatus: SettlementSelectionStatus? = null
+    private var hasLeftScreen = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,6 +40,18 @@ class SettlementActivity : BaseActivity() {
         viewModel.state.observe(this) { render(it) }
         viewModel.disputeState.observe(this) { renderDispute(it) }
         viewModel.load(planId!!)
+    }
+
+    override fun onPause() {
+        hasLeftScreen = true
+        super.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (hasLeftScreen) {
+            planId?.takeIf { it.isNotBlank() }?.let(viewModel::load)
+        }
     }
 
     private fun submit() {

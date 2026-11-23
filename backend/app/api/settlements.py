@@ -270,7 +270,7 @@ async def submit_dispute(
         logger.error("Failed to submit dispute: {}", str(e), exc_info=True)
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="提交争议失败: {}".format(str(e))
+            detail="提交争议失败，请稍后重试"
         )
 
 

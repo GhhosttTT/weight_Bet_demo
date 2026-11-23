@@ -155,7 +155,7 @@ class SettlementChoiceService:
             logger.error("Failed to submit settlement choice: {}", str(e), exc_info=True)
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="提交选择失败：{}".format(str(e))
+                detail="提交选择失败，请稍后重试"
             )
     
     @staticmethod

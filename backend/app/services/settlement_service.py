@@ -367,7 +367,7 @@ class SettlementService:
                     
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="结算失败：{}".format(str(e))
+                detail="结算失败，请稍后重试"
             )
     
     @staticmethod
@@ -488,7 +488,7 @@ class SettlementService:
                 failed_count += 1
                 failed_plans.append({
                     "plan_id": plan_id,
-                    "error": str(e)
+                    "error": "结算处理失败"
                 })
                 logger.error("Failed to settle plan {}: {}", plan_id, str(e))
         

@@ -201,5 +201,5 @@ class ArbitrationService:
             )
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail="仲裁失败：{}".format(str(e))
+                detail="仲裁失败，请稍后重试"
             )

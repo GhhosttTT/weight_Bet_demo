@@ -205,6 +205,14 @@ def test_pending_actions_refresh_when_both_platforms_return_to_foreground():
     assert "waitForModalDismiss" in ios
 
 
+def test_matched_settlement_state_copy_matches_on_both_mobile_platforms():
+    android = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/settlement/SettlementActivity.kt").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Settlement/SettlementViewController.swift").read_text(encoding="utf-8")
+    expected = "双方选择已匹配，等待系统结算"
+    assert expected in android
+    assert expected in ios
+
+
 def test_notification_permission_is_requested_once_on_android_like_ios_login_flow():
     android = ANDROID_MAIN.read_text(encoding="utf-8")
     helper = ANDROID_NOTIFICATION_HELPER.read_text(encoding="utf-8")

@@ -128,6 +128,8 @@ class SettlementViewController: UIViewController {
                         self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 结算已完成"
                     } else if status.inArbitration {
                         self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 双方结果多轮不一致，已进入仲裁"
+                    } else if status.matched {
+                        self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 双方选择已匹配，等待系统结算"
                     } else if status.currentUserSubmitted {
                         self.subtitleLabel.text = "第 \(status.currentRound) 轮 · 已提交，等待对方确认"
                     } else {

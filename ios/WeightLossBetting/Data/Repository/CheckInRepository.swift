@@ -12,7 +12,7 @@ class CheckInRepository {
     // MARK: - Check-In Operations
     
     func createCheckIn(planId: String, weight: Double, note: String?, photoUrl: String?, completion: @escaping (Result<CheckIn, Error>) -> Void) {
-        guard let userId = UserDefaults.standard.string(forKey: "currentUserId") else {
+        guard let userId = AuthRepository.shared.getCurrentUserId() else {
             completion(.failure(NSError(domain: "CheckInRepository", code: -1, userInfo: [NSLocalizedDescriptionKey: "User not logged in"])))
             return
         }

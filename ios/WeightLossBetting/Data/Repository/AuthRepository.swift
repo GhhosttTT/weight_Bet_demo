@@ -19,8 +19,7 @@ class AuthRepository {
                 self?.keychainManager.saveAccessToken(authResponse.accessToken)
                 self?.keychainManager.saveRefreshToken(authResponse.refreshToken)
                 
-                // Save user ID to UserDefaults
-                UserDefaults.standard.set(authResponse.userId, forKey: "currentUserId")
+                self?.saveUserId(authResponse.userId)
                 
                 print("   - User created locally (CoreData caching skipped)")
                 
@@ -49,8 +48,7 @@ class AuthRepository {
                 self?.keychainManager.saveAccessToken(authResponse.accessToken)
                 self?.keychainManager.saveRefreshToken(authResponse.refreshToken)
                 
-                // Save user ID to UserDefaults
-                UserDefaults.standard.set(authResponse.userId, forKey: "currentUserId")
+                self?.saveUserId(authResponse.userId)
                 
                 print("   - User created locally (CoreData caching skipped)")
                 
@@ -70,8 +68,7 @@ class AuthRepository {
                 self?.keychainManager.saveAccessToken(authResponse.accessToken)
                 self?.keychainManager.saveRefreshToken(authResponse.refreshToken)
                 
-                // Save user ID to UserDefaults
-                UserDefaults.standard.set(authResponse.userId, forKey: "currentUserId")
+                self?.saveUserId(authResponse.userId)
                 
                 print("   - User created locally (CoreData caching skipped)")
                 
@@ -96,7 +93,7 @@ class AuthRepository {
                 self?.keychainManager.saveAccessToken(authResponse.accessToken)
                 self?.keychainManager.saveRefreshToken(authResponse.refreshToken)
                 
-                UserDefaults.standard.set(authResponse.userId, forKey: "currentUserId")
+                self?.saveUserId(authResponse.userId)
                 // Refresh the complete profile before caching; AuthResponse does not contain
                 // the user's health and payment fields.
                 UserRepository.shared.getUserProfile(userId: authResponse.userId, forceRefresh: true) { [weak self] profileResult in
@@ -121,7 +118,7 @@ class AuthRepository {
         keychainManager.deleteAccessToken()
         keychainManager.deleteRefreshToken()
         
-        // Clear user ID from UserDefaults
+        TokenManager.shared.clearUserId()
         UserDefaults.standard.removeObject(forKey: "currentUserId")
         
         // Clear all cached data
@@ -143,6 +140,13 @@ class AuthRepository {
     }
     
     func getCurrentUserId() -> String? {
-        return UserDefaults.standard.string(forKey: "currentUserId")
+        return TokenManager.shared.getUserId()
+            ?? UserDefaults.standard.string(forKey: "currentUserId")
+    }
+
+    private func saveUserId(_ userId: String) {
+        TokenManager.shared.saveUserId(userId)
+        // 保留旧缓存，便于已安装旧版本的用户平滑迁移。
+        UserDefaults.standard.set(userId, forKey: "currentUserId")
     }
 }

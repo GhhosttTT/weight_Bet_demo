@@ -31,6 +31,14 @@ class TokenManager {
     func getUserId() -> String? {
         return try? keychain.get(userIdKey)
     }
+
+    func clearUserId() {
+        do {
+            try keychain.remove(userIdKey)
+        } catch {
+            print("Error clearing user ID: \(error)")
+        }
+    }
     
     func getAccessToken() -> String? {
         return try? keychain.get(accessTokenKey)

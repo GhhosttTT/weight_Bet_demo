@@ -505,6 +505,20 @@ def test_home_dashboard_visual_hierarchy_matches_between_mobile_platforms():
     assert 'android:text="每日打卡&#10;记录今天的体重"' in android
 
 
+def test_ios_user_identity_prefers_keychain_backed_token_manager():
+    auth = (ROOT / "ios/WeightLossBetting/Data/Repository/AuthRepository.swift").read_text(encoding="utf-8")
+    token_manager = (ROOT / "ios/WeightLossBetting/Data/Network/TokenManager.swift").read_text(encoding="utf-8")
+    main = (ROOT / "ios/WeightLossBetting/UI/Main/MainTabBarController.swift").read_text(encoding="utf-8")
+    check_in = (ROOT / "ios/WeightLossBetting/Data/Repository/CheckInRepository.swift").read_text(encoding="utf-8")
+
+    assert "TokenManager.shared.saveUserId(userId)" in auth
+    assert "return TokenManager.shared.getUserId()" in auth
+    assert "TokenManager.shared.clearUserId()" in auth
+    assert "func clearUserId()" in token_manager
+    assert 'UserDefaults.standard.string(forKey: "currentUserId")' not in main
+    assert 'UserDefaults.standard.string(forKey: "currentUserId")' not in check_in
+
+
 def test_balance_transaction_history_default_page_size_matches_ios_and_backend():
     android_repo = (ROOT / "android/app/src/main/java/com/weightloss/betting/data/repository/UserRepository.kt").read_text(encoding="utf-8")
     android_activity = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/payment/BalanceActivity.kt").read_text(encoding="utf-8")

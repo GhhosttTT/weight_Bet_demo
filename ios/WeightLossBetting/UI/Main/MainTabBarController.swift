@@ -321,7 +321,7 @@ class HomeViewController: UIViewController {
     }
     
     private func loadStats() {
-        guard let userId = UserDefaults.standard.string(forKey: "currentUserId") else {
+        guard let userId = AuthRepository.shared.getCurrentUserId() else {
             return
         }
         
@@ -475,7 +475,7 @@ class HomeViewController: UIViewController {
     
     @objc private func checkInTapped() {
         // Get active plans and auto-select for check-in
-        guard let userId = UserDefaults.standard.string(forKey: "currentUserId") else {
+        guard let userId = AuthRepository.shared.getCurrentUserId() else {
             showAlert(message: "请先登录")
             return
         }
@@ -622,7 +622,7 @@ class HomeViewController: UIViewController {
     }
     
     @objc private func badgesTapped() {
-        guard let userId = UserDefaults.standard.string(forKey: "userId") else {
+        guard let userId = AuthRepository.shared.getCurrentUserId() else {
             return
         }
         let badgesVC = BadgesViewController(userId: userId)

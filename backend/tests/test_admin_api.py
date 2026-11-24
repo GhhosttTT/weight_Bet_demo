@@ -285,6 +285,8 @@ def test_admin_page_refreshes_expired_access_token_before_logging_out(admin_cont
     response = admin_context["client"].get("/admin/")
 
     assert "refreshAdminToken" in response.text
+    assert "refreshInFlight" in response.text
+    assert "if(refreshInFlight)return refreshInFlight" in response.text
     assert "api(path,options,true)" in response.text
     assert "sessionStorage.setItem('wb_admin_refresh_token',state.refreshToken)" in response.text
 

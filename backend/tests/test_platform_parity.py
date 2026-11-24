@@ -186,6 +186,7 @@ def test_pending_plan_creator_uses_cancel_action_on_ios():
     assert 'cancelButton.isHidden = false' in pending_branch
     assert 'cancelButton.setTitle("撤销计划"' in pending_branch
     assert 'giveUpButton.isHidden = true' in pending_branch
+    assert pending_branch.count('inviteButton.isHidden') == 1
     assert 'self?.viewModel.revokePlan()' in ios
 
 

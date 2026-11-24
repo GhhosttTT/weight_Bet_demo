@@ -696,7 +696,6 @@ class PlanDetailViewController: UIViewController {
         acceptButton.isHidden = true
         confirmButton.isHidden = true
         checkInButton.isHidden = true
-        inviteButton.isHidden = true
         progressButton.isHidden = true
         checkInHistoryButton.isHidden = true
         commentsButton.isHidden = true

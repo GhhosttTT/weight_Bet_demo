@@ -265,6 +265,8 @@ def test_admin_page_persists_refresh_token_and_revokes_it_on_logout(admin_contex
     assert "wb_admin_refresh_token" in response.text
     assert "fetch('/api/auth/logout'" in response.text
     assert "refresh_token:refreshToken" in response.text
+
+
     assert "const PAGE_SIZE=50" in response.text
     assert "pageState.users" in response.text
     assert "pageState.finance" in response.text
@@ -277,6 +279,14 @@ def test_admin_page_persists_refresh_token_and_revokes_it_on_logout(admin_contex
     assert "value=\"dispute_updated\"" in response.text
     assert "/platform-fees" in response.text
     assert "platform-fees-table" in response.text
+
+
+def test_admin_page_refreshes_expired_access_token_before_logging_out(admin_context):
+    response = admin_context["client"].get("/admin/")
+
+    assert "refreshAdminToken" in response.text
+    assert "api(path,options,true)" in response.text
+    assert "sessionStorage.setItem('wb_admin_refresh_token',state.refreshToken)" in response.text
 
 
 def test_admin_update_endpoints_require_admin_role(admin_context):

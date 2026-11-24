@@ -35,8 +35,7 @@ class OfflineSyncManager {
     // MARK: - Offline Check-In Management
     
     func saveOfflineCheckIn(planId: String, weight: Double, note: String?, photoUrl: String?) {
-        // 获取当前用户ID（应该存储在UserDefaults或Keychain中）
-        guard let userId = UserDefaults.standard.string(forKey: "currentUserId") else {
+        guard let userId = AuthRepository.shared.getCurrentUserId(), !userId.isEmpty else {
             print("User ID is nil")
             return
         }

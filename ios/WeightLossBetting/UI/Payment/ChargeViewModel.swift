@@ -13,7 +13,18 @@ final class ChargeViewModel {
     private let paymentRepository = PaymentRepository()
     var onChargeStateChanged: ((ChargeState) -> Void)?
     private var chargeIdempotencyKey: String?
-    private var pendingTransactionId: String? = UserDefaults.standard.string(forKey: "pendingChargeTransactionId")
+    private var pendingTransactionId: String? = {
+        if let secureValue = TokenManager.shared.getPendingCharge() {
+            return secureValue
+        }
+        // 兼容旧版本的未完成充值订单，并立即迁移到 Keychain。
+        guard let legacyValue = UserDefaults.standard.string(forKey: "pendingChargeTransactionId") else {
+            return nil
+        }
+        TokenManager.shared.savePendingCharge(legacyValue)
+        UserDefaults.standard.removeObject(forKey: "pendingChargeTransactionId")
+        return legacyValue
+    }()
     private var chargeState: ChargeState = .idle {
         didSet { onChargeStateChanged?(chargeState) }
     }
@@ -46,7 +57,7 @@ final class ChargeViewModel {
                     return
                 }
                 pendingTransactionId = intent.transactionId
-                UserDefaults.standard.set(intent.transactionId, forKey: "pendingChargeTransactionId")
+                TokenManager.shared.savePendingCharge(intent.transactionId)
                 chargeState = .awaitingConfirmation(clientSecret, intent.transactionId)
             case .failure(let error):
                 chargeState = .error(parseError(error))
@@ -70,14 +81,14 @@ final class ChargeViewModel {
                     if status.status.lowercased() == "completed" {
                         chargeIdempotencyKey = nil
                         pendingTransactionId = nil
-                        UserDefaults.standard.removeObject(forKey: "pendingChargeTransactionId")
+                        TokenManager.shared.clearPendingCharge()
                         chargeState = .success
                         return
                     }
                     if status.status.lowercased() == "failed" {
                         chargeIdempotencyKey = nil
                         pendingTransactionId = nil
-                        UserDefaults.standard.removeObject(forKey: "pendingChargeTransactionId")
+                        TokenManager.shared.clearPendingCharge()
                         chargeState = .error("支付已失败，请重新尝试")
                         return
                     }
@@ -104,7 +115,7 @@ final class ChargeViewModel {
         // 本地交易和 Stripe 幂等键，避免重复复用已失败的 PaymentIntent。
         chargeIdempotencyKey = nil
         pendingTransactionId = nil
-        UserDefaults.standard.removeObject(forKey: "pendingChargeTransactionId")
+        TokenManager.shared.clearPendingCharge()
         chargeState = .error(message)
     }
 

@@ -8,6 +8,7 @@ class TokenManager {
     private let accessTokenKey = "access_token"
     private let refreshTokenKey = "refresh_token"
     private let userIdKey = "user_id"
+    private let pendingChargeKey = "pending_charge_transaction_id"
     
     private init() {}
     
@@ -39,6 +40,26 @@ class TokenManager {
             print("Error clearing user ID: \(error)")
         }
     }
+
+    func savePendingCharge(_ transactionId: String) {
+        do {
+            try keychain.set(transactionId, key: pendingChargeKey)
+        } catch {
+            print("Error saving pending charge: \(error)")
+        }
+    }
+
+    func getPendingCharge() -> String? {
+        return try? keychain.get(pendingChargeKey)
+    }
+
+    func clearPendingCharge() {
+        do {
+            try keychain.remove(pendingChargeKey)
+        } catch {
+            print("Error clearing pending charge: \(error)")
+        }
+    }
     
     func getAccessToken() -> String? {
         return try? keychain.get(accessTokenKey)
@@ -53,6 +74,7 @@ class TokenManager {
             try keychain.remove(accessTokenKey)
             try keychain.remove(refreshTokenKey)
             try keychain.remove(userIdKey)
+            try keychain.remove(pendingChargeKey)
         } catch {
             print("Error clearing tokens: \(error)")
         }

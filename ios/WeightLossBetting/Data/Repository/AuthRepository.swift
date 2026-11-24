@@ -119,6 +119,7 @@ class AuthRepository {
         keychainManager.deleteRefreshToken()
         
         TokenManager.shared.clearUserId()
+        TokenManager.shared.clearPendingCharge()
         UserDefaults.standard.removeObject(forKey: "currentUserId")
         
         // Clear all cached data

@@ -386,8 +386,25 @@ def test_interrupted_charge_is_persisted_and_restored_on_both_mobile_platforms()
     assert "savePendingCharge(result.data.transactionId)" in android_vm
     assert "restorePendingCharge()" in android_activity
     assert "pending_charge_transaction_id" in token_manager
-    assert "pendingChargeTransactionId" in ios_vm
+    assert "getPendingCharge()" in ios_vm
+    assert "savePendingCharge(intent.transactionId)" in ios_vm
+    assert "clearPendingCharge()" in ios_vm
     assert "restorePendingCharge()" in ios_controller
+
+
+def test_ios_sensitive_offline_identity_and_payment_recovery_use_keychain():
+    offline_sync = (ROOT / "ios/WeightLossBetting/Data/Local/OfflineSyncManager.swift").read_text(encoding="utf-8")
+    charge_vm = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift").read_text(encoding="utf-8")
+    token_manager = (ROOT / "ios/WeightLossBetting/Data/Network/TokenManager.swift").read_text(encoding="utf-8")
+    auth = (ROOT / "ios/WeightLossBetting/Data/Repository/AuthRepository.swift").read_text(encoding="utf-8")
+
+    assert "AuthRepository.shared.getCurrentUserId()" in offline_sync
+    assert "savePendingCharge" in token_manager
+    assert "getPendingCharge" in token_manager
+    assert "clearPendingCharge" in token_manager
+    assert 'UserDefaults.standard.set(intent.transactionId' not in charge_vm
+    assert 'UserDefaults.standard.removeObject(forKey: "pendingChargeTransactionId")' in charge_vm
+    assert "TokenManager.shared.clearPendingCharge()" in auth
 
 
 def test_withdraw_response_mapping_keeps_transaction_and_status_fields():

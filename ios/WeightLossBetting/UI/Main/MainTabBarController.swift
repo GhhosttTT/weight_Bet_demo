@@ -144,6 +144,12 @@ class MainTabBarController: UITabBarController {
 // MARK: - HomeViewController
 
 class HomeViewController: UIViewController {
+
+    private enum QuickActionStyle {
+        case primary
+        case outline
+        case accent
+    }
     
     // MARK: - UI Components
     
@@ -192,6 +198,15 @@ class HomeViewController: UIViewController {
         view.applyShadow(style: AppTheme.Shadow.small())
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
+    }()
+
+    private let statsTitleLabel: UILabel = {
+        let label = UILabel()
+        label.text = "计划概览"
+        label.font = .systemFont(ofSize: 14, weight: .bold)
+        label.textColor = AppTheme.Colors.label
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     private let checkInStatsLabel: UILabel = {
@@ -268,7 +283,7 @@ class HomeViewController: UIViewController {
             statsCardView.topAnchor.constraint(equalTo: subtitleLabel.bottomAnchor, constant: 20),
             statsCardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             statsCardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            statsCardView.heightAnchor.constraint(equalToConstant: 104),
+            statsCardView.heightAnchor.constraint(equalToConstant: 120),
             
             // 快速操作在统计卡片下方
             quickActionsStackView.topAnchor.constraint(equalTo: statsCardView.bottomAnchor, constant: 24),
@@ -280,12 +295,16 @@ class HomeViewController: UIViewController {
     
     private func setupStatsCard() {
         // 统计卡片的子视图添加和内部布局
+        statsCardView.addSubview(statsTitleLabel)
         statsCardView.addSubview(checkInStatsLabel)
         statsCardView.addSubview(balanceStatsLabel)
         statsCardView.addSubview(refreshButton)
         
         NSLayoutConstraint.activate([
-            checkInStatsLabel.topAnchor.constraint(equalTo: statsCardView.topAnchor, constant: 16),
+            statsTitleLabel.topAnchor.constraint(equalTo: statsCardView.topAnchor, constant: 16),
+            statsTitleLabel.leadingAnchor.constraint(equalTo: statsCardView.leadingAnchor, constant: 16),
+
+            checkInStatsLabel.topAnchor.constraint(equalTo: statsTitleLabel.bottomAnchor, constant: 10),
             checkInStatsLabel.leadingAnchor.constraint(equalTo: statsCardView.leadingAnchor, constant: 16),
             
             balanceStatsLabel.topAnchor.constraint(equalTo: checkInStatsLabel.bottomAnchor, constant: 12),
@@ -345,10 +364,10 @@ class HomeViewController: UIViewController {
     }
     
     private func setupQuickActions() {
-        let actions: [(title: String, subtitle: String, icon: String, action: Selector)] = [
-            ("创建计划", "发起新的减肥挑战", "plus.circle.fill", #selector(createPlanTapped)),
-            ("我的计划", "查看所有对赌计划", "list.bullet", #selector(myPlansTapped)),
-            ("打卡", "记录今天的体重", "checkmark.circle.fill", #selector(checkInTapped))
+        let actions: [(title: String, subtitle: String, icon: String, action: Selector, style: QuickActionStyle)] = [
+            ("创建计划", "发起新的减肥挑战", "plus.circle.fill", #selector(createPlanTapped), .primary),
+            ("我的计划", "查看所有对赌计划", "list.bullet", #selector(myPlansTapped), .outline),
+            ("每日打卡", "记录今天的体重", "checkmark.circle.fill", #selector(checkInTapped), .accent)
             // 隐藏：我的勋章功能
             // ("我的勋章", "查看获得的成就", "star.fill", #selector(badgesTapped))
         ]
@@ -358,38 +377,60 @@ class HomeViewController: UIViewController {
                 title: action.title,
                 subtitle: action.subtitle,
                 icon: action.icon,
-                action: action.action
+                action: action.action,
+                style: action.style
             )
             quickActionsStackView.addArrangedSubview(button)
         }
     }
     
-    private func createQuickActionButton(title: String, subtitle: String, icon: String, action: Selector) -> UIButton {
+    private func createQuickActionButton(title: String, subtitle: String, icon: String, action: Selector, style: QuickActionStyle) -> UIButton {
         let button = UIButton(type: .system)
-        button.backgroundColor = AppTheme.Colors.secondaryBackground
         button.layer.cornerRadius = 20
         button.applyShadow(style: AppTheme.Shadow.small())
         button.contentHorizontalAlignment = .left
         button.addTarget(self, action: action, for: .touchUpInside)
+
+        let foregroundColor: UIColor
+        let secondaryColor: UIColor
+        switch style {
+        case .primary:
+            button.backgroundColor = AppTheme.Colors.primary
+            foregroundColor = .white
+            secondaryColor = UIColor.white.withAlphaComponent(0.82)
+        case .outline:
+            button.backgroundColor = AppTheme.Colors.secondaryBackground
+            button.layer.borderWidth = 1
+            button.layer.borderColor = AppTheme.Colors.primary.cgColor
+            foregroundColor = AppTheme.Colors.primaryDark
+            secondaryColor = AppTheme.Colors.secondaryLabel
+        case .accent:
+            button.backgroundColor = AppTheme.Colors.accent.withAlphaComponent(0.08)
+            button.layer.borderWidth = 1
+            button.layer.borderColor = AppTheme.Colors.accent.cgColor
+            foregroundColor = AppTheme.Colors.accent
+            secondaryColor = AppTheme.Colors.secondaryLabel
+        }
         
         let iconImageView = UIImageView(image: UIImage(systemName: icon))
-        iconImageView.tintColor = AppTheme.Colors.primary
+        iconImageView.tintColor = foregroundColor
         iconImageView.contentMode = .scaleAspectFit
         iconImageView.translatesAutoresizingMaskIntoConstraints = false
         
         let titleLabel = UILabel()
         titleLabel.text = title
         titleLabel.font = .boldSystemFont(ofSize: 16)
+        titleLabel.textColor = foregroundColor
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let subtitleLabel = UILabel()
         subtitleLabel.text = subtitle
         subtitleLabel.font = .systemFont(ofSize: 14)
-        subtitleLabel.textColor = AppTheme.Colors.secondaryLabel
+        subtitleLabel.textColor = secondaryColor
         subtitleLabel.translatesAutoresizingMaskIntoConstraints = false
         
         let chevronImageView = UIImageView(image: UIImage(systemName: "chevron.right"))
-        chevronImageView.tintColor = AppTheme.Colors.tertiaryLabel
+        chevronImageView.tintColor = style == .primary ? secondaryColor : AppTheme.Colors.tertiaryLabel
         chevronImageView.contentMode = .scaleAspectFit
         chevronImageView.translatesAutoresizingMaskIntoConstraints = false
         

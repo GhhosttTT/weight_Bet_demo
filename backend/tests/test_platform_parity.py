@@ -19,6 +19,8 @@ IOS_CHECK_IN_VM = ROOT / "ios/WeightLossBetting/UI/CheckIn/CheckInViewModel.swif
 IOS_CHECK_IN_VC = ROOT / "ios/WeightLossBetting/UI/CheckIn/CheckInViewController.swift"
 ANDROID_CHECK_IN_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/checkin/CheckInViewModel.kt"
 ANDROID_CHECK_IN_ACTIVITY = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/checkin/CheckInActivity.kt"
+IOS_MAIN = ROOT / "ios/WeightLossBetting/UI/Main/MainTabBarController.swift"
+ANDROID_HOME_LAYOUT = ROOT / "android/app/src/main/res/layout/fragment_home.xml"
 IOS_PODFILE = ROOT / "ios/Podfile"
 IOS_PODFILE_LOCK = ROOT / "ios/Podfile.lock"
 IOS_NETWORK_FILES = (
@@ -485,6 +487,21 @@ def test_check_in_without_plan_id_targets_all_active_plans_on_both_platforms():
     assert "createCheckInForAllPlans" in android_vm
     assert 'getUserPlans(userId, "active", forceRefresh = true)' in android_vm
     assert "if (planId == null)" in android_activity
+
+
+def test_home_dashboard_visual_hierarchy_matches_between_mobile_platforms():
+    ios = IOS_MAIN.read_text(encoding="utf-8")
+    android = ANDROID_HOME_LAYOUT.read_text(encoding="utf-8")
+
+    assert 'label.text = "计划概览"' in ios
+    assert "QuickActionStyle" in ios
+    assert '.primary),\n            ("我的计划"' in ios
+    assert '.outline),\n            ("每日打卡"' in ios
+    assert '.accent)' in ios
+    assert 'android:text="计划概览"' in android
+    assert 'android:text="创建计划&#10;发起新的减肥挑战"' in android
+    assert 'android:text="我的计划&#10;查看所有对赌计划"' in android
+    assert 'android:text="每日打卡&#10;记录今天的体重"' in android
 
 
 def test_balance_transaction_history_default_page_size_matches_ios_and_backend():

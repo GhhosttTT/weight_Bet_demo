@@ -326,8 +326,11 @@ class CheckInViewController: UIViewController {
         
         let note = noteTextView.text.isEmpty ? nil : noteTextView.text
         
-        // 使用自动打卡，不需要传入 planId
-        viewModel.createAutoCheckIn(weight: weight, note: note)
+        if planId.isEmpty {
+            viewModel.createCheckInForAllActivePlans(weight: weight, note: note)
+        } else {
+            viewModel.createCheckIn(planId: planId, weight: weight, note: note)
+        }
     }
     
     @objc private func dismissKeyboard() {

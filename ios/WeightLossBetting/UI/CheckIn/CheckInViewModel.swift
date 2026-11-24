@@ -108,6 +108,91 @@ class CheckInViewModel {
         
         createCheckIn(planId: planId, weight: weight, note: note)
     }
+
+    /// 未指定计划时，给所有进行中的计划创建同一条打卡记录，与 Android 行为保持一致。
+    func createCheckInForAllActivePlans(weight: Double, note: String?) {
+        guard weight.isFinite && weight >= 30 && weight <= 300 else {
+            checkInState = .error("体重必须在30-300kg之间")
+            return
+        }
+
+        guard let userId = AuthRepository.shared.getCurrentUserId(), !userId.isEmpty else {
+            checkInState = .error("请先登录")
+            return
+        }
+
+        checkInState = .loading
+        bettingPlanRepository.getUserBettingPlans(userId: userId, status: "active", forceRefresh: true) { [weak self] result in
+            guard let self = self else { return }
+            switch result {
+            case .failure(let error):
+                DispatchQueue.main.async {
+                    self.checkInState = .error(error.localizedDescription)
+                }
+            case .success(let plans):
+                let activePlans = plans.filter { $0.status == .active }
+                guard !activePlans.isEmpty else {
+                    DispatchQueue.main.async {
+                        self.checkInState = .error("没有进行中的计划")
+                    }
+                    return
+                }
+
+                var successCount = 0
+                var photoFailureCount = 0
+                var lastCheckIn: CheckIn?
+                let photoData = self.pendingPhotoData
+
+                func submitNext(_ index: Int) {
+                    guard index < activePlans.count else {
+                        DispatchQueue.main.async {
+                            self.pendingPhotoData = nil
+                            if successCount > 0, let lastCheckIn = lastCheckIn {
+                                if photoData != nil && photoFailureCount > 0 {
+                                    self.photoUploadState = .error("有 \(photoFailureCount) 个计划的照片上传失败")
+                                } else if photoData != nil {
+                                    self.photoUploadState = .success("uploaded")
+                                }
+                                self.checkInState = .success(lastCheckIn)
+                                self.refreshRecommendation()
+                            } else {
+                                self.checkInState = .error("所有计划打卡失败")
+                            }
+                        }
+                        return
+                    }
+
+                    let plan = activePlans[index]
+                    self.checkInRepository.createCheckIn(
+                        planId: plan.id,
+                        weight: weight,
+                        note: note,
+                        photoUrl: nil
+                    ) { createResult in
+                        switch createResult {
+                        case .success(let checkIn):
+                            successCount += 1
+                            lastCheckIn = checkIn
+                            guard let photoData = photoData else {
+                                submitNext(index + 1)
+                                return
+                            }
+                            self.checkInRepository.uploadCheckInPhoto(checkInId: checkIn.id, imageData: photoData) { uploadResult in
+                                if case .failure = uploadResult {
+                                    photoFailureCount += 1
+                                }
+                                submitNext(index + 1)
+                            }
+                        case .failure:
+                            submitNext(index + 1)
+                        }
+                    }
+                }
+
+                submitNext(0)
+            }
+        }
+    }
     
     func createCheckIn(planId: String, weight: Double, note: String?) {
         // Validate weight

@@ -15,6 +15,10 @@ IOS_CHARGE_VC = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewController.sw
 IOS_CHARGE_VM = ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewModel.swift"
 IOS_WITHDRAW = ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewController.swift"
 IOS_PLAN_DETAIL = ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewController.swift"
+IOS_CHECK_IN_VM = ROOT / "ios/WeightLossBetting/UI/CheckIn/CheckInViewModel.swift"
+IOS_CHECK_IN_VC = ROOT / "ios/WeightLossBetting/UI/CheckIn/CheckInViewController.swift"
+ANDROID_CHECK_IN_VM = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/checkin/CheckInViewModel.kt"
+ANDROID_CHECK_IN_ACTIVITY = ROOT / "android/app/src/main/java/com/weightloss/betting/ui/checkin/CheckInActivity.kt"
 IOS_PODFILE = ROOT / "ios/Podfile"
 IOS_PODFILE_LOCK = ROOT / "ios/Podfile.lock"
 IOS_NETWORK_FILES = (
@@ -466,6 +470,21 @@ def test_numeric_input_validation_rejects_non_finite_values_on_both_platforms():
         assert ".isFinite()" in path.read_text(encoding="utf-8"), path
     for path in ios_files:
         assert ".isFinite" in path.read_text(encoding="utf-8"), path
+
+
+def test_check_in_without_plan_id_targets_all_active_plans_on_both_platforms():
+    ios_vm = IOS_CHECK_IN_VM.read_text(encoding="utf-8")
+    ios_vc = IOS_CHECK_IN_VC.read_text(encoding="utf-8")
+    android_vm = ANDROID_CHECK_IN_VM.read_text(encoding="utf-8")
+    android_activity = ANDROID_CHECK_IN_ACTIVITY.read_text(encoding="utf-8")
+
+    assert "createCheckInForAllActivePlans" in ios_vm
+    assert 'status: "active"' in ios_vm
+    assert "let activePlans = plans.filter { $0.status == .active }" in ios_vm
+    assert "if planId.isEmpty" in ios_vc
+    assert "createCheckInForAllPlans" in android_vm
+    assert 'getUserPlans(userId, "active", forceRefresh = true)' in android_vm
+    assert "if (planId == null)" in android_activity
 
 
 def test_balance_transaction_history_default_page_size_matches_ios_and_backend():

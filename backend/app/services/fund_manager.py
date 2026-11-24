@@ -311,6 +311,23 @@ class FundManager:
                 )
             amount = float(normalized_amount)
 
+            # 放弃计划或任务重试时，已经完成的同一笔转账直接返回原流水，
+            # 防止重复给收款方入账。收款方必须纳入判断，避免同一付款方
+            # 对不同账户发出相同金额时误复用旧流水。
+            existing_transfer = db.query(Transaction).filter(
+                Transaction.user_id == to_user_id,
+                Transaction.type == TransactionType.TRANSFER,
+                Transaction.amount == amount,
+                Transaction.related_plan_id == plan_id,
+                Transaction.status == TransactionStatus.COMPLETED,
+            ).with_for_update().first()
+            if existing_transfer:
+                return TransferResult(
+                    success=True,
+                    transaction_id=existing_transfer.id,
+                    error=None,
+                )
+
             # 步骤 1: 获取转入用户余额
             to_balance = db.query(Balance).filter(
                 Balance.user_id == to_user_id

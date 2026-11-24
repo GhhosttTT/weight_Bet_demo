@@ -473,12 +473,38 @@ class TestTransferFunds:
         # 验证结果
         assert result.success is True
         assert result.transaction_id is not None
-        
+
         # 验证余额变化（只增加收款方余额）
         updated_balance = db_session.query(Balance).filter(
             Balance.user_id == test_user.id
         ).first()
         assert updated_balance.available_balance == initial_available + 300.0
+
+    def test_transfer_funds_retry_is_idempotent_for_same_plan(
+        self, db_session: Session, test_user: User, test_plan: BettingPlan
+    ):
+        """重复执行同一计划转账时不得再次增加收款方余额。"""
+        first = FundManager.transfer_funds(
+            db_session, "platform", test_user.id, 100.0, test_plan.id
+        )
+        assert first.success is True
+
+        balance = db_session.query(Balance).filter(Balance.user_id == test_user.id).one()
+        balance_after_first = balance.available_balance
+
+        second = FundManager.transfer_funds(
+            db_session, "platform", test_user.id, 100.0, test_plan.id
+        )
+        assert second.success is True
+        assert second.transaction_id == first.transaction_id
+
+        db_session.refresh(balance)
+        assert balance.available_balance == balance_after_first
+        assert db_session.query(Transaction).filter(
+            Transaction.user_id == test_user.id,
+            Transaction.type == TransactionType.TRANSFER,
+            Transaction.related_plan_id == test_plan.id,
+        ).count() == 1
     
     def test_transfer_funds_insufficient_balance(self, db_session: Session, test_user: User, test_plan: BettingPlan):
         """测试余额不足时转账失败"""

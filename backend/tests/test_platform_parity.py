@@ -719,6 +719,21 @@ def test_profile_exposes_the_same_settings_entry_and_hides_legacy_payment_entry(
     assert "ACTION_APP_NOTIFICATION_SETTINGS" in android_fragment
     assert 'button.setTitle("通知设置"' in ios
 
+
+def test_profile_visual_hierarchy_uses_matching_card_and_action_semantics():
+    android_layout = ANDROID_PROFILE_LAYOUT.read_text(encoding="utf-8")
+    android_card = (ROOT / "android/app/src/main/res/drawable/bg_card.xml").read_text(encoding="utf-8")
+    ios = IOS_PROFILE.read_text(encoding="utf-8")
+
+    assert 'android:background="@drawable/bg_card"' in android_layout
+    assert 'android:layout_height="52dp"' in android_layout
+    assert 'app:cornerRadius="12dp"' in android_layout
+    assert 'android:backgroundTint="@color/brand_primary"' in android_layout
+    assert '@color/brand_surface' in android_card
+    assert 'android:radius="20dp"' in android_card
+    assert 'button.backgroundColor = AppTheme.Colors.primary' in ios
+    assert 'button.layer.cornerRadius = 12' in ios
+
     # 绑定银行卡只保留在独立的 Stripe SetupIntent 页面，个人页不能再暴露旧入口。
     assert 'android:id="@+id/btnPaymentMethod"' not in android_layout
     assert "button.isHidden = true" in ios

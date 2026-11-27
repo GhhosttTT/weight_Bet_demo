@@ -209,7 +209,7 @@
                     android:layout_height="wrap_content"
                     android:text="目标体重 (kg)"
                     android:textSize="14sp"
-                    android:textColor="@color/xui_config_color_text_content"
+                    android:textColor="@color/brand_text_secondary"
                     android:layout_marginEnd="16dp" />
                 <TextView
                     android:id="@+id/tvTargetWeight"

@@ -652,6 +652,18 @@ def test_remaining_android_entry_pages_use_shared_brand_background_tokens():
     assert plan_list.count("@color/brand_primary") >= 4
 
 
+def test_profile_and_plan_detail_use_shared_semantic_text_tokens():
+    profile = (ROOT / "android/app/src/main/res/layout/activity_profile.xml").read_text(encoding="utf-8")
+    fragment_profile = (ROOT / "android/app/src/main/res/layout/fragment_profile.xml").read_text(encoding="utf-8")
+    detail = (ROOT / "android/app/src/main/res/layout/activity_plan_detail.xml").read_text(encoding="utf-8")
+    assert "xui_config_color_text_title" not in profile
+    assert "xui_config_color_divider" not in profile
+    assert "xui_config_color_text_content" not in fragment_profile
+    assert "xui_config_color_text_title" not in detail
+    assert "xui_config_color_text_gray" not in detail
+    assert "@color/brand_text_secondary" in detail
+
+
 def test_auth_and_profile_forms_use_matching_labels_and_validation_boundaries():
     android_register = ANDROID_REGISTER.read_text(encoding="utf-8")
     android_edit = ANDROID_EDIT_PROFILE.read_text(encoding="utf-8")

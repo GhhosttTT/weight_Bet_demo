@@ -86,11 +86,11 @@
                             android:text="-"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/xui_config_color_text_title" />
+                            android:textColor="@color/brand_text" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/brand_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- 性别 -->
                 <LinearLayout
@@ -117,11 +117,11 @@
                             android:text="-"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/xui_config_color_text_title" />
+                            android:textColor="@color/brand_text" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/brand_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- 年龄 -->
                 <LinearLayout
@@ -148,11 +148,11 @@
                             android:text="-"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/xui_config_color_text_title" />
+                            android:textColor="@color/brand_text" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/brand_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- 身高 -->
                 <LinearLayout
@@ -179,11 +179,11 @@
                             android:text="-"
                             android:textSize="16sp"
                             android:textStyle="bold"
-                            android:textColor="@color/xui_config_color_text_title" />
+                            android:textColor="@color/brand_text" />
                     </LinearLayout>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/brand_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- 当前体重 -->
                 <LinearLayout
@@ -214,7 +214,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/xui_config_color_divider" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp" android:background="@color/brand_border" android:layout_marginStart="16dp" android:layout_marginEnd="16dp" />
 
                 <!-- 目标体重 -->
                 <LinearLayout

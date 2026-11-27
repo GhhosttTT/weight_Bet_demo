@@ -53,7 +53,7 @@
                 android:layout_height="wrap_content"
                 android:text="赌金金额"
                 android:textSize="14sp"
-                android:textColor="@color/xui_config_color_text_gray" />
+                android:textColor="@color/brand_text_tertiary" />
 
             <TextView
                 android:id="@+id/tvBetAmount"
@@ -71,7 +71,7 @@
                 android:layout_height="wrap_content"
                 android:text="计划时间"
                 android:textSize="14sp"
-                android:textColor="@color/xui_config_color_text_gray" />
+                android:textColor="@color/brand_text_tertiary" />
             
             <TextView
                 android:id="@+id/tvDateRange"
@@ -79,7 +79,7 @@
                 android:layout_height="wrap_content"
                 android:text="2024-01-01 至 2024-03-31"
                 android:textSize="16sp"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:layout_marginBottom="24dp" />
             
             <!-- Creator Info -->
@@ -89,7 +89,7 @@
                 android:text="创建者"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:layout_marginBottom="12dp" />
             
             <androidx.cardview.widget.CardView
@@ -116,7 +116,7 @@
                         android:text="昵称"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="@color/xui_config_color_text_title"
+                        android:textColor="@color/brand_text"
                         android:layout_marginBottom="6dp" />
             
                     <TextView
@@ -125,7 +125,7 @@
                         android:layout_height="wrap_content"
                         android:text="邮箱"
                         android:textSize="14sp"
-                        android:textColor="@color/xui_config_color_text_gray"
+                        android:textColor="@color/brand_text_tertiary"
                         android:layout_marginBottom="12dp" />
             
                     <TextView
@@ -133,7 +133,7 @@
                         android:layout_height="wrap_content"
                         android:text="创建者目标"
                         android:textSize="14sp"
-                        android:textColor="@color/xui_config_color_text_gray"
+                        android:textColor="@color/brand_text_tertiary"
                         android:layout_marginBottom="6dp" />
             
                     <TextView
@@ -142,7 +142,7 @@
                         android:layout_height="wrap_content"
                         android:text="80kg → 70kg (减重 10kg)"
                         android:textSize="16sp"
-                        android:textColor="@color/xui_config_color_text_content" />
+                        android:textColor="@color/brand_text_secondary" />
             
                 </LinearLayout>
             
@@ -156,7 +156,7 @@
                 android:text="参与者"
                 android:textSize="16sp"
                 android:textStyle="bold"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:layout_marginBottom="12dp"
                 android:visibility="gone" />
             
@@ -185,7 +185,7 @@
                         android:text="昵称"
                         android:textSize="18sp"
                         android:textStyle="bold"
-                        android:textColor="@color/xui_config_color_text_title"
+                        android:textColor="@color/brand_text"
                         android:layout_marginBottom="6dp" />
             
                     <TextView
@@ -194,7 +194,7 @@
                         android:layout_height="wrap_content"
                         android:text="邮箱"
                         android:textSize="14sp"
-                        android:textColor="@color/xui_config_color_text_gray"
+                        android:textColor="@color/brand_text_tertiary"
                         android:layout_marginBottom="12dp" />
             
                     <TextView
@@ -202,7 +202,7 @@
                         android:layout_height="wrap_content"
                         android:text="参与者目标"
                         android:textSize="14sp"
-                        android:textColor="@color/xui_config_color_text_gray"
+                        android:textColor="@color/brand_text_tertiary"
                         android:layout_marginBottom="6dp" />
             
                     <TextView
@@ -211,7 +211,7 @@
                         android:layout_height="wrap_content"
                         android:text="75kg → 65kg (减重 10kg)"
                         android:textSize="16sp"
-                        android:textColor="@color/xui_config_color_text_content" />
+                        android:textColor="@color/brand_text_secondary" />
             
                 </LinearLayout>
             
@@ -223,7 +223,7 @@
                 android:layout_height="wrap_content"
                 android:text="计划描述"
                 android:textSize="14sp"
-                android:textColor="@color/xui_config_color_text_gray" />
+                android:textColor="@color/brand_text_tertiary" />
 
             <TextView
                 android:id="@+id/tvDescription"
@@ -231,7 +231,7 @@
                 android:layout_height="wrap_content"
                 android:text="一起减肥吧!"
                 android:textSize="16sp"
-                android:textColor="@color/xui_config_color_text_content"
+                android:textColor="@color/brand_text_secondary"
                 android:layout_marginBottom="32dp" />
 
             <!-- Invite Friends Button (for pending plans created by current user) -->
@@ -390,7 +390,7 @@
                     android:text="设置你的目标"
                     android:textSize="18sp"
                     android:textStyle="bold"
-                    android:textColor="@color/xui_config_color_text_title"
+                        android:textColor="@color/brand_text"
                     android:layout_marginBottom="16dp" />
 
                 <com.google.android.material.textfield.TextInputLayout

@@ -21,7 +21,7 @@
             android:text="早餐"
             android:textSize="18sp"
             android:textStyle="bold"
-            android:textColor="@color/xui_config_color_text_title" />
+            android:textColor="@color/brand_text" />
 
         <TextView
             android:id="@+id/tvCalories"
@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:text="食物列表"
         android:textSize="16sp"
-        android:textColor="@color/xui_config_color_text_content"
+        android:textColor="@color/brand_text_secondary"
         android:layout_marginTop="8dp" />
 
     <TextView
@@ -48,7 +48,7 @@
         android:layout_height="wrap_content"
         android:text="饮食小贴士"
         android:textSize="14sp"
-        android:textColor="@color/xui_config_color_text_gray"
+        android:textColor="@color/brand_text_tertiary"
         android:layout_marginTop="4dp" />
 
 </LinearLayout>

@@ -4,8 +4,11 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="8dp"
+    app:cardBackgroundColor="@color/brand_surface"
+    app:strokeColor="@color/brand_border"
+    app:strokeWidth="1dp"
     app:cardElevation="2dp"
-    app:cardCornerRadius="4dp">
+    app:cardCornerRadius="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -33,7 +36,7 @@
                 android:layout_height="wrap_content"
                 android:text="2024-01-01 12:00:00"
                 android:textSize="12sp"
-                android:textColor="@color/xui_config_color_text_content"
+                android:textColor="@color/brand_text_secondary"
                 android:layout_marginTop="4dp" />
 
             <TextView

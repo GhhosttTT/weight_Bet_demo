@@ -74,7 +74,7 @@
                             android:layout_height="wrap_content"
                             android:text="热量(千卡)"
                             android:textSize="14sp"
-                            android:textColor="@color/xui_config_color_text_gray"
+                            android:textColor="@color/brand_text_tertiary"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -82,7 +82,7 @@
                     <View
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
-                        android:background="@color/xui_config_color_divider" />
+                        android:background="@color/brand_border" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -105,7 +105,7 @@
                             android:layout_height="wrap_content"
                             android:text="饮水(ml)"
                             android:textSize="14sp"
-                            android:textColor="@color/xui_config_color_text_gray"
+                            android:textColor="@color/brand_text_tertiary"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -113,7 +113,7 @@
                     <View
                         android:layout_width="1dp"
                         android:layout_height="match_parent"
-                        android:background="@color/xui_config_color_divider" />
+                        android:background="@color/brand_border" />
 
                     <LinearLayout
                         android:layout_width="0dp"
@@ -136,7 +136,7 @@
                             android:layout_height="wrap_content"
                             android:text="睡眠(小时)"
                             android:textSize="14sp"
-                            android:textColor="@color/xui_config_color_text_gray"
+                            android:textColor="@color/brand_text_tertiary"
                             android:layout_marginTop="4dp" />
 
                     </LinearLayout>
@@ -246,7 +246,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:textColor="@color/xui_config_color_text_content" />
+                    android:textColor="@color/brand_text_secondary" />
 
             </LinearLayout>
 
@@ -268,7 +268,7 @@
             android:gravity="center"
             android:text="暂无推荐数据"
             android:textSize="16sp"
-            android:textColor="@color/xui_config_color_text_gray"
+            android:textColor="@color/brand_text_tertiary"
             android:padding="32dp"
             android:visibility="gone" />
 

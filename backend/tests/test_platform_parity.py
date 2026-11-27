@@ -812,6 +812,31 @@ def test_withdraw_quick_actions_use_material_tokens_instead_of_native_buttons():
     assert "xui_config_color_text_content" not in android
 
 
+def test_progress_coach_and_recommendation_items_use_shared_semantic_colors():
+    paths = (
+        "android/app/src/main/res/layout/activity_progress.xml",
+        "android/app/src/main/res/layout/fragment_coach.xml",
+        "android/app/src/main/res/layout/item_transaction.xml",
+        "android/app/src/main/res/layout/item_diet_recommendation.xml",
+        "android/app/src/main/res/layout/item_exercise_recommendation.xml",
+    )
+    for relative_path in paths:
+        layout = (ROOT / relative_path).read_text(encoding="utf-8")
+        assert "xui_config_color_text_" not in layout
+    transaction = (ROOT / "android/app/src/main/res/layout/item_transaction.xml").read_text(encoding="utf-8")
+    assert 'app:cardCornerRadius="16dp"' in transaction
+    assert 'app:strokeColor="@color/brand_border"' in transaction
+
+
+def test_invite_friend_dialog_uses_shared_material_actions_and_keeps_binding_ids():
+    dialog = (ROOT / "android/app/src/main/res/layout/dialog_invite_friend.xml").read_text(encoding="utf-8")
+    assert "<Button" not in dialog
+    for view_id in ("btnSearchFriend", "btnConfirmInvite", "btnCancel", "emailInput", "btnClose"):
+        assert f'@+id/{view_id}' in dialog
+    assert dialog.count("com.google.android.material.button.MaterialButton") == 3
+    assert 'app:cornerRadius="12dp"' in dialog
+
+
 def test_auth_pages_use_matching_brand_background_and_action_tokens():
     android_login = (ROOT / "android/app/src/main/res/layout/activity_login.xml").read_text(encoding="utf-8")
     android_register = (ROOT / "android/app/src/main/res/layout/activity_register.xml").read_text(encoding="utf-8")

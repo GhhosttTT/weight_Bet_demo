@@ -889,6 +889,18 @@ def test_settlement_page_uses_matching_selection_and_action_tokens():
     assert 'button.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios
 
 
+def test_edit_profile_uses_matching_form_and_save_action_tokens():
+    android = (ROOT / "android/app/src/main/res/layout/activity_edit_profile.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Profile/EditProfileViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'android:backgroundTint="@color/brand_primary"' in android
+    assert 'app:cornerRadius="12dp"' in android
+    assert 'field.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios
+    assert 'genderSegmentedControl.selectedSegmentTintColor = AppTheme.Colors.primary' in ios
+    assert 'saveButton.heightAnchor.constraint(equalToConstant: 56)' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

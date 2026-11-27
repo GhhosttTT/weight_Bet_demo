@@ -71,7 +71,7 @@ class EditProfileViewController: UIViewController {
         button.setTitle("保存", for: .normal)
         button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -113,6 +113,19 @@ class EditProfileViewController: UIViewController {
     private func setupUI() {
         title = "编辑个人信息"
         view.backgroundColor = AppTheme.Colors.background
+
+        [nicknameTextField, ageTextField, heightTextField, currentWeightTextField,
+         targetWeightTextField].forEach { field in
+            field.backgroundColor = AppTheme.Colors.secondaryBackground
+            field.layer.cornerRadius = AppTheme.CornerRadius.medium
+            field.layer.borderWidth = 1
+            field.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
+            field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
+            field.leftViewMode = .always
+        }
+        genderSegmentedControl.selectedSegmentTintColor = AppTheme.Colors.primary
+        genderSegmentedControl.setTitleTextAttributes([.foregroundColor: AppTheme.Colors.label], for: .normal)
+        genderSegmentedControl.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
         
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
@@ -209,7 +222,7 @@ class EditProfileViewController: UIViewController {
             saveButton.topAnchor.constraint(equalTo: targetWeightTextField.bottomAnchor, constant: 32),
             saveButton.leadingAnchor.constraint(equalTo: nicknameTextField.leadingAnchor),
             saveButton.trailingAnchor.constraint(equalTo: nicknameTextField.trailingAnchor),
-            saveButton.heightAnchor.constraint(equalToConstant: 50),
+            saveButton.heightAnchor.constraint(equalToConstant: 56),
             saveButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -32),
             
             activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),

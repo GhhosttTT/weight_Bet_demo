@@ -110,10 +110,11 @@
             android:id="@+id/tvEmptyState"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="暂无计划"
+            android:text="还没有计划&#10;创建一个轻量挑战，和朋友一起坚持"
             android:textSize="16sp"
             android:textColor="@color/brand_text_secondary"
             android:layout_gravity="center"
+            android:gravity="center"
             android:visibility="gone" />
 
     </LinearLayout>

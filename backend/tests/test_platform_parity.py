@@ -833,6 +833,17 @@ def test_invite_participant_result_card_exposes_matching_preview_fields():
     assert "userInfoLabel.bottomAnchor.constraint(equalTo: userInfoCard.bottomAnchor" in ios
 
 
+def test_plan_and_badge_empty_states_match_mobile_copy():
+    fragment_plan_list = (ROOT / "android/app/src/main/res/layout/fragment_plan_list.xml").read_text(encoding="utf-8")
+    activity_badges = (ROOT / "android/app/src/main/res/layout/activity_badges.xml").read_text(encoding="utf-8")
+    ios_plans = (ROOT / "ios/WeightLossBetting/UI/Plans/PlansViewController.swift").read_text(encoding="utf-8")
+    ios_badges = (ROOT / "ios/WeightLossBetting/UI/Social/BadgesViewController.swift").read_text(encoding="utf-8")
+    assert "还没有计划&#10;创建一个轻量挑战，和朋友一起坚持" in fragment_plan_list
+    assert "还没有计划\\n创建一个轻量挑战，和朋友一起坚持" in ios_plans
+    assert "还没有获得任何勋章&#10;继续努力吧!" in activity_badges
+    assert "还没有获得任何勋章\\n继续努力吧!" in ios_badges
+
+
 def test_progress_coach_and_recommendation_items_use_shared_semantic_colors():
     paths = (
         "android/app/src/main/res/layout/activity_progress.xml",

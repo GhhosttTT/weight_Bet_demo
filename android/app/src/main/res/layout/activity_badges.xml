@@ -34,9 +34,10 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="暂无勋章"
+        android:text="还没有获得任何勋章&#10;继续努力吧!"
         android:textSize="16sp"
         android:textColor="@color/brand_text_secondary"
+        android:gravity="center"
         android:visibility="gone" />
 
     <ProgressBar

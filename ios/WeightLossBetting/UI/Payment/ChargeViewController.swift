@@ -21,7 +21,8 @@ class ChargeViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "充值金额"
-        label.font = .systemFont(ofSize: 18, weight: .semibold)
+        label.font = AppTheme.Fonts.title3()
+        label.textColor = AppTheme.Colors.label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -31,7 +32,7 @@ class ChargeViewController: UIViewController {
         textField.placeholder = "请输入充值金额"
         textField.keyboardType = .decimalPad
         textField.borderStyle = .roundedRect
-        textField.font = .systemFont(ofSize: 16)
+        textField.font = AppTheme.Fonts.body()
         textField.backgroundColor = AppTheme.Colors.secondaryBackground
         textField.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
         textField.layer.borderWidth = 1
@@ -53,7 +54,7 @@ class ChargeViewController: UIViewController {
     private let chargeButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("确认充值", for: .normal)
-        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
+        button.titleLabel?.font = AppTheme.Fonts.headline()
         button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
         button.layer.cornerRadius = AppTheme.CornerRadius.medium

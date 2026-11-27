@@ -98,7 +98,7 @@
             android:layout_height="wrap_content"
             android:text="支付方式: Stripe"
             android:textSize="14sp"
-            android:textColor="@color/xui_config_color_text_content"
+            android:textColor="@color/brand_text_secondary"
             android:layout_marginBottom="32dp" />
 
         <!-- Charge button -->

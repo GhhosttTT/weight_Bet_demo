@@ -804,6 +804,14 @@ def test_payment_forms_use_matching_input_and_primary_action_tokens():
     assert 'button.backgroundColor = AppTheme.Colors.primary' in ios_withdraw
 
 
+def test_withdraw_quick_actions_use_material_tokens_instead_of_native_buttons():
+    android = ANDROID_WITHDRAW.read_text(encoding="utf-8")
+    assert "<Button" not in android
+    assert android.count("com.google.android.material.button.MaterialButton") >= 6
+    assert android.count('app:cornerRadius="12dp"') >= 6
+    assert "xui_config_color_text_content" not in android
+
+
 def test_auth_pages_use_matching_brand_background_and_action_tokens():
     android_login = (ROOT / "android/app/src/main/res/layout/activity_login.xml").read_text(encoding="utf-8")
     android_register = (ROOT / "android/app/src/main/res/layout/activity_register.xml").read_text(encoding="utf-8")

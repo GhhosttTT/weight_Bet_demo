@@ -4,13 +4,13 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/xui_config_color_background">
+    android:background="@color/brand_background">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="@color/brand_primary_dark"
         app:title="打卡历史"
         app:titleTextColor="@android:color/white"
         app:navigationIcon="@drawable/ic_arrow_back"
@@ -34,8 +34,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="center"
-            android:text="暂无打卡记录"
-            android:textColor="@color/xui_config_color_text_sub"
+            android:text="还没有打卡记录&#10;完成一次打卡后会显示在这里"
+            android:textColor="@color/brand_text_secondary"
             android:textSize="16sp"
             android:visibility="gone" />
 

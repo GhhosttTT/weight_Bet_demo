@@ -29,10 +29,11 @@ class CheckInHistoryViewController: UIViewController {
     
     private let emptyStateLabel: UILabel = {
         let label = UILabel()
-        label.text = "暂无打卡记录"
+        label.text = "还没有打卡记录\n完成一次打卡后会显示在这里"
         label.textAlignment = .center
         label.textColor = AppTheme.Colors.secondaryLabel
-        label.font = .systemFont(ofSize: 16)
+        label.font = AppTheme.Fonts.callout()
+        label.numberOfLines = 0
         label.translatesAutoresizingMaskIntoConstraints = false
         label.isHidden = true
         return label
@@ -68,6 +69,10 @@ class CheckInHistoryViewController: UIViewController {
         view.addSubview(tableView)
         view.addSubview(loadingIndicator)
         view.addSubview(emptyStateLabel)
+
+        tableView.backgroundColor = AppTheme.Colors.background
+        tableView.separatorStyle = .none
+        tableView.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 16, right: 0)
         
         NSLayoutConstraint.activate([
             tableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
@@ -202,6 +207,14 @@ class CheckInHistoryCell: UITableViewCell {
     }
     
     private func setupUI() {
+        backgroundColor = AppTheme.Colors.background
+        contentView.backgroundColor = AppTheme.Colors.secondaryBackground
+        contentView.layer.cornerRadius = AppTheme.CornerRadius.planCard
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.45).cgColor
+        contentView.layer.masksToBounds = true
+        selectionStyle = .none
+
         contentView.addSubview(dateLabel)
         contentView.addSubview(weightLabel)
         contentView.addSubview(noteLabel)

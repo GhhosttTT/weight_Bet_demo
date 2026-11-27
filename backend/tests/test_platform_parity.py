@@ -739,6 +739,20 @@ def test_plan_detail_uses_matching_surface_and_action_semantics():
     assert 'giveUpButton.backgroundColor = AppTheme.Colors.error' in ios
 
 
+def test_check_in_history_uses_matching_card_and_empty_state_language():
+    android = (ROOT / "android/app/src/main/res/layout/activity_check_in_history.xml").read_text(encoding="utf-8")
+    android_item = (ROOT / "android/app/src/main/res/layout/item_check_in_history.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/CheckIn/CheckInHistoryViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert '还没有打卡记录&#10;完成一次打卡后会显示在这里' in android
+    assert 'app:cardBackgroundColor="@color/brand_surface"' in android_item
+    assert 'app:cardCornerRadius="20dp"' in android_item
+    assert '还没有打卡记录\\n完成一次打卡后会显示在这里' in ios
+    assert 'AppTheme.CornerRadius.planCard' in ios
+    assert 'tableView.separatorStyle = .none' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

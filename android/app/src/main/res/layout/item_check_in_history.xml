@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
-    app:cardCornerRadius="16dp"
+    app:cardBackgroundColor="@color/brand_surface"
+    app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
-    app:strokeColor="@color/xui_config_color_divider"
+    app:strokeColor="@color/brand_border"
     app:strokeWidth="1dp">
 
     <LinearLayout
@@ -24,7 +25,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:textSize="16sp"
                 android:textStyle="bold" />
             <TextView
@@ -41,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textColor="@color/xui_config_color_success"
+            android:textColor="@color/brand_accent"
             android:textSize="13sp" />
 
         <TextView
@@ -49,7 +50,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textColor="@color/xui_config_color_text_content"
+            android:textColor="@color/brand_text_secondary"
             android:textSize="14sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

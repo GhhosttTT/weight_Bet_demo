@@ -4,6 +4,7 @@
 
 # 临时测试数据库
 *.db
+*.db-journal
 *.sqlite
 *.sqlite3
 

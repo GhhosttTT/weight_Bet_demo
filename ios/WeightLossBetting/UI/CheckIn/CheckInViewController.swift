@@ -34,7 +34,8 @@ class CheckInViewController: UIViewController {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.text = "记录今日体重"
-        label.font = .systemFont(ofSize: 24, weight: .bold)
+        label.font = AppTheme.Fonts.title1()
+        label.textColor = AppTheme.Colors.label
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -44,6 +45,11 @@ class CheckInViewController: UIViewController {
         textField.placeholder = "当前体重 (kg)"
         textField.keyboardType = .decimalPad
         textField.borderStyle = .roundedRect
+        textField.backgroundColor = AppTheme.Colors.secondaryBackground
+        textField.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
+        textField.layer.borderWidth = 1
+        textField.layer.cornerRadius = AppTheme.CornerRadius.medium
+        textField.clipsToBounds = true
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -70,6 +76,11 @@ class CheckInViewController: UIViewController {
     private let selectPhotoButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("选择照片", for: .normal)
+        button.setTitleColor(AppTheme.Colors.primary, for: .normal)
+        button.backgroundColor = AppTheme.Colors.secondaryBackground
+        button.layer.borderColor = AppTheme.Colors.primary.cgColor
+        button.layer.borderWidth = 1
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -86,7 +97,8 @@ class CheckInViewController: UIViewController {
         textView.font = .systemFont(ofSize: 16)
         textView.layer.borderColor = AppTheme.Colors.separator.cgColor
         textView.layer.borderWidth = 1
-        textView.layer.cornerRadius = 8
+        textView.backgroundColor = AppTheme.Colors.secondaryBackground
+        textView.layer.cornerRadius = AppTheme.CornerRadius.medium
         textView.translatesAutoresizingMaskIntoConstraints = false
         return textView
     }()
@@ -104,9 +116,9 @@ class CheckInViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("提交打卡", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        button.backgroundColor = AppTheme.Colors.primary
+        button.backgroundColor = AppTheme.Colors.accent
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.large
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -203,6 +215,7 @@ class CheckInViewController: UIViewController {
             
             selectPhotoButton.topAnchor.constraint(equalTo: photoImageView.bottomAnchor, constant: 8),
             selectPhotoButton.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+            selectPhotoButton.heightAnchor.constraint(equalToConstant: 48),
             
             photoProgressView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             photoProgressView.topAnchor.constraint(equalTo: selectPhotoButton.bottomAnchor, constant: 8),
@@ -218,7 +231,7 @@ class CheckInViewController: UIViewController {
             submitButton.topAnchor.constraint(equalTo: noteTextView.bottomAnchor, constant: 32),
             submitButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 24),
             submitButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -24),
-            submitButton.heightAnchor.constraint(equalToConstant: 50),
+            submitButton.heightAnchor.constraint(equalToConstant: 60),
             
             loadingIndicator.topAnchor.constraint(equalTo: submitButton.bottomAnchor, constant: 16),
             loadingIndicator.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),

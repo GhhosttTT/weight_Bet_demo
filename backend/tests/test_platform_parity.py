@@ -712,6 +712,20 @@ def test_balance_page_uses_the_shared_card_and_payment_action_hierarchy():
     assert 'withdrawButton.layer.borderColor = AppTheme.Colors.primary.cgColor' in ios
 
 
+def test_check_in_page_uses_matching_brand_background_and_primary_action():
+    android = (ROOT / "android/app/src/main/res/layout/activity_check_in.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/CheckIn/CheckInViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'android:background="@color/brand_primary_dark"' in android
+    assert 'android:id="@+id/btnSubmit"' in android
+    assert 'android:backgroundTint="@color/brand_accent"' in android
+    assert 'button.backgroundColor = AppTheme.Colors.accent' in ios
+    assert 'button.layer.cornerRadius = AppTheme.CornerRadius.large' in ios
+    assert 'button.layer.borderColor = AppTheme.Colors.primary.cgColor' in ios
+    assert 'selectPhotoButton.heightAnchor.constraint(equalToConstant: 48)' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

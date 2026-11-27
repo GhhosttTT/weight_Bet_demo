@@ -91,7 +91,7 @@ class MainTabBarController: UITabBarController {
     private func setupTabBar() {
         tabBar.tintColor = AppTheme.Colors.primary
         tabBar.unselectedItemTintColor = AppTheme.Colors.secondaryLabel
-        tabBar.backgroundColor = AppTheme.Colors.background
+        tabBar.backgroundColor = AppTheme.Colors.secondaryBackground
         
         // Add shadow
         tabBar.layer.shadowColor = UIColor.black.cgColor

@@ -863,6 +863,20 @@ def test_badges_page_uses_matching_surface_cards_and_brand_navigation():
     assert 'view.layer.borderWidth = 1' in ios
 
 
+def test_main_navigation_uses_matching_four_item_brand_tinting():
+    android = (ROOT / "android/app/src/main/res/layout/activity_main.xml").read_text(encoding="utf-8")
+    android_tint = (ROOT / "android/app/src/main/res/color/bottom_nav_item_tint.xml").read_text(encoding="utf-8")
+    android_menu = (ROOT / "android/app/src/main/res/menu/bottom_navigation_menu.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Main/MainTabBarController.swift").read_text(encoding="utf-8")
+
+    for item in ("navigation_home", "navigation_coach", "navigation_plans", "navigation_profile"):
+        assert item in android_menu
+    assert 'app:itemIconTint="@color/bottom_nav_item_tint"' in android
+    assert 'app:itemTextColor="@color/bottom_nav_item_tint"' in android
+    assert 'android:state_checked="true"' in android_tint
+    assert 'tabBar.backgroundColor = AppTheme.Colors.secondaryBackground' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

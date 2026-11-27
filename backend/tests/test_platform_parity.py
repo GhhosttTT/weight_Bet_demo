@@ -639,6 +639,19 @@ def test_payment_method_page_uses_matching_warm_card_and_primary_action_tokens()
     assert "heightAnchor.constraint(equalToConstant: 56)" in ios
 
 
+def test_remaining_android_entry_pages_use_shared_brand_background_tokens():
+    for relative_path in (
+        "android/app/src/main/res/layout/activity_profile.xml",
+        "android/app/src/main/res/layout/fragment_plan_list.xml",
+        "android/app/src/main/res/layout/fragment_profile.xml",
+    ):
+        layout = (ROOT / relative_path).read_text(encoding="utf-8")
+        assert "xui_config_color_background" not in layout
+    plan_list = (ROOT / "android/app/src/main/res/layout/fragment_plan_list.xml").read_text(encoding="utf-8")
+    assert "xui_config_color_primary" not in plan_list
+    assert plan_list.count("@color/brand_primary") >= 4
+
+
 def test_auth_and_profile_forms_use_matching_labels_and_validation_boundaries():
     android_register = ANDROID_REGISTER.read_text(encoding="utf-8")
     android_edit = ANDROID_EDIT_PROFILE.read_text(encoding="utf-8")

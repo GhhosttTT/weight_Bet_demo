@@ -44,7 +44,7 @@
                     app:chipStrokeWidth="1dp"
                     android:textColor="@color/chip_text"
                     app:checkedIconVisible="false"
-                    app:rippleColor="@color/xui_config_color_primary" />
+                    app:rippleColor="@color/brand_primary" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipPending"
@@ -57,7 +57,7 @@
                     app:chipStrokeWidth="1dp"
                     android:textColor="@color/chip_text"
                     app:checkedIconVisible="false"
-                    app:rippleColor="@color/xui_config_color_primary" />
+                    app:rippleColor="@color/brand_primary" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipActive"
@@ -70,7 +70,7 @@
                     app:chipStrokeWidth="1dp"
                     android:textColor="@color/chip_text"
                     app:checkedIconVisible="false"
-                    app:rippleColor="@color/xui_config_color_primary" />
+                    app:rippleColor="@color/brand_primary" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipCompleted"
@@ -83,7 +83,7 @@
                     app:chipStrokeWidth="1dp"
                     android:textColor="@color/chip_text"
                     app:checkedIconVisible="false"
-                    app:rippleColor="@color/xui_config_color_primary" />
+                    app:rippleColor="@color/brand_primary" />
 
             </com.google.android.material.chip.ChipGroup>
 

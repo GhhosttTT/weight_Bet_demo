@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/xui_config_color_background">
+    android:background="@color/brand_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,7 +21,7 @@
             android:text="减肥管家"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/xui_config_color_text_title"
+            android:textColor="@color/brand_text"
             android:layout_marginBottom="24dp" />
 
         <!-- 每日目标卡片 -->
@@ -30,7 +30,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/brand_surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -44,7 +45,7 @@
                     android:text="今日目标"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:textColor="@color/xui_config_color_text_title"
+                    android:textColor="@color/brand_text"
                     android:layout_marginBottom="16dp" />
 
                 <LinearLayout
@@ -152,7 +153,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/brand_surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -166,7 +168,7 @@
                     android:text="运动推荐"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:textColor="@color/xui_config_color_text_title"
+                    android:textColor="@color/brand_text"
                     android:layout_marginBottom="16dp" />
 
                 <LinearLayout
@@ -185,7 +187,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="8dp">
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/brand_surface">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -199,7 +202,7 @@
                     android:text="饮食推荐"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:textColor="@color/xui_config_color_text_title"
+                    android:textColor="@color/brand_text"
                     android:layout_marginBottom="16dp" />
 
                 <LinearLayout
@@ -218,7 +221,8 @@
             android:layout_height="wrap_content"
             android:layout_marginBottom="16dp"
             app:cardCornerRadius="16dp"
-            app:cardElevation="8dp"
+            app:cardElevation="2dp"
+            app:cardBackgroundColor="@color/brand_surface"
             android:visibility="gone"
             android:id="@+id/cvTips">
 
@@ -234,7 +238,7 @@
                     android:text="综合建议"
                     android:textSize="20sp"
                     android:textStyle="bold"
-                    android:textColor="@color/xui_config_color_text_title"
+                    android:textColor="@color/brand_text"
                     android:layout_marginBottom="16dp" />
 
                 <TextView

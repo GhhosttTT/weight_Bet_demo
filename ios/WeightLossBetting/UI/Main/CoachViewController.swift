@@ -211,6 +211,12 @@ class CoachViewController: UIViewController {
         scrollView.addSubview(contentView)
         contentView.addSubview(titleLabel)
         contentView.addSubview(loadingView)
+
+        [dailyTargetCard, exerciseCard, dietCard, tipsCard].forEach { card in
+            card.layer.borderWidth = 1
+            card.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.45).cgColor
+            card.applyShadow(style: AppTheme.Shadow.small())
+        }
         
         // Daily Target Card
         contentView.addSubview(dailyTargetCard)

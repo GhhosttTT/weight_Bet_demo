@@ -797,6 +797,17 @@ def test_create_plan_uses_matching_brand_form_and_primary_action_tokens():
     assert 'createButton.heightAnchor.constraint(equalToConstant: 56)' in ios
 
 
+def test_coach_page_uses_matching_surface_cards_and_brand_background():
+    android = (ROOT / "android/app/src/main/res/layout/fragment_coach.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Main/CoachViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'app:cardBackgroundColor="@color/brand_surface"' in android
+    assert 'app:cardElevation="2dp"' in android
+    assert 'card.layer.borderWidth = 1' in ios
+    assert 'card.applyShadow(style: AppTheme.Shadow.small())' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

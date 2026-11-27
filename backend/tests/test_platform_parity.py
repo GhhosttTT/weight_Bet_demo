@@ -628,6 +628,17 @@ def test_payment_method_page_uses_matching_stripe_secure_setup_on_both_platforms
     assert "请输入有效的银行卡号" not in ios_vm
 
 
+def test_payment_method_page_uses_matching_warm_card_and_primary_action_tokens():
+    android = (ROOT / "android/app/src/main/res/layout/activity_payment_method.xml").read_text(encoding="utf-8")
+    ios = IOS_PAYMENT_METHOD_VC.read_text(encoding="utf-8")
+    for token in ("brand_background", "brand_primary_dark", "brand_surface", "brand_border", "brand_primary"):
+        assert token in android
+    for token in ("AppTheme.Colors.background", "AppTheme.Colors.secondaryBackground", "AppTheme.Colors.primary", "CornerRadius.planCard"):
+        assert token in ios
+    assert 'app:cornerRadius="12dp"' in android
+    assert "heightAnchor.constraint(equalToConstant: 56)" in ios
+
+
 def test_auth_and_profile_forms_use_matching_labels_and_validation_boundaries():
     android_register = ANDROID_REGISTER.read_text(encoding="utf-8")
     android_edit = ANDROID_EDIT_PROFILE.read_text(encoding="utf-8")

@@ -1,45 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/xui_config_color_background">
+    android:background="@color/brand_background">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="24dp">
+        android:padding="16dp">
 
-        <androidx.appcompat.widget.Toolbar
+        <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:title="绑定支付方式" />
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/brand_primary_dark"
+            android:elevation="0dp"
+            app:title="绑定支付方式"
+            app:titleTextColor="@android:color/white" />
 
-        <TextView
-            android:id="@+id/tvSecurityMessage"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="生产环境使用 Stripe 安全组件处理卡信息。应用不会读取或保存完整银行卡号、有效期和安全码。"
-            android:textSize="16sp"
-            android:lineSpacingExtra="6dp" />
-
-        <TextView
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:text="充值时会在 Stripe 支付页面中选择银行卡；提现请使用 Stripe Connect 设置提现账户。"
-            android:textSize="14sp"
-            android:textColor="@color/xui_config_color_text_content"
-            android:lineSpacingExtra="4dp" />
+            app:cardBackgroundColor="@color/brand_surface"
+            app:cardCornerRadius="20dp"
+            app:cardElevation="2dp"
+            app:strokeColor="@color/brand_border"
+            app:strokeWidth="1dp">
 
-        <Button
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:id="@+id/tvSecurityMessage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="生产环境使用 Stripe 安全组件处理卡信息。应用不会读取或保存完整银行卡号、有效期和安全码。"
+                    android:textColor="@color/brand_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:lineSpacingExtra="6dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="12dp"
+                    android:text="充值时会在 Stripe 支付页面中选择银行卡；提现请使用 Stripe Connect 设置提现账户。"
+                    android:textColor="@color/brand_text_secondary"
+                    android:textSize="14sp"
+                    android:lineSpacingExtra="4dp" />
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSetup"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="32dp"
-            android:text="使用 Stripe 安全设置" />
+            android:layout_height="56dp"
+            android:layout_marginTop="20dp"
+            android:text="使用 Stripe 安全设置"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/brand_primary"
+            app:cornerRadius="12dp" />
 
         <ProgressBar
             android:id="@+id/progressBar"

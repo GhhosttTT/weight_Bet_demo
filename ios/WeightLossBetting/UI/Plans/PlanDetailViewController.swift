@@ -95,7 +95,7 @@ class PlanDetailViewController: UIViewController {
         // Bet amount
         let betAmountTitleLabel = createTitleLabel(text: "赌金金额")
         betAmountLabel = createValueLabel()
-        betAmountLabel.textColor = AppTheme.Colors.error
+        betAmountLabel.textColor = AppTheme.Colors.primaryDark
         betAmountLabel.font = .boldSystemFont(ofSize: 24)
         
         // Date range
@@ -186,7 +186,7 @@ class PlanDetailViewController: UIViewController {
         checkInButton = UIButton(type: .system)
         checkInButton.setTitle("打卡签到", for: .normal)
         checkInButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
-        checkInButton.backgroundColor = AppTheme.Colors.primary
+        checkInButton.backgroundColor = AppTheme.Colors.accent
         checkInButton.setTitleColor(.white, for: .normal)
         checkInButton.layer.cornerRadius = 12
         checkInButton.addTarget(self, action: #selector(checkInTapped), for: .touchUpInside)
@@ -206,7 +206,7 @@ class PlanDetailViewController: UIViewController {
         giveUpButton = UIButton(type: .system)
         giveUpButton.setTitle("放弃计划 (失去赌金)", for: .normal)
         giveUpButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        giveUpButton.backgroundColor = AppTheme.Colors.accent
+        giveUpButton.backgroundColor = AppTheme.Colors.error
         giveUpButton.setTitleColor(.white, for: .normal)
         giveUpButton.layer.cornerRadius = 10
         giveUpButton.addTarget(self, action: #selector(giveUpTapped), for: .touchUpInside)

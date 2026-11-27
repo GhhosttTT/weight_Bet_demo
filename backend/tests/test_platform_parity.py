@@ -726,6 +726,19 @@ def test_check_in_page_uses_matching_brand_background_and_primary_action():
     assert 'selectPhotoButton.heightAnchor.constraint(equalToConstant: 48)' in ios
 
 
+def test_plan_detail_uses_matching_surface_and_action_semantics():
+    android = (ROOT / "android/app/src/main/res/layout/activity_plan_detail.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Plans/PlanDetailViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'android:background="@color/brand_primary_dark"' in android
+    assert 'app:cardBackgroundColor="@color/brand_surface"' in android
+    assert 'app:strokeColor="@color/brand_border"' in android
+    assert 'betAmountLabel.textColor = AppTheme.Colors.primaryDark' in ios
+    assert 'checkInButton.backgroundColor = AppTheme.Colors.accent' in ios
+    assert 'giveUpButton.backgroundColor = AppTheme.Colors.error' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

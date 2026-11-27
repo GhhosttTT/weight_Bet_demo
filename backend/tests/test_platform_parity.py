@@ -768,6 +768,21 @@ def test_payment_forms_use_matching_input_and_primary_action_tokens():
     assert 'button.backgroundColor = AppTheme.Colors.primary' in ios_withdraw
 
 
+def test_auth_pages_use_matching_brand_background_and_action_tokens():
+    android_login = (ROOT / "android/app/src/main/res/layout/activity_login.xml").read_text(encoding="utf-8")
+    android_register = (ROOT / "android/app/src/main/res/layout/activity_register.xml").read_text(encoding="utf-8")
+    ios_login = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")
+    ios_register = (ROOT / "ios/WeightLossBetting/UI/Auth/RegisterViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android_login
+    assert 'android:background="@color/brand_background"' in android_register
+    assert 'android:backgroundTint="@color/brand_primary"' in android_login
+    assert 'android:backgroundTint="@color/brand_primary"' in android_register
+    assert 'button.setTitleColor(AppTheme.Colors.primary, for: .normal)' in ios_login
+    assert 'button.layer.borderColor = AppTheme.Colors.primary.cgColor' in ios_login
+    assert 'field.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios_register
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

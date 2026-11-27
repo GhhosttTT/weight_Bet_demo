@@ -89,7 +89,7 @@ class RegisterViewController: UIViewController {
         button.setTitle("注册", for: .normal)
         button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -118,6 +118,16 @@ class RegisterViewController: UIViewController {
     private func setupUI() {
         title = "注册账号"
         view.backgroundColor = AppTheme.Colors.background
+
+        [emailTextField, nicknameTextField, passwordTextField, confirmPasswordTextField,
+         heightTextField, weightTextField, ageTextField].forEach { field in
+            field.backgroundColor = AppTheme.Colors.secondaryBackground
+            field.layer.cornerRadius = AppTheme.CornerRadius.medium
+            field.layer.borderWidth = 1
+            field.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
+            field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
+            field.leftViewMode = .always
+        }
         
         view.addSubview(emailTextField)
         view.addSubview(nicknameTextField)

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="@color/brand_background">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -18,7 +19,7 @@
             android:text="注册账号"
             android:textSize="28sp"
             android:textStyle="bold"
-            android:textColor="@color/design_default_color_primary"
+            android:textColor="@color/brand_text"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -205,7 +206,11 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_marginTop="24dp"
-            android:padding="12dp" />
+            android:padding="12dp"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/brand_primary"
+            android:textAllCaps="false"
+            app:cornerRadius="12dp" />
 
         <!-- Login Link -->
         <TextView
@@ -214,7 +219,7 @@
             android:layout_height="wrap_content"
             android:text="已有账号？立即登录"
             android:textSize="14sp"
-            android:textColor="@color/design_default_color_primary"
+            android:textColor="@color/brand_primary"
             app:layout_constraintTop_toBottomOf="@id/btnRegister"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

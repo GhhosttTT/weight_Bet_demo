@@ -76,11 +76,11 @@ class LoginViewController: UIViewController {
     private let googleSignInButton: UIButton = {
         let button = UIButton(type: .system)
         button.setTitle("使用 Google 登录", for: .normal)
-        button.backgroundColor = .white
-        button.setTitleColor(.black, for: .normal)
+        button.backgroundColor = AppTheme.Colors.secondaryBackground
+        button.setTitleColor(AppTheme.Colors.primary, for: .normal)
         button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.layer.borderWidth = 1
-        button.layer.borderColor = AppTheme.Colors.separator.cgColor
+        button.layer.borderColor = AppTheme.Colors.primary.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
@@ -155,7 +155,7 @@ class LoginViewController: UIViewController {
             field.backgroundColor = AppTheme.Colors.secondaryBackground
             field.layer.cornerRadius = AppTheme.CornerRadius.medium
             field.layer.borderWidth = 1
-            field.layer.borderColor = AppTheme.Colors.separator.cgColor
+            field.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
             field.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
             field.leftViewMode = .always
         }
@@ -196,7 +196,7 @@ class LoginViewController: UIViewController {
             loginButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 32),
             loginButton.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
             loginButton.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
-            loginButton.heightAnchor.constraint(equalToConstant: 50),
+            loginButton.heightAnchor.constraint(equalToConstant: 56),
             
             orLabel.topAnchor.constraint(equalTo: loginButton.bottomAnchor, constant: 16),
             orLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
@@ -204,7 +204,7 @@ class LoginViewController: UIViewController {
             googleSignInButton.topAnchor.constraint(equalTo: orLabel.bottomAnchor, constant: 16),
             googleSignInButton.leadingAnchor.constraint(equalTo: emailTextField.leadingAnchor),
             googleSignInButton.trailingAnchor.constraint(equalTo: emailTextField.trailingAnchor),
-            googleSignInButton.heightAnchor.constraint(equalToConstant: 50),
+            googleSignInButton.heightAnchor.constraint(equalToConstant: 56),
             
             registerButton.topAnchor.constraint(equalTo: googleSignInButton.bottomAnchor, constant: 16),
             registerButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),

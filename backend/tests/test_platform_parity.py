@@ -783,6 +783,20 @@ def test_auth_pages_use_matching_brand_background_and_action_tokens():
     assert 'field.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios_register
 
 
+def test_create_plan_uses_matching_brand_form_and_primary_action_tokens():
+    android = (ROOT / "android/app/src/main/res/layout/activity_create_plan.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Plans/CreatePlanViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'android:background="@color/brand_primary_dark"' in android
+    assert 'com.google.android.material.button.MaterialButton' in android
+    assert 'android:backgroundTint="@color/brand_primary"' in android
+    assert 'app:rb_backgroundColor' not in android
+    assert 'textField.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios
+    assert 'descriptionTextView.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios
+    assert 'createButton.heightAnchor.constraint(equalToConstant: 56)' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

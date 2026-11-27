@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/xui_config_color_background">
+    android:background="@color/brand_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,8 +15,8 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
-            android:elevation="4dp"
+            android:background="@color/brand_primary_dark"
+            android:elevation="0dp"
             app:title="创建对赌计划"
             app:titleTextColor="@android:color/white"
             app:navigationIcon="@drawable/ic_arrow_back"
@@ -32,9 +32,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="创建新的对赌计划"
-                android:textSize="24sp"
+                android:textSize="28sp"
                 android:textStyle="bold"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:layout_marginBottom="24dp" />
 
             <!-- Bet Amount -->
@@ -117,17 +117,16 @@
             </com.google.android.material.textfield.TextInputLayout>
 
             <!-- Create Button -->
-            <com.xuexiang.xui.widget.button.roundbutton.RoundButton
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCreate"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="56dp"
                 android:text="创建计划"
                 android:textSize="16sp"
-                android:paddingTop="14dp"
-                android:paddingBottom="14dp"
-                app:rb_radius="24dp"
-                app:rb_backgroundColor="@color/brand_primary"
-                app:rb_textColor="@color/white" />
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/brand_primary"
+                app:cornerRadius="12dp" />
 
             <!-- Loading indicator -->
             <ProgressBar

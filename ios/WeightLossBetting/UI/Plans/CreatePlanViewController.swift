@@ -100,9 +100,10 @@ class CreatePlanViewController: UIViewController {
         let descriptionLabel = createLabel(text: "计划描述 (可选)")
         descriptionTextView = UITextView()
         descriptionTextView.font = .systemFont(ofSize: 16)
-        descriptionTextView.layer.borderColor = AppTheme.Colors.separator.cgColor
+        descriptionTextView.backgroundColor = AppTheme.Colors.secondaryBackground
+        descriptionTextView.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
         descriptionTextView.layer.borderWidth = 1
-        descriptionTextView.layer.cornerRadius = 8
+        descriptionTextView.layer.cornerRadius = AppTheme.CornerRadius.medium
         descriptionTextView.textContainerInset = UIEdgeInsets(top: 8, left: 8, bottom: 8, right: 8)
         descriptionTextView.translatesAutoresizingMaskIntoConstraints = false
         
@@ -112,7 +113,7 @@ class CreatePlanViewController: UIViewController {
         createButton.titleLabel?.font = .boldSystemFont(ofSize: 18)
         createButton.backgroundColor = AppTheme.Colors.primary
         createButton.setTitleColor(.white, for: .normal)
-        createButton.layer.cornerRadius = 12
+        createButton.layer.cornerRadius = AppTheme.CornerRadius.medium
         createButton.addTarget(self, action: #selector(createTapped), for: .touchUpInside)
         createButton.translatesAutoresizingMaskIntoConstraints = false
         
@@ -202,7 +203,7 @@ class CreatePlanViewController: UIViewController {
             createButton.topAnchor.constraint(equalTo: descriptionTextView.bottomAnchor, constant: 30),
             createButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
             createButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            createButton.heightAnchor.constraint(equalToConstant: 50),
+            createButton.heightAnchor.constraint(equalToConstant: 56),
             createButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -30),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: createButton.centerXAnchor),
@@ -258,6 +259,13 @@ class CreatePlanViewController: UIViewController {
         let textField = UITextField()
         textField.placeholder = placeholder
         textField.borderStyle = .roundedRect
+        textField.backgroundColor = AppTheme.Colors.secondaryBackground
+        textField.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
+        textField.layer.borderWidth = 1
+        textField.layer.cornerRadius = AppTheme.CornerRadius.medium
+        textField.clipsToBounds = true
+        textField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
+        textField.leftViewMode = .always
         textField.keyboardType = keyboardType
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField

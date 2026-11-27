@@ -822,6 +822,19 @@ def test_comments_page_uses_matching_cards_and_composer_actions():
     assert 'contentView.layer.cornerRadius = AppTheme.CornerRadius.planCard' in ios
 
 
+def test_progress_page_uses_matching_metric_card_surfaces():
+    android = (ROOT / "android/app/src/main/res/layout/activity_progress.xml").read_text(encoding="utf-8")
+    drawable = (ROOT / "android/app/src/main/res/drawable/bg_metric_card.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/CheckIn/ProgressViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'android:background="@drawable/bg_metric_card"' in android
+    assert '@color/brand_surface' in drawable
+    assert 'android:radius="16dp"' in drawable
+    assert 'view.layer.borderWidth = 1' in ios
+    assert 'AppTheme.Colors.secondaryBackground' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/xui_config_color_background">
+    android:background="@color/brand_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/brand_primary_dark"
             app:title="进度统计"
             app:titleTextColor="@android:color/white"
             app:navigationIcon="@drawable/ic_arrow_back"
@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="你的减重进度"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:textSize="26sp"
                 android:textStyle="bold" />
 
@@ -71,9 +71,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/xui_config_color_secondary_background"
+                    android:background="@drawable/bg_metric_card"
                     android:padding="16dp"
-                    android:textColor="@color/xui_config_color_text_content"
+                    android:textColor="@color/brand_text_secondary"
                     android:textSize="15sp" />
                 <TextView
                     android:id="@+id/tvTargetWeight"
@@ -81,9 +81,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_weight="1"
-                    android:background="@color/xui_config_color_secondary_background"
+                    android:background="@drawable/bg_metric_card"
                     android:padding="16dp"
-                    android:textColor="@color/xui_config_color_text_content"
+                    android:textColor="@color/brand_text_secondary"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -97,9 +97,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:background="@color/xui_config_color_secondary_background"
+                    android:background="@drawable/bg_metric_card"
                     android:padding="16dp"
-                    android:textColor="@color/xui_config_color_text_content"
+                    android:textColor="@color/brand_text_secondary"
                     android:textSize="15sp" />
                 <TextView
                     android:id="@+id/tvCheckInCount"
@@ -107,9 +107,9 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_weight="1"
-                    android:background="@color/xui_config_color_secondary_background"
+                    android:background="@drawable/bg_metric_card"
                     android:padding="16dp"
-                    android:textColor="@color/xui_config_color_text_content"
+                    android:textColor="@color/brand_text_secondary"
                     android:textSize="15sp" />
             </LinearLayout>
 
@@ -118,9 +118,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:background="@color/xui_config_color_secondary_background"
+                android:background="@drawable/bg_metric_card"
                 android:padding="16dp"
-                android:textColor="@color/xui_config_color_text_content"
+                android:textColor="@color/brand_text_secondary"
                 android:textSize="15sp" />
 
             <ProgressBar

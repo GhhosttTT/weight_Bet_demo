@@ -71,12 +71,10 @@ class ProgressViewController: UIViewController {
     
     private let chartContainerView: UIView = {
         let view = UIView()
-        view.backgroundColor = AppTheme.Colors.background
-        view.layer.cornerRadius = 12
-        view.layer.shadowColor = UIColor.black.cgColor
-        view.layer.shadowOpacity = 0.1
-        view.layer.shadowOffset = CGSize(width: 0, height: 2)
-        view.layer.shadowRadius = 4
+        view.backgroundColor = AppTheme.Colors.secondaryBackground
+        view.layer.cornerRadius = AppTheme.CornerRadius.large
+        view.layer.borderWidth = 1
+        view.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.45).cgColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()
@@ -138,6 +136,8 @@ class ProgressViewController: UIViewController {
         view.addSubview(scrollView)
         scrollView.addSubview(contentView)
         view.addSubview(loadingIndicator)
+
+        scrollView.backgroundColor = AppTheme.Colors.background
         
         contentView.addSubview(progressCircleView)
         contentView.addSubview(currentWeightLabel)

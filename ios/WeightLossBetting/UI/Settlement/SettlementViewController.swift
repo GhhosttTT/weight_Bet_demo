@@ -76,7 +76,7 @@ class SettlementViewController: UIViewController {
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
         button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.isEnabled = false
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
@@ -107,7 +107,7 @@ class SettlementViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("反馈结算问题", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 16, weight: .semibold)
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.layer.borderWidth = 1
         button.layer.borderColor = AppTheme.Colors.primary.cgColor
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -269,6 +269,12 @@ class SettlementViewController: UIViewController {
         view.backgroundColor = AppTheme.Colors.background
         title = "结算"
 
+        [myAchievementSegment, opponentAchievementSegment].forEach { segment in
+            segment.selectedSegmentTintColor = AppTheme.Colors.primary
+            segment.setTitleTextAttributes([.foregroundColor: AppTheme.Colors.label], for: .normal)
+            segment.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
+        }
+
         view.addSubview(titleLabel)
         view.addSubview(subtitleLabel)
         view.addSubview(mySectionLabel)
@@ -308,7 +314,7 @@ class SettlementViewController: UIViewController {
             submitButton.topAnchor.constraint(equalTo: opponentAchievementSegment.bottomAnchor, constant: 40),
             submitButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
             submitButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
-            submitButton.heightAnchor.constraint(equalToConstant: 50),
+            submitButton.heightAnchor.constraint(equalToConstant: 56),
 
             noteLabel.topAnchor.constraint(equalTo: submitButton.bottomAnchor, constant: 20),
             noteLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),

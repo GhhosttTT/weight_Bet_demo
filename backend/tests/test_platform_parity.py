@@ -877,6 +877,18 @@ def test_main_navigation_uses_matching_four_item_brand_tinting():
     assert 'tabBar.backgroundColor = AppTheme.Colors.secondaryBackground' in ios
 
 
+def test_settlement_page_uses_matching_selection_and_action_tokens():
+    android = (ROOT / "android/app/src/main/res/layout/activity_settlement.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Settlement/SettlementViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'android:background="@color/brand_primary_dark"' in android
+    assert 'android:backgroundTint="@color/brand_primary"' in android
+    assert 'segment.selectedSegmentTintColor = AppTheme.Colors.primary' in ios
+    assert 'submitButton.heightAnchor.constraint(equalToConstant: 56)' in ios
+    assert 'button.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

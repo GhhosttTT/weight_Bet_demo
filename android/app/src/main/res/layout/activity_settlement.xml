@@ -4,7 +4,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fillViewport="true"
-    android:background="@color/xui_config_color_background">
+    android:background="@color/brand_background">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorPrimary"
+            android:background="@color/brand_primary_dark"
             app:title="结算"
             app:titleTextColor="@android:color/white"
             app:navigationIcon="@drawable/ic_arrow_back"
@@ -31,7 +31,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="结算时间到"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:textSize="26sp"
                 android:textStyle="bold" />
 
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="请确认您和对手的减重成果"
-                android:textColor="@color/xui_config_color_text_content"
+                android:textColor="@color/brand_text_secondary"
                 android:textSize="15sp" />
 
             <TextView
@@ -58,7 +58,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
                 android:text="我的成果"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="22dp"
                 android:text="对手的成果"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:textSize="18sp"
                 android:textStyle="bold" />
 
@@ -114,7 +114,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:textColor="@color/xui_config_color_text_content"
+                android:textColor="@color/brand_text_secondary"
                 android:textSize="14sp" />
 
             <TextView
@@ -122,7 +122,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
-                android:textColor="@color/xui_config_color_text_content"
+                android:textColor="@color/brand_text_secondary"
                 android:textSize="14sp"
                 android:visibility="gone" />
 
@@ -142,7 +142,10 @@
                 android:layout_marginTop="24dp"
                 android:text="提交结算"
                 android:textSize="17sp"
-                app:cornerRadius="16dp" />
+                android:textAllCaps="false"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/brand_primary"
+                app:cornerRadius="12dp" />
 
             <ProgressBar
                 android:id="@+id/progressBar"

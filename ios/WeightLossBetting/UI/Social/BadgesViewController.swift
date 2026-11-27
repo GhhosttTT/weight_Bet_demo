@@ -173,7 +173,9 @@ class BadgeCell: UICollectionViewCell {
     private let containerView: UIView = {
         let view = UIView()
         view.backgroundColor = AppTheme.Colors.secondaryBackground
-        view.layer.cornerRadius = 12
+        view.layer.cornerRadius = AppTheme.CornerRadius.planCard
+        view.layer.borderWidth = 1
+        view.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.45).cgColor
         view.translatesAutoresizingMaskIntoConstraints = false
         return view
     }()

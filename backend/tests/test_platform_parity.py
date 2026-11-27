@@ -850,6 +850,19 @@ def test_leaderboard_uses_matching_tabs_and_rank_cards():
     assert 'contentView.layer.cornerRadius = AppTheme.CornerRadius.planCard' in ios
 
 
+def test_badges_page_uses_matching_surface_cards_and_brand_navigation():
+    android = (ROOT / "android/app/src/main/res/layout/activity_badges.xml").read_text(encoding="utf-8")
+    android_item = (ROOT / "android/app/src/main/res/layout/item_badge.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Social/BadgesViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'android:background="@color/brand_primary_dark"' in android
+    assert 'app:cardBackgroundColor="@color/brand_surface"' in android_item
+    assert 'app:cardCornerRadius="20dp"' in android_item
+    assert 'view.layer.cornerRadius = AppTheme.CornerRadius.planCard' in ios
+    assert 'view.layer.borderWidth = 1' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

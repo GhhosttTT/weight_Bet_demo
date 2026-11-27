@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/brand_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -13,7 +14,10 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="我的勋章" />
+            android:background="@color/brand_primary_dark"
+            app:title="我的勋章"
+            app:titleTextColor="@color/white"
+            app:navigationIconTint="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -32,7 +36,7 @@
         android:layout_gravity="center"
         android:text="暂无勋章"
         android:textSize="16sp"
-        android:textColor="@color/xui_config_color_text_content"
+        android:textColor="@color/brand_text_secondary"
         android:visibility="gone" />
 
     <ProgressBar

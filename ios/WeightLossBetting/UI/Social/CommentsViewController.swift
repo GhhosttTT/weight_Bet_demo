@@ -10,7 +10,9 @@ class CommentsViewController: UIViewController {
         table.register(CommentCell.self, forCellReuseIdentifier: "CommentCell")
         table.estimatedRowHeight = 80
         table.rowHeight = UITableView.automaticDimension
-        table.separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
+        table.separatorStyle = .none
+        table.backgroundColor = AppTheme.Colors.background
+        table.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 16, right: 0)
         return table
     }()
     
@@ -86,6 +88,16 @@ class CommentsViewController: UIViewController {
         
         inputContainerView.addSubview(commentTextField)
         inputContainerView.addSubview(sendButton)
+
+        commentTextField.backgroundColor = AppTheme.Colors.secondaryBackground
+        commentTextField.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
+        commentTextField.layer.borderWidth = 1
+        commentTextField.layer.cornerRadius = AppTheme.CornerRadius.medium
+        commentTextField.leftView = UIView(frame: CGRect(x: 0, y: 0, width: 12, height: 1))
+        commentTextField.leftViewMode = .always
+        sendButton.backgroundColor = AppTheme.Colors.primary
+        sendButton.setTitleColor(.white, for: .normal)
+        sendButton.layer.cornerRadius = AppTheme.CornerRadius.medium
         
         tableView.delegate = self
         tableView.dataSource = self
@@ -95,7 +107,7 @@ class CommentsViewController: UIViewController {
         
         // Add separator line
         let separatorLine = UIView()
-        separatorLine.backgroundColor = .separator
+        separatorLine.backgroundColor = AppTheme.Colors.separator
         separatorLine.translatesAutoresizingMaskIntoConstraints = false
         inputContainerView.addSubview(separatorLine)
         
@@ -297,6 +309,14 @@ class CommentCell: UITableViewCell {
     }
     
     private func setupUI() {
+        backgroundColor = AppTheme.Colors.background
+        contentView.backgroundColor = AppTheme.Colors.secondaryBackground
+        contentView.layer.cornerRadius = AppTheme.CornerRadius.planCard
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.45).cgColor
+        contentView.layer.masksToBounds = true
+        selectionStyle = .none
+
         contentView.addSubview(nicknameLabel)
         contentView.addSubview(contentLabel)
         contentView.addSubview(timeLabel)

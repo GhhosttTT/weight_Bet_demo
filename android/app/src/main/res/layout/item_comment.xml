@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="10dp"
-    app:cardCornerRadius="14dp"
+    app:cardBackgroundColor="@color/brand_surface"
+    app:cardCornerRadius="20dp"
     app:cardElevation="0dp"
-    app:strokeColor="@color/xui_config_color_divider"
+    app:strokeColor="@color/brand_border"
     app:strokeWidth="1dp">
     <LinearLayout
         android:layout_width="match_parent"
@@ -21,13 +22,13 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="@color/xui_config_color_text_title"
+                android:textColor="@color/brand_text"
                 android:textStyle="bold" />
             <TextView
                 android:id="@+id/tvDate"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/xui_config_color_text_sub"
+                android:textColor="@color/brand_text_tertiary"
                 android:textSize="12sp" />
         </LinearLayout>
         <TextView
@@ -35,7 +36,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:textColor="@color/xui_config_color_text_content"
+            android:textColor="@color/brand_text_secondary"
             android:textSize="15sp" />
     </LinearLayout>
 </com.google.android.material.card.MaterialCardView>

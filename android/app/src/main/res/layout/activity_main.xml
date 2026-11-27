@@ -25,7 +25,6 @@
         app:menu="@menu/bottom_navigation_menu"
         app:itemIconTint="@color/bottom_nav_item_tint"
         app:itemTextColor="@color/bottom_nav_item_tint"
-        app:itemActiveIndicatorColor="@color/brand_primary_surface"
         app:labelVisibilityMode="labeled"
         android:background="@color/brand_surface"
         android:elevation="8dp" />

@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/brand_background">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
@@ -13,7 +14,10 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="排行榜" />
+            android:background="@color/brand_primary_dark"
+            app:title="排行榜"
+            app:titleTextColor="@color/white"
+            app:navigationIconTint="@color/white" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -23,7 +27,10 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tabMode="fixed"
-        app:tabGravity="fill">
+        app:tabGravity="fill"
+        app:tabIndicatorColor="@color/brand_primary"
+        app:tabSelectedTextColor="@color/brand_primary"
+        app:tabTextColor="@color/brand_text_secondary">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"

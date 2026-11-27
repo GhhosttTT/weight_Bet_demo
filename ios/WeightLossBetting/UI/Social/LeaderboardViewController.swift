@@ -17,6 +17,9 @@ class LeaderboardViewController: UIViewController {
         table.translatesAutoresizingMaskIntoConstraints = false
         table.register(LeaderboardCell.self, forCellReuseIdentifier: "LeaderboardCell")
         table.rowHeight = 70
+        table.backgroundColor = AppTheme.Colors.background
+        table.separatorStyle = .none
+        table.contentInset = UIEdgeInsets(top: 8, left: 0, bottom: 16, right: 0)
         return table
     }()
     
@@ -60,6 +63,13 @@ class LeaderboardViewController: UIViewController {
         view.addSubview(activityIndicator)
         
         segmentedControl.addTarget(self, action: #selector(segmentChanged), for: .valueChanged)
+        segmentedControl.selectedSegmentTintColor = AppTheme.Colors.primary
+        segmentedControl.setTitleTextAttributes([
+            .foregroundColor: AppTheme.Colors.label
+        ], for: .normal)
+        segmentedControl.setTitleTextAttributes([
+            .foregroundColor: UIColor.white
+        ], for: .selected)
         
         tableView.delegate = self
         tableView.dataSource = self
@@ -201,6 +211,14 @@ class LeaderboardCell: UITableViewCell {
     }
     
     private func setupUI() {
+        backgroundColor = AppTheme.Colors.background
+        contentView.backgroundColor = AppTheme.Colors.secondaryBackground
+        contentView.layer.cornerRadius = AppTheme.CornerRadius.planCard
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.45).cgColor
+        contentView.layer.masksToBounds = true
+        selectionStyle = .none
+
         contentView.addSubview(rankLabel)
         contentView.addSubview(nicknameLabel)
         contentView.addSubview(valueLabel)

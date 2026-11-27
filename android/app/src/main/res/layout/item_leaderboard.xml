@@ -3,9 +3,12 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="4dp"
+    android:layout_margin="6dp"
+    app:cardBackgroundColor="@color/brand_surface"
     app:cardElevation="2dp"
-    app:cardCornerRadius="8dp">
+    app:cardCornerRadius="20dp"
+    app:strokeColor="@color/brand_border"
+    app:strokeWidth="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -48,7 +51,7 @@
                 android:layout_height="wrap_content"
                 android:text="10.5 kg"
                 android:textSize="14sp"
-                android:textColor="@color/xui_config_color_text_content"
+                android:textColor="@color/brand_text_secondary"
                 android:layout_marginTop="4dp" />
 
         </LinearLayout>

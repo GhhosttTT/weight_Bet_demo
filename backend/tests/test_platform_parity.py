@@ -835,6 +835,21 @@ def test_progress_page_uses_matching_metric_card_surfaces():
     assert 'AppTheme.Colors.secondaryBackground' in ios
 
 
+def test_leaderboard_uses_matching_tabs_and_rank_cards():
+    android = (ROOT / "android/app/src/main/res/layout/activity_leaderboard.xml").read_text(encoding="utf-8")
+    android_item = (ROOT / "android/app/src/main/res/layout/item_leaderboard.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Social/LeaderboardViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'app:tabIndicatorColor="@color/brand_primary"' in android
+    assert 'app:tabSelectedTextColor="@color/brand_primary"' in android
+    assert 'app:cardBackgroundColor="@color/brand_surface"' in android_item
+    assert 'app:cardCornerRadius="20dp"' in android_item
+    assert 'segmentedControl.selectedSegmentTintColor = AppTheme.Colors.primary' in ios
+    assert 'table.separatorStyle = .none' in ios
+    assert 'contentView.layer.cornerRadius = AppTheme.CornerRadius.planCard' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

@@ -854,6 +854,17 @@ def test_plan_cards_show_matching_description_fallbacks_on_both_platforms():
     assert 'descriptionLabel.text = plan.description ?? "无描述"' in ios
 
 
+def test_plan_filter_color_state_lists_use_shared_brand_tokens():
+    background = (ROOT / "android/app/src/main/res/color/chip_background.xml").read_text(encoding="utf-8")
+    stroke = (ROOT / "android/app/src/main/res/color/chip_stroke.xml").read_text(encoding="utf-8")
+    text = (ROOT / "android/app/src/main/res/color/chip_text.xml").read_text(encoding="utf-8")
+    for resource in (background, stroke, text):
+        assert "xui_config_color_" not in resource
+    assert 'android:color="@color/brand_primary" android:state_checked="true"' in background
+    assert 'android:color="@color/brand_border"' in stroke
+    assert 'android:color="@color/brand_text"' in text
+
+
 def test_progress_coach_and_recommendation_items_use_shared_semantic_colors():
     paths = (
         "android/app/src/main/res/layout/activity_progress.xml",

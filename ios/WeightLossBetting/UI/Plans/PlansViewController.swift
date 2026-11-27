@@ -52,10 +52,12 @@ class PlansViewController: UIViewController {
         filterSegmentedControl.addTarget(self, action: #selector(filterChanged), for: .valueChanged)
         filterSegmentedControl.selectedSegmentTintColor = AppTheme.Colors.primary
         filterSegmentedControl.setTitleTextAttributes([
-            .foregroundColor: AppTheme.Colors.secondaryLabel
+            .foregroundColor: AppTheme.Colors.label,
+            .font: AppTheme.Fonts.caption1()
         ], for: .normal)
         filterSegmentedControl.setTitleTextAttributes([
-            .foregroundColor: UIColor.white
+            .foregroundColor: UIColor.white,
+            .font: AppTheme.Fonts.caption1()
         ], for: .selected)
         filterSegmentedControl.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(filterSegmentedControl)
@@ -80,10 +82,11 @@ class PlansViewController: UIViewController {
         
         // Empty state label
         emptyStateLabel = UILabel()
-        emptyStateLabel.text = "暂无计划"
+        emptyStateLabel.text = "还没有计划\n创建一个轻量挑战，和朋友一起坚持"
         emptyStateLabel.textAlignment = .center
         emptyStateLabel.textColor = AppTheme.Colors.secondaryLabel
-        emptyStateLabel.font = .systemFont(ofSize: 16)
+        emptyStateLabel.font = AppTheme.Fonts.callout()
+        emptyStateLabel.numberOfLines = 0
         emptyStateLabel.isHidden = true
         emptyStateLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(emptyStateLabel)
@@ -258,15 +261,18 @@ class PlanCell: UITableViewCell {
     private func setupUI() {
         backgroundColor = AppTheme.Colors.background
         contentView.backgroundColor = AppTheme.Colors.secondaryBackground
-        contentView.layer.cornerRadius = 20
+        contentView.layer.cornerRadius = AppTheme.CornerRadius.planCard
+        contentView.layer.borderWidth = 1
+        contentView.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.45).cgColor
         contentView.layer.masksToBounds = true
+        selectionStyle = .none
 
         statusLabel.font = .boldSystemFont(ofSize: 14)
         statusLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(statusLabel)
         
-        betAmountLabel.font = .systemFont(ofSize: 18, weight: .semibold)
-        betAmountLabel.textColor = AppTheme.Colors.error
+        betAmountLabel.font = .systemFont(ofSize: 20, weight: .bold)
+        betAmountLabel.textColor = AppTheme.Colors.primaryDark
         betAmountLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(betAmountLabel)
         
@@ -282,20 +288,20 @@ class PlanCell: UITableViewCell {
         contentView.addSubview(goalLabel)
         
         NSLayoutConstraint.activate([
-            statusLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            statusLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
+            statusLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            statusLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             
-            betAmountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 12),
-            betAmountLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            betAmountLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
+            betAmountLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
             dateRangeLabel.topAnchor.constraint(equalTo: statusLabel.bottomAnchor, constant: 8),
-            dateRangeLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            dateRangeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            dateRangeLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            dateRangeLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
             goalLabel.topAnchor.constraint(equalTo: dateRangeLabel.bottomAnchor, constant: 8),
-            goalLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            goalLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            goalLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -12)
+            goalLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            goalLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            goalLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
     }
     

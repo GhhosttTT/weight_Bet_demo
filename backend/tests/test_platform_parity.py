@@ -661,7 +661,22 @@ def test_plan_list_renders_expired_state_and_two_decimal_amount_on_both_platform
     assert 'betAmountLabel.text = "赌金: ¥\\(String(format: "%.2f", plan.betAmount))"' in ios
     assert 'goalText = if (plan.creatorInitialWeight != null && plan.creatorTargetWeight != null)' in android
     assert 'goalLabel.text = "目标: \\(String(format: "%.1f", plan.creatorInitialWeight))kg → \\(String(format: "%.1f", plan.creatorTargetWeight))kg"' in ios
-    assert 'emptyStateLabel.text = "暂无计划"' in ios
+    assert 'emptyStateLabel.text = "还没有计划\\n创建一个轻量挑战，和朋友一起坚持"' in ios
+
+
+def test_plan_list_visual_tokens_match_the_shared_warm_lifestyle_direction():
+    android_layout = (ROOT / "android/app/src/main/res/layout/activity_plan_list.xml").read_text(encoding="utf-8")
+    android_card = (ROOT / "android/app/src/main/res/layout/item_betting_plan.xml").read_text(encoding="utf-8")
+    ios = IOS_PLANS.read_text(encoding="utf-8")
+
+    for token in ("@color/brand_background", "@color/brand_text", "@color/brand_surface_alt", "@color/brand_border"):
+        assert token in android_layout
+    assert '@color/brand_surface' in android_card
+    assert 'app:cardCornerRadius="20dp"' in android_card
+    assert 'AppTheme.Colors.background' in ios
+    assert 'AppTheme.CornerRadius.planCard' in ios
+    assert 'AppTheme.Colors.separator.withAlphaComponent(0.45)' in ios
+    assert '还没有计划\\n创建一个轻量挑战，和朋友一起坚持' in ios
 
 
 def test_transaction_history_uses_matching_chinese_labels_and_safe_amount_format():

@@ -90,6 +90,8 @@ struct AppTheme {
         static let small: CGFloat = 8
         static let medium: CGFloat = 12
         static let large: CGFloat = 16
+        /// Shared list-card radius used by Android and iOS plan cards.
+        static let planCard: CGFloat = 20
         static let extraLarge: CGFloat = 24
     }
     

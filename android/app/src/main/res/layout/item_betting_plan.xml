@@ -4,14 +4,18 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_marginBottom="12dp"
+    app:cardBackgroundColor="@color/brand_surface"
     app:cardCornerRadius="20dp"
-    app:cardElevation="1dp">
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true"
+    app:cardPreventCornerOverlap="true">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:padding="20dp"
+        android:background="@color/brand_surface">
 
         <!-- Status badge & Bet amount -->
         <LinearLayout
@@ -48,7 +52,8 @@
                 android:text="¥100"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:textColor="@color/brand_primary_dark" />
+                android:textColor="@color/brand_primary_dark"
+                android:fontFamily="sans" />
 
         </LinearLayout>
 
@@ -59,7 +64,7 @@
             android:layout_height="wrap_content"
             android:text="2024-01-01 至 2024-01-31"
             android:textSize="14sp"
-            android:textColor="@color/xui_config_color_text_gray"
+            android:textColor="@color/brand_text_tertiary"
             android:layout_marginBottom="12dp" />
 
         <!-- Goal -->
@@ -69,7 +74,7 @@
             android:layout_height="wrap_content"
             android:text="目标: 80kg → 75kg"
             android:textSize="16sp"
-            android:textColor="@color/xui_config_color_text_title"
+            android:textColor="@color/brand_text"
             android:layout_marginBottom="8dp" />
 
         <!-- Description -->
@@ -79,7 +84,7 @@
             android:layout_height="wrap_content"
             android:text="30天减重5kg挑战"
             android:textSize="14sp"
-            android:textColor="@color/xui_config_color_text_content"
+            android:textColor="@color/brand_text_secondary"
             android:maxLines="2"
             android:ellipsize="end" />
 

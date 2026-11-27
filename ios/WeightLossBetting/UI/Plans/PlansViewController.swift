@@ -248,6 +248,7 @@ class PlanCell: UITableViewCell {
     private let betAmountLabel = UILabel()
     private let dateRangeLabel = UILabel()
     private let goalLabel = UILabel()
+    private let descriptionLabel = UILabel()
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -286,6 +287,12 @@ class PlanCell: UITableViewCell {
         goalLabel.numberOfLines = 0
         goalLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(goalLabel)
+
+        descriptionLabel.font = AppTheme.Fonts.subheadline()
+        descriptionLabel.textColor = AppTheme.Colors.secondaryLabel
+        descriptionLabel.numberOfLines = 2
+        descriptionLabel.translatesAutoresizingMaskIntoConstraints = false
+        contentView.addSubview(descriptionLabel)
         
         NSLayoutConstraint.activate([
             statusLabel.topAnchor.constraint(equalTo: contentView.topAnchor, constant: 16),
@@ -301,7 +308,10 @@ class PlanCell: UITableViewCell {
             goalLabel.topAnchor.constraint(equalTo: dateRangeLabel.bottomAnchor, constant: 8),
             goalLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             goalLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            goalLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
+            descriptionLabel.topAnchor.constraint(equalTo: goalLabel.bottomAnchor, constant: 8),
+            descriptionLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            descriptionLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            descriptionLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -16)
         ])
     }
     
@@ -344,5 +354,8 @@ class PlanCell: UITableViewCell {
         
         // Goal
         goalLabel.text = "目标: \(String(format: "%.1f", plan.creatorInitialWeight))kg → \(String(format: "%.1f", plan.creatorTargetWeight))kg"
+
+        // Description
+        descriptionLabel.text = plan.description ?? "无描述"
     }
 }

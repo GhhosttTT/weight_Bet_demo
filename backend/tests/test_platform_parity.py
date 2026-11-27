@@ -844,6 +844,16 @@ def test_plan_and_badge_empty_states_match_mobile_copy():
     assert "还没有获得任何勋章\\n继续努力吧!" in ios_badges
 
 
+def test_plan_cards_show_matching_description_fallbacks_on_both_platforms():
+    android_adapter = (ROOT / "android/app/src/main/java/com/weightloss/betting/ui/plan/PlanAdapter.kt").read_text(encoding="utf-8")
+    android_layout = (ROOT / "android/app/src/main/res/layout/item_betting_plan.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Plans/PlansViewController.swift").read_text(encoding="utf-8")
+    assert 'binding.tvDescription.text = plan.description ?: "无描述"' in android_adapter
+    assert '@+id/tvDescription' in android_layout
+    assert 'private let descriptionLabel = UILabel()' in ios
+    assert 'descriptionLabel.text = plan.description ?? "无描述"' in ios
+
+
 def test_progress_coach_and_recommendation_items_use_shared_semantic_colors():
     paths = (
         "android/app/src/main/res/layout/activity_progress.xml",

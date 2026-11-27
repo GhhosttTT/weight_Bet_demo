@@ -698,6 +698,20 @@ def test_ios_balance_buttons_open_code_based_payment_pages():
     assert 'UIStoryboard(name: "Main"' not in ios
 
 
+def test_balance_page_uses_the_shared_card_and_payment_action_hierarchy():
+    android = (ROOT / "android/app/src/main/res/layout/activity_balance.xml").read_text(encoding="utf-8")
+    ios = IOS_BALANCE.read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android
+    assert 'app:cardCornerRadius="20dp"' in android
+    assert 'app:strokeColor="@color/brand_border"' in android
+    assert 'android:id="@+id/btnCharge"' in android
+    assert 'android:backgroundTint="@color/brand_primary"' in android
+    assert 'android:id="@+id/btnWithdraw"' in android
+    assert 'withdrawButton.backgroundColor = AppTheme.Colors.secondaryBackground' in ios
+    assert 'withdrawButton.layer.borderColor = AppTheme.Colors.primary.cgColor' in ios
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

@@ -3,15 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/xui_config_color_background"
+    android:background="@color/brand_background"
     android:orientation="vertical">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
+        android:background="@color/brand_primary_dark"
+        android:elevation="0dp"
         app:title="我的余额"
         app:titleTextColor="@android:color/white"
         app:navigationIcon="@drawable/ic_arrow_back" />
@@ -29,7 +29,7 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/xui_config_color_background"
+                android:background="@color/brand_background"
                 android:orientation="vertical">
 
                 <!-- Balance card -->
@@ -37,8 +37,11 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_margin="16dp"
-                    app:cardElevation="4dp"
-                    app:cardCornerRadius="8dp">
+                    app:cardBackgroundColor="@color/brand_surface"
+                    app:cardElevation="2dp"
+                    app:cardCornerRadius="20dp"
+                    app:strokeColor="@color/brand_border"
+                    app:strokeWidth="1dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -51,7 +54,7 @@
                             android:layout_height="wrap_content"
                             android:text="可用余额"
                             android:textSize="14sp"
-                            android:textColor="@color/xui_config_color_text_content" />
+                            android:textColor="@color/brand_text_secondary" />
 
                         <TextView
                             android:id="@+id/tvAvailableBalance"
@@ -60,6 +63,7 @@
                             android:text="¥0.00"
                             android:textSize="32sp"
                             android:textStyle="bold"
+                            android:textColor="@color/brand_text"
                             android:layout_marginTop="8dp"
                             android:layout_marginBottom="16dp" />
 
@@ -68,7 +72,7 @@
                             android:layout_height="wrap_content"
                             android:text="冻结余额"
                             android:textSize="14sp"
-                            android:textColor="@color/xui_config_color_text_content" />
+                            android:textColor="@color/brand_text_secondary" />
 
                         <TextView
                             android:id="@+id/tvFrozenBalance"
@@ -89,22 +93,31 @@
                     android:orientation="horizontal"
                     android:padding="16dp">
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnCharge"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="52dp"
                         android:layout_weight="1"
                         android:text="充值"
-                        android:layout_marginEnd="8dp" />
+                        android:layout_marginEnd="8dp"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
+                        android:backgroundTint="@color/brand_primary"
+                        app:cornerRadius="12dp" />
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
                         android:id="@+id/btnWithdraw"
                         android:layout_width="0dp"
-                        android:layout_height="wrap_content"
+                        android:layout_height="52dp"
                         android:layout_weight="1"
                         android:text="提现"
                         android:layout_marginStart="8dp"
-                        style="@style/Widget.Material3.Button.OutlinedButton" />
+                        android:textAllCaps="false"
+                        android:textColor="@color/brand_primary"
+                        android:backgroundTint="@color/brand_surface"
+                        app:cornerRadius="12dp"
+                        app:strokeColor="@color/brand_primary"
+                        app:strokeWidth="1dp" />
 
                 </LinearLayout>
 
@@ -113,6 +126,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="交易历史"
+                    android:textColor="@color/brand_text"
                     android:textSize="18sp"
                     android:textStyle="bold"
                     android:padding="16dp" />
@@ -130,7 +144,7 @@
                     android:layout_height="wrap_content"
                     android:text="暂无交易记录"
                     android:textSize="16sp"
-                    android:textColor="@color/xui_config_color_text_content"
+                    android:textColor="@color/brand_text_secondary"
                     android:layout_gravity="center"
                     android:layout_marginTop="32dp"
                     android:visibility="gone" />

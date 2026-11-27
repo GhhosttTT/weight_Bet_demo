@@ -3,14 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/brand_background">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
+        android:background="@color/brand_primary_dark"
+        android:elevation="0dp"
         app:title="提现"
         app:titleTextColor="@android:color/white"
         app:navigationIcon="@drawable/ic_arrow_back" />
@@ -25,7 +26,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="提现金额"
-            android:textSize="24sp"
+            android:textColor="@color/brand_text"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:layout_marginBottom="24dp" />
 
@@ -108,20 +110,30 @@
             android:lineSpacingExtra="4dp"
             android:layout_marginBottom="32dp" />
 
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnConnectOnboarding"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="48dp"
             android:text="设置提现账户"
-            android:layout_marginBottom="12dp" />
+            android:layout_marginBottom="12dp"
+            android:textAllCaps="false"
+            android:textColor="@color/brand_primary"
+            android:backgroundTint="@color/brand_surface"
+            app:cornerRadius="12dp"
+            app:strokeColor="@color/brand_primary"
+            app:strokeWidth="1dp" />
 
         <!-- Withdraw button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnWithdraw"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="确认提现"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/brand_primary"
+            app:cornerRadius="12dp" />
 
         <!-- Loading indicator -->
         <ProgressBar

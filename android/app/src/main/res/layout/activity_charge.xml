@@ -3,14 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="@color/brand_background">
 
     <com.google.android.material.appbar.MaterialToolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
-        android:elevation="4dp"
+        android:background="@color/brand_primary_dark"
+        android:elevation="0dp"
         app:title="充值"
         app:titleTextColor="@android:color/white"
         app:navigationIcon="@drawable/ic_arrow_back" />
@@ -25,7 +26,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="充值金额"
-            android:textSize="24sp"
+            android:textColor="@color/brand_text"
+            android:textSize="28sp"
             android:textStyle="bold"
             android:layout_marginBottom="24dp" />
 
@@ -49,7 +51,7 @@
             android:layout_height="wrap_content"
             android:text="快捷金额"
             android:textSize="14sp"
-            android:textColor="@color/xui_config_color_text_content"
+            android:textColor="@color/brand_text_secondary"
             android:layout_marginBottom="8dp" />
 
         <com.google.android.material.chip.ChipGroup
@@ -100,12 +102,16 @@
             android:layout_marginBottom="32dp" />
 
         <!-- Charge button -->
-        <Button
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCharge"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="56dp"
             android:text="立即充值"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            android:textAllCaps="false"
+            android:textColor="@color/white"
+            android:backgroundTint="@color/brand_primary"
+            app:cornerRadius="12dp" />
 
         <!-- Loading indicator -->
         <ProgressBar

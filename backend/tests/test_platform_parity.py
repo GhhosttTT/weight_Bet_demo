@@ -753,6 +753,21 @@ def test_check_in_history_uses_matching_card_and_empty_state_language():
     assert 'tableView.separatorStyle = .none' in ios
 
 
+def test_payment_forms_use_matching_input_and_primary_action_tokens():
+    android_charge = (ROOT / "android/app/src/main/res/layout/activity_charge.xml").read_text(encoding="utf-8")
+    android_withdraw = (ROOT / "android/app/src/main/res/layout/activity_withdraw.xml").read_text(encoding="utf-8")
+    ios_charge = (ROOT / "ios/WeightLossBetting/UI/Payment/ChargeViewController.swift").read_text(encoding="utf-8")
+    ios_withdraw = (ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewController.swift").read_text(encoding="utf-8")
+
+    assert 'android:background="@color/brand_background"' in android_charge
+    assert 'android:backgroundTint="@color/brand_primary"' in android_charge
+    assert 'android:backgroundTint="@color/brand_primary"' in android_withdraw
+    assert 'app:cornerRadius="12dp"' in android_charge
+    assert 'textField.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios_charge
+    assert 'textField.layer.cornerRadius = AppTheme.CornerRadius.medium' in ios_withdraw
+    assert 'button.backgroundColor = AppTheme.Colors.primary' in ios_withdraw
+
+
 def test_login_google_separator_and_register_copy_match_between_platforms():
     android = ANDROID_LOGIN_LAYOUT.read_text(encoding="utf-8")
     ios = (ROOT / "ios/WeightLossBetting/UI/Auth/LoginViewController.swift").read_text(encoding="utf-8")

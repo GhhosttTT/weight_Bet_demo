@@ -30,6 +30,11 @@ class WithdrawViewController: UIViewController {
         textField.keyboardType = .decimalPad
         textField.borderStyle = .roundedRect
         textField.font = .systemFont(ofSize: 16)
+        textField.backgroundColor = AppTheme.Colors.secondaryBackground
+        textField.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
+        textField.layer.borderWidth = 1
+        textField.layer.cornerRadius = AppTheme.CornerRadius.medium
+        textField.clipsToBounds = true
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -56,9 +61,9 @@ class WithdrawViewController: UIViewController {
         let button = UIButton(type: .system)
         button.setTitle("确认提现", for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 18, weight: .semibold)
-        button.backgroundColor = AppTheme.Colors.success  // 使用绿色表示提现
+        button.backgroundColor = AppTheme.Colors.primary
         button.setTitleColor(.white, for: .normal)
-        button.layer.cornerRadius = 10
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.layer.shadowColor = UIColor.black.cgColor
         button.layer.shadowOffset = CGSize(width: 0, height: 2)
         button.layer.shadowOpacity = 0.15
@@ -162,7 +167,7 @@ class WithdrawViewController: UIViewController {
             withdrawButton.topAnchor.constraint(equalTo: noteLabel.bottomAnchor, constant: 24),  // 减小间距到 24
             withdrawButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             withdrawButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
-            withdrawButton.heightAnchor.constraint(equalToConstant: 50),
+            withdrawButton.heightAnchor.constraint(equalToConstant: 56),
             withdrawButton.bottomAnchor.constraint(equalTo: contentView.bottomAnchor, constant: -24),
             
             loadingIndicator.centerXAnchor.constraint(equalTo: withdrawButton.centerXAnchor),
@@ -189,7 +194,7 @@ class WithdrawViewController: UIViewController {
         button.titleLabel?.font = .systemFont(ofSize: 15, weight: .medium)  // 稍微缩小字体
         button.backgroundColor = AppTheme.Colors.primary.withAlphaComponent(0.1)  // 使用淡蓝色背景
         button.setTitleColor(AppTheme.Colors.primary, for: .normal)  // 蓝色字体
-        button.layer.cornerRadius = 8
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
         button.layer.borderWidth = 1  // 添加边框
         button.layer.borderColor = AppTheme.Colors.primary.withAlphaComponent(0.3).cgColor
         button.addTarget(self, action: #selector(quickAmountButtonTapped(_:)), for: .touchUpInside)

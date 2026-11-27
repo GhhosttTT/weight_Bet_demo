@@ -72,6 +72,19 @@ class WithdrawViewController: UIViewController {
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
     }()
+
+    private let connectButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.setTitle("设置提现账户", for: .normal)
+        button.titleLabel?.font = AppTheme.Fonts.headline()
+        button.backgroundColor = AppTheme.Colors.secondaryBackground
+        button.setTitleColor(AppTheme.Colors.primary, for: .normal)
+        button.layer.cornerRadius = AppTheme.CornerRadius.medium
+        button.layer.borderWidth = 1
+        button.layer.borderColor = AppTheme.Colors.primary.cgColor
+        button.translatesAutoresizingMaskIntoConstraints = false
+        return button
+    }()
     
     private let loadingIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView(style: .medium)
@@ -121,6 +134,7 @@ class WithdrawViewController: UIViewController {
         contentView.addSubview(availableBalanceLabel)
         contentView.addSubview(quickAmountStackView)
         contentView.addSubview(noteLabel)
+        contentView.addSubview(connectButton)
         contentView.addSubview(withdrawButton)
         contentView.addSubview(loadingIndicator)
         
@@ -165,7 +179,12 @@ class WithdrawViewController: UIViewController {
             noteLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             noteLabel.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             
-            withdrawButton.topAnchor.constraint(equalTo: noteLabel.bottomAnchor, constant: 24),  // 减小间距到 24
+            connectButton.topAnchor.constraint(equalTo: noteLabel.bottomAnchor, constant: 20),
+            connectButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
+            connectButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
+            connectButton.heightAnchor.constraint(equalToConstant: 48),
+
+            withdrawButton.topAnchor.constraint(equalTo: connectButton.bottomAnchor, constant: 12),
             withdrawButton.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             withdrawButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -20),
             withdrawButton.heightAnchor.constraint(equalToConstant: 56),
@@ -181,12 +200,7 @@ class WithdrawViewController: UIViewController {
         
         // Add button actions
         withdrawButton.addTarget(self, action: #selector(withdrawButtonTapped), for: .touchUpInside)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(
-            title: "设置提现账户",
-            style: .plain,
-            target: self,
-            action: #selector(connectOnboardingTapped)
-        )
+        connectButton.addTarget(self, action: #selector(connectOnboardingTapped), for: .touchUpInside)
     }
     
     private func createQuickAmountButton(amount: Double) -> UIButton {

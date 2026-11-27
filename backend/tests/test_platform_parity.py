@@ -812,6 +812,16 @@ def test_withdraw_quick_actions_use_material_tokens_instead_of_native_buttons():
     assert "xui_config_color_text_content" not in android
 
 
+def test_withdraw_connect_setup_action_is_inline_on_both_platforms():
+    android = ANDROID_WITHDRAW.read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Payment/WithdrawViewController.swift").read_text(encoding="utf-8")
+    assert 'android:id="@+id/btnConnectOnboarding"' in android
+    assert 'private let connectButton: UIButton' in ios
+    assert 'button.setTitle("设置提现账户", for: .normal)' in ios
+    assert 'connectButton.addTarget(self, action: #selector(connectOnboardingTapped)' in ios
+    assert "navigationItem.rightBarButtonItem" not in ios
+
+
 def test_progress_coach_and_recommendation_items_use_shared_semantic_colors():
     paths = (
         "android/app/src/main/res/layout/activity_progress.xml",

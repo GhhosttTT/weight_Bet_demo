@@ -822,6 +822,17 @@ def test_withdraw_connect_setup_action_is_inline_on_both_platforms():
     assert "navigationItem.rightBarButtonItem" not in ios
 
 
+def test_invite_participant_result_card_exposes_matching_preview_fields():
+    android = (ROOT / "android/app/src/main/res/layout/dialog_invite_friend.xml").read_text(encoding="utf-8")
+    ios = (ROOT / "ios/WeightLossBetting/UI/Plans/InviteViewController.swift").read_text(encoding="utf-8")
+    for label in ("tvFriendName", "tvFriendAge", "tvFriendGender"):
+        assert f'@+id/{label}' in android
+    assert "private var userInfoCard: UIView!" in ios
+    assert 'user.age.map { String($0) }' in ios
+    assert 'user.gender ?? "未设置"' in ios
+    assert "userInfoLabel.bottomAnchor.constraint(equalTo: userInfoCard.bottomAnchor" in ios
+
+
 def test_progress_coach_and_recommendation_items_use_shared_semantic_colors():
     paths = (
         "android/app/src/main/res/layout/activity_progress.xml",

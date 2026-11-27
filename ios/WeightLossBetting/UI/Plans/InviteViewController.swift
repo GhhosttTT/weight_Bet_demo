@@ -12,6 +12,7 @@ class InviteViewController: UIViewController {
     private var inviteButton: UIButton!
     private var resultLabel: UILabel!
     private var userInfoLabel: UILabel!
+    private var userInfoCard: UIView!
     private var loadingIndicator: UIActivityIndicatorView!
     
     private var searchedUserEmail: String?  // 存储搜索到的用户邮箱
@@ -55,7 +56,8 @@ class InviteViewController: UIViewController {
         // Search user label
         let searchLabel = UILabel()
         searchLabel.text = "搜索用户"
-        searchLabel.font = .systemFont(ofSize: 16, weight: .medium)
+        searchLabel.font = AppTheme.Fonts.headline()
+        searchLabel.textColor = AppTheme.Colors.label
         searchLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(searchLabel)
         
@@ -63,6 +65,12 @@ class InviteViewController: UIViewController {
         searchTextField = UITextField()
         searchTextField.placeholder = "请输入好友的邮箱地址"
         searchTextField.borderStyle = .roundedRect
+        searchTextField.font = AppTheme.Fonts.body()
+        searchTextField.backgroundColor = AppTheme.Colors.secondaryBackground
+        searchTextField.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
+        searchTextField.layer.borderWidth = 1
+        searchTextField.layer.cornerRadius = AppTheme.CornerRadius.medium
+        searchTextField.clipsToBounds = true
         searchTextField.autocapitalizationType = .none
         searchTextField.keyboardType = .emailAddress
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -71,8 +79,8 @@ class InviteViewController: UIViewController {
         // Search button
         searchButton = UIButton(type: .system)
         searchButton.setTitle("搜索", for: .normal)
-        searchButton.titleLabel?.font = .boldSystemFont(ofSize: 16)
-        searchButton.backgroundColor = AppTheme.Colors.success
+        searchButton.titleLabel?.font = AppTheme.Fonts.headline()
+        searchButton.backgroundColor = AppTheme.Colors.primary
         searchButton.setTitleColor(.white, for: .normal)
         searchButton.layer.cornerRadius = 10
         searchButton.addTarget(self, action: #selector(searchTapped), for: .touchUpInside)
@@ -95,7 +103,15 @@ class InviteViewController: UIViewController {
         userInfoLabel.textColor = AppTheme.Colors.secondaryLabel
         userInfoLabel.numberOfLines = 0
         userInfoLabel.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(userInfoLabel)
+
+        userInfoCard = UIView()
+        userInfoCard.backgroundColor = AppTheme.Colors.secondaryBackground
+        userInfoCard.layer.cornerRadius = AppTheme.CornerRadius.planCard
+        userInfoCard.layer.borderWidth = 1
+        userInfoCard.layer.borderColor = AppTheme.Colors.separator.withAlphaComponent(0.7).cgColor
+        userInfoCard.translatesAutoresizingMaskIntoConstraints = false
+        userInfoCard.addSubview(userInfoLabel)
+        view.addSubview(userInfoCard)
         
         // Invite button (initially hidden)
         inviteButton = UIButton(type: .system)
@@ -139,7 +155,15 @@ class InviteViewController: UIViewController {
             userInfoLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             userInfoLabel.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            inviteButton.topAnchor.constraint(equalTo: userInfoLabel.bottomAnchor, constant: 30),
+        userInfoCard.topAnchor.constraint(equalTo: resultLabel.bottomAnchor, constant: 12),
+        userInfoCard.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+        userInfoCard.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+        userInfoLabel.topAnchor.constraint(equalTo: userInfoCard.topAnchor, constant: 16),
+        userInfoLabel.leadingAnchor.constraint(equalTo: userInfoCard.leadingAnchor, constant: 16),
+        userInfoLabel.trailingAnchor.constraint(equalTo: userInfoCard.trailingAnchor, constant: -16),
+        userInfoLabel.bottomAnchor.constraint(equalTo: userInfoCard.bottomAnchor, constant: -16),
+
+        inviteButton.topAnchor.constraint(equalTo: userInfoCard.bottomAnchor, constant: 20),
             inviteButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             inviteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             inviteButton.heightAnchor.constraint(equalToConstant: 50),
@@ -236,7 +260,9 @@ class InviteViewController: UIViewController {
                     self?.resultLabel.text = "✅ 找到用户"
                     self?.resultLabel.textColor = AppTheme.Colors.success
                     let nicknameText = user.nickname ?? "(未设置)"
-                    self?.userInfoLabel.text = "昵称：\(nicknameText)\n\n请确认这是您要邀请的好友"
+                    let ageText = user.age.map { String($0) } ?? "未设置"
+                    let genderText = user.gender ?? "未设置"
+                    self?.userInfoLabel.text = "昵称：\(nicknameText)\n年龄：\(ageText)\n性别：\(genderText)\n\n请确认这是您要邀请的好友"
                     self?.inviteButton.isHidden = false
                     self?.searchedUserEmail = user.email ?? email
                     self?.searchedUserId = user.id
